@@ -53,9 +53,11 @@ def osu_auth():
 def osu_diff_get(beatmap_id: int, session: requests.session):
     
     if (check_diff_exist(beatmap_id)):
+        print("skipping: " + str(beatmap_id))
         return
-    
+    sleep(1)
     r = session.get("https://osu.ppy.sh/osu/" + beatmap_id)
+    r.raise_for_status()
     open(doc_dir + 'difficulties\\' + beatmap_id + '.osu', 'wb+').write(r.content)
     
 # ---
@@ -80,10 +82,13 @@ def main():
     id_list = osu_beatmap_id_get()
     random.seed(datetime.now())
     random.shuffle(id_list)
-    id_list = id_list[:3]
+    
+    id_counter = 0
+    id_list_len = len(id_list)
+    
     for map_id in id_list:
-        sleep(2)
-        print("get: " + map_id)
+        id_counter += 1
+        print("get: " + map_id + "\t|\t" + str(id_counter) + " out of " + str(id_list_len))
         osu_diff_get(map_id, session)
         
 if __name__== "__main__":
