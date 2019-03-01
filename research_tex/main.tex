@@ -7,7 +7,7 @@
 	In this document, we will be discussing methods of obtaining a credible way of classifying difficulty in VSRG maps. We will first establish what makes a map difficult, then we build from there!
 	
 \part{Define Difficulty}
-\section{A Difficult Map}
+\section{Difficulty in Playing}
 
 	What makes a map difficult, what is a difficult map? Could it be the following?
 	The map was difficult because of ...
@@ -61,46 +61,53 @@ We can further develop this algorithm to estimate what the difficulties would be
 
 In order to compare $A$ (Accuracy) and $P$ (Patterning) we need to change our perspective, instead of looking at $A$ as a number, we will look at it as a vector. Whereby we extract player data from provided replays.
 
+\subsubsection{GETting beatmap\_id data from osu!API}
+
+Using osu!API, I was able to extract all \textbf{beatmap IDs} where $ Star Rating \leq 3.0 $ as any maps below this $Star Rating$ will usually only have \textbf{SS} scores, which will prove to be redundant in analysis.
+
+With this list, we are able to know what maps we are tackling in the following sections.
+
 \subsubsection{GETting Replay data from osu!API}
 
 osu!API provides us with essential data, including the replay file itself. Not going into detail, we are able to extract all key taps (including releases) of the player during the play.
 
-This is the Python code I used to extract replay from the osu!API
+I will provide python code I have used in the GitHub Repository or in the Annex of the document.
 
-\begin{lstlisting}[language=Python]
+The format we get from running the python code goes as follows
 
-def get_replay(beatmap_id: int, mode: int, user: int):
-    param = {
-            "k": str(api_key),
-            "b": beatmap_id,
-            "m": mode,
-            "u": user
-            }
-    api_url = base_api_url + "get_replay"
-    response = requests.get(api_url, params = param)
-    json_data = json.loads(response.text)
-    
-    # We will decode the content here
-    # But we check the status code before proceeding
-    time.sleep(6) # Pause
-    
-    # If response is not 200
-    if (response.status_code != 200):
-        return "bad request", response.status_code
-    
-    decoded = base64.b64decode(json_data["content"])
-    decompressed = str(lzma.decompress(decoded))[:-2]
-    
-    # We split it into a nested list
-    output = [x.split("|") for x in decompressed.split(",")]
-    
-    # Drop the last 2 useless elements    
-    [x.pop(2) for x in output]
-    [x.pop(2) for x in output]
-    
-    return output, response.status_code
-    
-\end{lstlisting}
+$$ action_{replay} = \lbrace(offset_1, action_1), (offset_2, action_2), ... , (offset_n, action_n)\rbrace $$
+
+Whereby, 
+$$n \in \lbrace-9, -8, ... , -2, -1, 1, 2, ... , 8, 9\rbrace$$
+
+$offset$ is when the $action$ happens. For $action$, $-n$ means the key \textbf{n} is released, $n$ means the key \textbf{n} is pressed.
+
+We will save this data in a file with $<beatmap\_id>.acr$ extension.
+
+\subsubsection{Downloading Difficulties from web crawling}
+
+In order to make use of $Action_{replay}$, we need to obtain $Action_{difficulty}$. Using python, we can download $.osu$ (osu! difficulty file extension) using the format below with authentication:
+
+$$https://osu.ppy.sh/osu/<beatmap\_id>$$
+
+We save all of these using $<beatmap\_id>.osu$ file naming system.
+
+\subsubsection{Converting Difficulties to Action format}
+
+As to be aligned with $action_{replay}$ format, we need to convert all difficulties to $action_{difficulty}$. This can be done with a python script.
+
+However, we should note that maps with \textbf{variable scroll speeds} will cause anomalies in our calculation, so we need to further define what maps defy a threshold we set to remove these from our calculations.
+
+\paragraph{An SV Threshold}
+A simple way of tackling this issue would be to skip all beatmaps that has any of the following:
+\begin{enumerate}
+	\item Any \textbf{slight} SV Change $ 0.97 \leq TP_{SV} \leq 1.03 $
+	\item Any BPM Change
+\end{enumerate}
+
+\section{Difficulty in Mapping}
+
+
 
 
 
