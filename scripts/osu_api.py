@@ -62,7 +62,7 @@ def get_replay(beatmap_id: int, mode: int, user: int):
     [x.pop(2) for x in output]
     [x.pop(2) for x in output]
     
-    return output, response.status_code
+    return convert_replay_data(output), response.status_code
 
 def convert_replay_data(replay_data: list):
     
@@ -120,7 +120,6 @@ def convert_replay_data(replay_data: list):
         timestamp += int(step[0])
         
         curr_action = decode_key_action(int(step[1]))
-        
         diff_action = get_action_difference(prev_action, curr_action)
         
         # Skip if there's no change in action
@@ -132,11 +131,17 @@ def convert_replay_data(replay_data: list):
         if (timestamp > 0):
             for key in diff_action:
                 output.append([timestamp, key])
-        
+                
         prev_action = curr_action
   
-    print('otpt: {}'.format(output))
+#    print('otpt: {}'.format(output))
+    return output
 
-#cont, code = get_replay(1217397, 3, 4728433)
-#convert_replay_data(cont)
+
+# Granat - Drop, Player: GH_CHAIKA
+# Map: https://osu.ppy.sh/beatmapsets/281349#mania/647965
+#cont, code = get_replay(647965, 3, 2462317)
+#
+#print(cont)
+
 
