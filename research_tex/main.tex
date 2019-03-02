@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage[left=2cm, right=5cm, top=2cm]{geometry}
 \usepackage{listings}
+\usepackage{amsmath}
+\usepackage{MnSymbol}
 \begin{document}
 	ppshift machine learning
 	
@@ -250,14 +252,14 @@ Consider the case, with \textbf{Strain Shift}
 \begin{center}
 	\begin{tabular}{|c|c|c|c|} 
 	\hline
-	2500 & 0 & 0 		& 0 	\\ \hline
-	2000 & 1 & $SS_H$ 	& $SS_B$\\	\hline
-	1500 & 1 & $SS_H$ 	& $SS_B$\\	\hline
-	1000 & 1 & $SS_H$ 	& $SS_B$\\	\hline
-	 500 & 1 & $SS_H$ 	& $SS_B$\\	\hline
-	   0 & 1 & $SS_H$ 	& $SS_B$\\	\hline
-    -500 & 0 & 0 		& 0 	\\	\hline
-   -1000 & 0 & 0 		& 0 	\\
+	2500 & 				  & 0 		& 0 	\\ \hline
+	2000 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
+	1500 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
+	1000 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
+	 500 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
+	   0 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
+    -500 & 				  & 0 		& 0 	\\	\hline
+   -1000 & 				  & 0 		& 0 	\\
 	\hline
 	Offset(ms) & k=1 & k=2 & k=3\\ 
 	\hline
@@ -270,7 +272,7 @@ $$density_{1000}^1 =
 (\Delta_{(1000,0)}^{1}) +
 (\Delta_{(1000,500)}^{1}) +
 (\Delta_{(1000,1500)}^{1}) +
-(\Delta_{(1000,2000)}^{1}), \sigma = 2$$
+(\Delta_{(1000,2000)}^{1})$$
 
 $$density_{1000}^1 =
 \frac{1}{1000} +
@@ -282,14 +284,57 @@ $$density_{1000}^2 =
 (\Delta_{(1000,0)}^{2}) +
 (\Delta_{(1000,500)}^{2}) +
 (\Delta_{(1000,1500)}^{2}) +
-(\Delta_{(1000,2000)}^{2}), \sigma = 2$$
+(\Delta_{(1000,2000)}^{2})$$
 
+$$ density_{1000}^2 = 
+(\frac{weight_{SSh}}{1000}) +
+(\frac{weight_{SSh}}{500}) +
+(\frac{weight_{SSh}}{500}) +
+(\frac{weight_{SSh}}{1000}) =
+\frac{3 * weight_{SSh}}{250} $$
 
+$$ density_{1000}^3 =
+\frac{3 * weight_{SSb}}{250} $$
 
+$$ density_{1000} =
+density_{1000}^1 + density_{1000}^2 + density_{1000}^3 =
+0.006 +
+\frac{3 * weight_{SSh}}{250} + \frac{3 * weight_{SSb}}{250} $$
 
+\subsection{Strain Generalization}
 
+In the case where we want to find $density_n$, where, n is the offset index, k is key count.
 
+\[ 	
+\begin{bmatrix}
+	weight_{(n+\sigma,1)} & weight_{(n+\sigma,2)} & \dots  & weight_{(n+\sigma,k)} \\
+	\vdots & \vdots & \udots & \vdots \\
+	weight_{(n+1,1)} & weight_{(n+1,2)} & \dots  & weight_{(n+1,k)} \\
+	weight_{(n,1)} & weight_{(n,2)} & \dots  & weight_{(n,k)} \\
+    weight_{(n-1,1)} & weight_{(n-1,2)} & \dots  & weight_{(n-1,k)} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    weight_{(n-\sigma,1)} & weight_{(n-\sigma,2)} & \dots  & weight_{(n-\sigma,k)}
+\end{bmatrix}
+\]
+$$ * $$
+\[
+\begin{bmatrix}
+	offset_{n+\sigma} & \dots & offset_{n+1} & offset_{n} & offset_{n-1} & \dots & offset_{n-\sigma} 
+\end{bmatrix}
+\]
+$$ = $$
+\[
+\begin{bmatrix}
+	density_{n+\sigma} & \dots & density_{n+1} & density_{n} & density_{n-1} & \dots & density_{n-\sigma} 
+\end{bmatrix}
+\]
 
+$$ \sum
+\begin{bmatrix}
+	density_{n+\sigma} & \dots & density_{n+1} & density_{n} & density_{n-1} & \dots & density_{n-\sigma} 
+\end{bmatrix}
+= density_n
+$$ 
 
 
 
