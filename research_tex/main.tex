@@ -153,7 +153,7 @@ $$ difficulty := \lbrace(offset_1, difficulty_1), (offset_2, difficulty_2), ...,
 
 Whereby we estimate difficulty from the map itself:
 
-$$ difficulty \approx reading + \sum_{n=1}^{keys} \left( density_n + strain_n \right) + ... $$
+$$ difficulty \approx reading + \sum_{k=1}^{keys} \left( density_k + strain_k \right) + ... $$
 
 There are more factors (denoted by $...$) that contribute to difficulty, but we will regard them as noise in this research and fine tune this equation later.
 
@@ -170,11 +170,21 @@ $$ reading_{(i,j)} = \frac{\sum_{i}^{j} \left( note + (longNote_{head} + longNot
 Where,
 
 \paragraph{$i$} is the initial offset
-\paragraph{$j$} is the end offset
+\paragraph{$j$} is the end offset. $j - i$ will be a separate hyperparameter.
 \paragraph{$\Gamma$} is the hyperparameter for how difficult a long note is to read
 
 We will not take into consideration the length of $note_{long}$
 
+\subsection{Density}
+
+Considering the notes on the same column
+$$ \lbrace a, b, n, d, e \rbrace $$
+$$ \Delta_{nx} = \frac{1}{n - x}$$
+$$ density_{k} = \Delta_{na}^2 + \Delta_{nb} + \Delta_{nd} + \Delta_{ne}^2  $$
+
+\paragraph{$\Delta_{nx}$} will be the the inverse of the (ms) distance between notes $n$ and $x$. Notes that are further away will be penalized with a square. However, we will only work with a range of 2, front and back, as  $\Delta_{nx}^3$ will be insignificantly small in most cases.
+
+ 
 
 
 
