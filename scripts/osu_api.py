@@ -16,6 +16,7 @@ import operator
 base_api_url = "https://osu.ppy.sh/api/"
 api_key_url = open("D:\\Data Documents\\auth\\osu_api_key.txt", "r")
 api_key = api_key_url.readline()
+api_key_url.close()
 
 def get_scores(beatmap_id: int, mode: int, limit: int):
     param = {
