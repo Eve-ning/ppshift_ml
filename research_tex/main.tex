@@ -153,19 +153,28 @@ $$ difficulty := \lbrace(offset_1, difficulty_1), (offset_2, difficulty_2), ...,
 
 Whereby we estimate difficulty from the map itself:
 
-$$ difficulty \approx reading + \sum_{k=1}^{keys} \left( density_k + strain_k \right) + ... $$
+$$ difficulty \approx reading + \sum_{k=1}^{keys} \left(strain_k \right) + ... $$
 
 There are more factors (denoted by $...$) that contribute to difficulty, but we will regard them as noise in this research and fine tune this equation later.
 
 \paragraph{Reading} This denotes how hard is it to read all the patterns on the screen. We can draw similarities between this and density, however this looks beyond note density and estimates the difficulty of reading different similar density patterns.
 
+\paragraph{Strain} This is reliant on $density$ whereby continuous high values of $ density$ will result in a high $strain$. This has an additional hyperparameter, $decay$, where it denotes how fast the player can recover from $strain_n$. Finger $strain$ on the same hand will likely affect the other $strain$ values of the other fingers.
+
 \paragraph{Density} This focuses on the imminent density of the offset (contrary to strain), whereby it disregards the global trends of patterns.
 
-\paragraph{Strain} This is reliant on $density$ whereby continuous high values of $ density$ will result in a high $strain$. This has an additional hyperparameter, $decay$, where it denotes how fast the player can recover from $strain_n$. Finger $strain$ on the same hand will likely affect the other $strain$ values of the other fingers.
+\subsection{Note Type Weights}
+
+This will define the \textbf{weightages} of each note type.
+\paragraph{$weight_{NN}$} defines for normal notes
+\paragraph{$weight_{LNh}$} defines for long notes heads
+\paragraph{$weight_{LNt}$} defines for long notes tails
+\paragraph{$weight_{SSh}$} defines for \textbf{strain shift} for hands \textbf{(explained later)}
+\paragraph{$weight_{SSb}$} defines for \textbf{strain shift} for body \textbf{(explained later)}
 
 \subsection{Reading}
 
-$$ reading_{(i,j)} = \frac{\sum_{i}^{j} \left( note + (longNote_{head} + longNote_{tail}) * \Gamma) \right)}{j - i}$$
+$$ reading_{(i,j)} = \frac{\sum_{i}^{j} \left(weight_{NN} + (weight_{LNh} + weight_{LNt}) * \Gamma) \right)}{j - i}$$
 
 Where,
 
@@ -177,14 +186,115 @@ We will not take into consideration the length of $note_{long}$
 
 \subsection{Density}
 
-Considering the notes on the same column
-$$ \lbrace a, b, n, d, e \rbrace $$
-$$ \Delta_{nx} = \frac{1}{n - x}$$
-$$ density_{k} = \Delta_{na}^2 + \Delta_{nb} + \Delta_{nd} + \Delta_{ne}^2  $$
+We will look into density before strain as it's derived from this.
 
-\paragraph{$\Delta_{nx}$} will be the the inverse of the (ms) distance between notes $n$ and $x$. Notes that are further away will be penalized with a square. However, we will only work with a range of 2, front and back, as  $\Delta_{nx}^3$ will be insignificantly small in most cases.
+Considering the notes on the $k$ column
+$$ \lbrace n-2, n-1, n, n+1, n+2 \rbrace $$
+$$ \Delta_{nx}^k = \frac{1}{n - x}$$
+$$ density_n^k =
+\sum_{N=n-\sigma}^{n+\sigma}
+\left(
+\Delta_{nN}^k
+\right)$$
 
- 
+So for $\sigma = 2$ and 
+$$ column_k := \lbrace a, b, n, d, e\rbrace$$
+$$ density_n^k = \Delta_{na}^k + \Delta_{nb}^k + \Delta_{nd}^k + \Delta_{ne}^k $$
+
+\paragraph{$\Delta_{nx}^k$} will be the the inverse of the (ms) distance between notes $n$ and $x$ on column $k$. Notes that are further away will be penalized with a square. 
+
+\paragraph{$\sigma$} defines the range, front and back of the search. Higher sigma may prove to be useless with further $\Delta_{nx}^k$ being too small.
+
+
+\subsection{Strain}
+
+This will work in relationship with $density$, whereby a $strain$ is a cumulative function of $density$ with a \textbf{linear decay function}.
+
+Notes:
+\begin{enumerate}
+	\item Better players have \textbf{higher decay gradients}
+	\item If $decay > density$, $strain$ will \textbf{decrease}
+	\item If $decay < density$, $strain$ will \textbf{increase}
+	\item There will be a point where $strain$ is high enough to affect physical performance, indirectly affecting accuracy.
+\end{enumerate}
+
+\subsubsection{Strain Shift}
+
+Strain will not only affect one finger, it will affect the hand and both after time, just on a smaller scale
+
+\paragraph{Hand} We will denote the strain shift hyperparameter of one finger to another on the same hand to be $SS_H$
+\paragraph{Body} Likewise, for body, we will denote as $SS_B$
+
+\subsubsection{Strain Example}
+
+Consider the case, without \textbf{Strain Shift}
+$$ Where, weight_{NN} = 1, \sigma = 2 $$
+\begin{center}
+	\begin{tabular}{|c|c|c|c|c|c|c|} 
+	\hline
+	2500 & 0 			& 0 & 0 &       & 0.022 & 0.016\\ \hline
+	2000 & $weight_{NN}$& 0 & 0 & 0.003 & 0.022 & 0.017\\	\hline
+	1500 & $weight_{NN}$& 0 & 0 & 0.005 & 0.019 & 0.015\\	\hline
+	1000 & $weight_{NN}$& 0 & 0 & 0.006 & 0.014 & 0.011\\	\hline
+	 500 & $weight_{NN}$& 0 & 0 & 0.005 & 0.008 & 0.006\\	\hline
+	   0 & $weight_{NN}$& 0 & 0 & 0.003 & 0.003 & 0.002\\	\hline
+    -500 & 0 			& 0 & 0 & 		& 0	 	& 0	\\	\hline
+   -1000 & 0 			& 0 & 0 & 		& 0	 	& 0	\\
+	\hline
+	Offset(ms) & k=1 & k=2 & k=3 & $\approx Density$ & Strain (dec=0) & Strain (dec=0.001) \\ 
+	\hline
+\end{tabular}
+\end{center}
+
+Consider the case, with \textbf{Strain Shift}
+\begin{center}
+	\begin{tabular}{|c|c|c|c|} 
+	\hline
+	2500 & 0 & 0 		& 0 	\\ \hline
+	2000 & 1 & $SS_H$ 	& $SS_B$\\	\hline
+	1500 & 1 & $SS_H$ 	& $SS_B$\\	\hline
+	1000 & 1 & $SS_H$ 	& $SS_B$\\	\hline
+	 500 & 1 & $SS_H$ 	& $SS_B$\\	\hline
+	   0 & 1 & $SS_H$ 	& $SS_B$\\	\hline
+    -500 & 0 & 0 		& 0 	\\	\hline
+   -1000 & 0 & 0 		& 0 	\\
+	\hline
+	Offset(ms) & k=1 & k=2 & k=3\\ 
+	\hline
+\end{tabular}
+\end{center}
+
+It's hard to include the calculations in the table, so we'll look at $density_{(1,1000)}$, we will also elaborate on the calculations without strain shift.
+
+$$density_{1000}^1 =
+(\Delta_{(1000,0)}^{1}) +
+(\Delta_{(1000,500)}^{1}) +
+(\Delta_{(1000,1500)}^{1}) +
+(\Delta_{(1000,2000)}^{1}), \sigma = 2$$
+
+$$density_{1000}^1 =
+\frac{1}{1000} +
+\frac{1}{500} +
+\frac{1}{500} +
+\frac{1}{1000} = 0.006$$
+
+$$density_{1000}^2 = 
+(\Delta_{(1000,0)}^{2}) +
+(\Delta_{(1000,500)}^{2}) +
+(\Delta_{(1000,1500)}^{2}) +
+(\Delta_{(1000,2000)}^{2}), \sigma = 2$$
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
