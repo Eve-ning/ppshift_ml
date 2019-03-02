@@ -25,24 +25,28 @@ def read_hit_object(ho: str, keys: int):
     
     return offset, offset_end, column
 
-# Saves difficulty as .osus (osu simple)
+# Saves difficulty as .osuho/.osutp (osu simple <osus>)
 def save_osu_diff(ho_list: list, tp_list: list, beatmap_id: int):
-    beatmap_file = open(diff_dir + "conversions\\osus\\" + str(beatmap_id) + ".osus", "w+", encoding="utf-8")
+    beatmap_file_tp = open(diff_dir + "conversions\\osutp\\" + str(beatmap_id) + ".osutp", "w+", encoding="utf-8")
     
     for tp in tp_list:
         tpj = ",".join(tuple(map(str,tp)))
-        beatmap_file.write("TP," + tpj + "\n")
+        beatmap_file_tp.write(tpj + "\n")
+      
+    beatmap_file_tp.close()
+    
+    beatmap_file_ho = open(diff_dir + "conversions\\osuho\\" + str(beatmap_id) + ".osuho", "w+", encoding="utf-8")
         
     for ho in ho_list:
         hoj = ",".join(tuple(map(str,ho)))
-        beatmap_file.write("HO," + hoj + "\n")
+        beatmap_file_ho.write(hoj + "\n")
         
-    beatmap_file.close()
+    beatmap_file_ho.close()
     
 # Checks if the convert already exists
 def check_osus_exist(beatmap_id: int):
     
-    files = os.listdir(diff_dir + "conversions\\osus")
+    files = os.listdir(diff_dir + "conversions\\osuho")
     beatmap_id_w_ext = str(beatmap_id) + '.osus'
     return beatmap_id_w_ext in files
     
