@@ -107,6 +107,7 @@ def parse_osu_diff(beatmap_id: int):
     
 def main():
 
+    # Get all diff id from the dir
     files = os.listdir(diff_dir)
     files_len = len(files)
     files_counter = 0
@@ -118,6 +119,7 @@ def main():
         if (not ".osu" in f):
             continue
         
+        # Extract Ids
         beatmap_id = str(f.split(".")[0])
         print("get: " + str(beatmap_id) + "\t|\t" + str(files_counter) + " out of " + str(files_len))
         
