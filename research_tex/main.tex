@@ -59,7 +59,7 @@ We can further develop this algorithm to estimate what the difficulties would be
 
 \subsection{Replay data to actions}
 
-In order to compare $A$ (Accuracy) and $P$ (Patterning) we need to change our perspective, instead of looking at $A$ as a number, we will look at it as a vector. Whereby we extract player data from provided replays.
+In order to compare $accuracy$ and $patterning$ we need to change our perspective, instead of looking at $accuracy$ as a number, we will look at it as a vector. Whereby we extract player data from provided replays.
 
 \subsubsection{GETting beatmap\_id data from osu!API}
 
@@ -113,7 +113,7 @@ After skipping beatmaps, we will grab all remaining $.osu$ and convert them to $
 
 \subsection{Mapping $action_{replay}$ to $action_{difficulty}$}
 
-This is the last essential step to find out $A$ (Accuracy) as a vector. We will match all similar actions in their respective columns together.
+This is the last essential step to find out $accuracy$ as a vector. We will match all similar actions in their respective columns together.
 
 There are a few things we need to take note of when matching:
 \begin{enumerate}
@@ -145,8 +145,36 @@ So accuracy will only span:
 $$ (Miss) 0 \leq accuracy_n \leq (Perfect) 1 $$
 $$ deviation_n \in [0, 1, 2, ..., 99, 100] $$
 
+\section{Difficulty from Patterning}
 
-\section{Difficulty in Mapping}
+We turn our attention to how we can figure out difficulty from the map itself, the expected output we want would be:
+
+$$ difficulty := \lbrace(offset_1, difficulty_1), (offset_2, difficulty_2), ..., (offset_n, difficulty_n)\rbrace $$
+
+Whereby we estimate difficulty from the map itself:
+
+$$ difficulty \approx reading + \sum_{n=1}^{keys} \left( density_n + strain_n \right) + ... $$
+
+There are more factors (denoted by $...$) that contribute to difficulty, but we will regard them as noise in this research and fine tune this equation later.
+
+\paragraph{Reading} This denotes how hard is it to read all the patterns on the screen. We can draw similarities between this and density, however this looks beyond note density and estimates the difficulty of reading different similar density patterns.
+
+\paragraph{Density} This focuses on the imminent density of the offset (contrary to strain), whereby it disregards the global trends of patterns.
+
+\paragraph{Strain} This is reliant on $density$ whereby continuous high values of $ density$ will result in a high $strain$. This has an additional hyperparameter, $decay$, where it denotes how fast the player can recover from $strain_n$. Finger $strain$ on the same hand will likely affect the other $strain$ values of the other fingers.
+
+\subsection{Reading}
+
+$$ reading_{(i,j)} = \frac{\sum_{i}^{j} \left( note + (longNote_{head} + longNote_{tail}) * \Gamma) \right)}{j - i}$$
+
+Where,
+
+\paragraph{$i$} is the initial offset
+\paragraph{$j$} is the end offset
+\paragraph{$\Gamma$} is the hyperparameter for how difficult a long note is to read
+
+We will not take into consideration the length of $note_{long}$
+
 
 
 
