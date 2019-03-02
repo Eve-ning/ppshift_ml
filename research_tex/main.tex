@@ -153,9 +153,9 @@ We turn our attention to how we can figure out difficulty from the map itself, t
 
 $$ difficulty := \lbrace(offset_1, difficulty_1), (offset_2, difficulty_2), ..., (offset_n, difficulty_n)\rbrace $$
 
-Whereby we estimate difficulty from the map itself:
+Whereby we estimate difficulty at offset \textbf{n} from the map itself:
 
-$$ difficulty \approx reading + \sum_{k=1}^{keys} \left(strain_k \right) + ... $$
+$$ difficulty_n \approx reading_n + \sum_{k=1}^{keys} \left(strain_k \right) + ... $$
 
 There are more factors (denoted by $...$) that contribute to difficulty, but we will regard them as noise in this research and fine tune this equation later.
 
@@ -176,12 +176,14 @@ This will define the \textbf{weightages} of each note type.
 
 \subsection{Reading}
 
-$$ reading_{(i,j)} = \frac{\sum_{i}^{j} \left(weight_{NN} + (weight_{LNh} + weight_{LNt}) * \Gamma) \right)}{j - i}$$
+$$ reading_{(n,n+\theta)} = 
+\frac{ count(NN) + \left[ count(LNh) + count(LNt)\right] * \Gamma }{\theta}
+= \lbrace n \leq offset \leq (n+ \theta) \rbrace$$
 
 Where,
 
-\paragraph{$i$} is the initial offset
-\paragraph{$j$} is the end offset. $j - i$ will be a separate hyperparameter.
+\paragraph{$n$} is the initial offset
+\paragraph{$\theta$} is the hyperparameter for length.
 \paragraph{$\Gamma$} is the hyperparameter for how difficult a long note is to read
 
 We will not take into consideration the length of $note_{long}$
@@ -253,11 +255,11 @@ Consider the case, with \textbf{Strain Shift}
 	\begin{tabular}{|c|c|c|c|} 
 	\hline
 	2500 & 0			  & 0 		& 0 	\\ \hline
-	2000 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
-	1500 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
-	1000 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
-	 500 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
-	   0 & $weight_{SSh}$ & $SS_H$ 	& $SS_B$\\	\hline
+	2000 & $weight_{NN}$  & $weight_{SSh}$ 	& $weight_{SSb}$\\	\hline
+	1500 & $weight_{NN}$  & $weight_{SSh}$ 	& $weight_{SSb}$\\	\hline
+	1000 & $weight_{NN}$  & $weight_{SSh}$ 	& $weight_{SSb}$\\	\hline
+	 500 & $weight_{NN}$  & $weight_{SSh}$ 	& $weight_{SSb}$\\	\hline
+	   0 & $weight_{NN}$  & $weight_{SSh}$ 	& $weight_{SSb}$\\	\hline
     -500 & 0			  & 0 		& 0 	\\	\hline
    -1000 & 0			  & 0 		& 0 	\\
 	\hline
@@ -336,8 +338,29 @@ $$ \sum
 = density_n
 $$ 
 
-\subsection{Strain Generalization}
+From here, we can calculate the strain by running the through a python code.
 
+\subsection{Assigning Hyperparameters}
+
+In this section alone, we have used quite a few hyperparameters. To recap:
+
+\paragraph{(Reading) $\theta$} is the hyperparameter for reading length.
+\paragraph{(Reading) $\Gamma$} is the hyperparameter for how difficult a long note is to read
+
+\paragraph{(Density) $\sigma$} defines the range, front and back of the density search. Higher sigma may prove to be useless with further $\Delta_{nx}^k$ being too small.
+
+\paragraph{(Density) $weight_{NN}$} defines for normal notes
+\paragraph{(Density) $weight_{LNh}$} defines for long notes heads
+\paragraph{(Density) $weight_{LNt}$} defines for long notes tails
+\paragraph{(Density) $weight_{SSh}$} defines for \textbf{strain shift} for hands
+\paragraph{(Density) $weight_{SSb}$} defines for \textbf{strain shift} for body 
+
+Now what we need to do is to assign a reasonable values to these, and run the results to find our:
+$$ difficulty := \lbrace(offset_1, difficulty_1), (offset_2, difficulty_2), ..., (offset_n, difficulty_n)\rbrace $$
+
+Whereby we estimate difficulty at offset \textbf{n} from the map itself:
+
+$$ difficulty_n \approx reading_n + \sum_{k=1}^{keys} \left(strain_k \right) $$
 
 
 
