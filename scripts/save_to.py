@@ -14,13 +14,17 @@ class dirs:
     dir_acd = dir_conv + "acd\\"
     dir_osuho = dir_conv + "osuho\\"
     dir_osutp = dir_conv + "osutp\\"
+    dir_plyrid = dir_conv + "plyrid\\"
 
 
-def diff_directory(path: dirs, data_list: list, filename: str, extension: str):
+def diff_directory(path: dirs, data_list: list, filename: str, extension: str, join: bool = True):
     beatmap_file = open(path + filename + "." + extension, "w+", encoding="utf-8")
     
     for data in data_list:
-        dataj = ",".join(tuple(map(str, data)))
+        if (join == True):
+            dataj = ",".join(tuple(map(str, data)))
+        else:  
+            dataj = data
         beatmap_file.write(dataj + "\n")
       
     beatmap_file.close()
@@ -36,7 +40,16 @@ def exists(path: dirs, filename: str):
 
     return exists_flag
 
-
-
-print(exists(dirs.dir_acd,str(429552)))
-print(exists(dirs.dir_acd,str(429553)))
+# =============================================================================
+# def custom_func():
+#     ids = [x.split('.')[0] for x in os.listdir(dirs.dir_plyrid)]
+#     acds = [x.split('.')[0] for x in os.listdir(dirs.dir_acd)]
+#     
+#     for id_ in ids:
+#         if (id_ not in acds):
+#             idf = open(dirs.dir_plyrid + id_ + ".plyrid", "w+")
+#             idf.write("999" * 99)
+#             
+#             
+# custom_func()
+# =============================================================================
