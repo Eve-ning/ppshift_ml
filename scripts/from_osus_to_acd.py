@@ -6,10 +6,7 @@ Created on Sat Mar  2 20:02:04 2019
 """
 
 import os
-
-osus_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\difficulties\\conversions\\"
-osuho_dir = osus_dir + "osuho\\"
-osutp_dir = osus_dir + "osutp\\"
+import save_to
 
 # Returns a boolean on if it's within threshold
 def within_manipulation_threshold(bpm_list: list, sv_list: list):
@@ -53,24 +50,8 @@ def osuho_to_acd(osuho: list):
     
     return acd;
 
-def save_acd(acd_list: list, beatmap_id: int):
-    beatmap_file_acd = open(osus_dir + "acd\\" + str(beatmap_id) + ".acd", "w+", encoding="utf-8")
-    
-    for acd in acd_list:
-        acdj = ",".join(tuple(map(str, acd)))
-        beatmap_file_acd.write(acdj + "\n")
-      
-    beatmap_file_acd.close()
-
-
-def check_acd_exist(beatmap_id: int):
-        
-    files = os.listdir(osus_dir + "acd\\")
-    beatmap_id_w_ext = str(beatmap_id) + '.acd'
-    return beatmap_id_w_ext in files
-       
 def read_osutp(beatmap_id: int):
-    osutp_file = open(osutp_dir + str(beatmap_id) + ".osutp")
+    osutp_file = open(save_to.dirs.dir_osutp + str(beatmap_id) + ".osutp")
     
     osutp_lines = osutp_file.read().splitlines()
 
@@ -80,7 +61,7 @@ def read_osutp(beatmap_id: int):
     return osutp_lines
     
 def read_osuho(beatmap_id: int) :
-    osuho_file = open(osuho_dir + str(beatmap_id) + ".osuho")
+    osuho_file = open(save_to.dirs.dir_osuho + str(beatmap_id) + ".osuho")
     
     osuho_lines = osuho_file.read().splitlines()
 
@@ -90,6 +71,10 @@ def read_osuho(beatmap_id: int) :
     return osuho_lines
 
 def parse_osus_diff(beatmap_id: int):
+    if (save_to.exists(save_to.dirs.dir_acd, str(beatmap_id))):
+        print("skipping: " + str(beatmap_id))
+        return []
+    
     tp_list = read_osutp(beatmap_id)
     ho_list = read_osuho(beatmap_id)
     
@@ -109,7 +94,7 @@ def parse_osus_diff(beatmap_id: int):
 def main():
 
     # Get all diff id from the dir
-    files = os.listdir(osuho_dir)
+    files = os.listdir(save_to.dirs.dir_osuho)
     files_len = len(files)
     files_counter = 0
     
@@ -128,7 +113,7 @@ def main():
         if (len(acd_list) == 0):
             continue;
         
-        save_acd(acd_list, beatmap_id), 
+        save_to.diff_directory(save_to.dirs.dir_acd, acd_list, str(beatmap_id), "acd")
         
         
 if __name__== "__main__":
