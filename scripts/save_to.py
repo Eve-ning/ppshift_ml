@@ -29,8 +29,12 @@ def diff_directory(path: dirs, data_list: list, filename: str, extension: str):
 def exists(path: dirs, filename: str):
     # We get all file names (excluding folders) <excluded by lambda filter>
     dir_files = [x.split(".")[0] for x in list(filter(lambda n: n.count('.') != 0, os.listdir(path)))]
+    
+    exists_flag = filename in dir_files
+    if (exists_flag):
+        print("Skipping: " + filename)
 
-    return filename in dir_files
+    return exists_flag
 
 
 

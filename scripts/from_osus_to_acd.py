@@ -72,7 +72,6 @@ def read_osuho(beatmap_id: int) :
 
 def parse_osus_diff(beatmap_id: int):
     if (save_to.exists(save_to.dirs.dir_acd, str(beatmap_id))):
-        print("skipping: " + str(beatmap_id))
         return []
     
     tp_list = read_osutp(beatmap_id)

@@ -6,7 +6,7 @@ Created on Sun Mar  3 09:19:13 2019
 """
 
 import api_main
-import json
+import save_to
 
 def get_player_ids(beatmap_id: int):
     # Limit doesn't work

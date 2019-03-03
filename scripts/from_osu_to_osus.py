@@ -5,8 +5,9 @@ Created on Sat Mar  2 18:13:05 2019
 @author: user
 """
 import os
+import save_to
 
-diff_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\difficulties\\"
+diff_dir = save_to.dirs.dir_diff
 
 # returns offset, value, is_bpm
 def read_timing_point(tp: str):
@@ -54,9 +55,8 @@ def check_osus_exist(beatmap_id: int):
 # We will create a separate file format for easier reading
 def parse_osu_diff(beatmap_id: int):
     
-    if (check_osus_exist(beatmap_id)):
-        print("skipping: " + str(beatmap_id))
-        return (),();
+    if (save_to.exists(save_to.dirs.dir_osuho, str(beatmap_id))):
+        return [],[];
         
     beatmap_file = open(diff_dir + str(beatmap_id) + ".osu", 'r', encoding="utf-8")
     beatmap_lines = beatmap_file.readlines()
@@ -98,12 +98,6 @@ def parse_osu_diff(beatmap_id: int):
             ho_list.append(read_hit_object(beatmap_lines[counter], circleSize))
             
         counter += 1
-            
-#    print("hitobjects")
-#    print(ho_list)
-#    
-#    print("timingpoints")
-#    print(tp_list)
     
     beatmap_file.close()
     
@@ -131,7 +125,8 @@ def main():
         if (len(ho_list) == 0):
             continue;
         
-        save_osu_diff(ho_list, tp_list, beatmap_id), 
+        save_to.diff_directory(save_to.dirs.dir_osutp,tp_list,str(beatmap_id),"osutp")
+        save_to.diff_directory(save_to.dirs.dir_osuho,tp_list,str(beatmap_id),"osuho")
         
         
 if __name__== "__main__":
