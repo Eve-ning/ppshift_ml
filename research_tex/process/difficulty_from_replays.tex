@@ -1,7 +1,20 @@
 \begin{document}
-\section{Mapping $action_{replay}$ to $action_{difficulty}$}
+\section{Difficulty from Replays}
 
-This is the last essential step to find out $accuracy$ as a vector. We will match all similar actions in their respective columns together.
+We are able to extract data from replays, however, they are not linked to the beatmaps themselves. This means that it only has data of what keys and when did the player press it, there's not data on what accuracy did the player.
+
+To recap, we managed to decode the replay sent into the following format:
+
+$$ action_{replay} := \lbrace(offset_1, action_1), (offset_2, action_2), ... , (offset_n, action_n)\rbrace $$
+
+Whereby, 
+$$n \in \lbrace-9, -8, ... , -2, -1, 1, 2, ... , 8, 9\rbrace$$
+
+$offset$ is when the $action$ happens. For $action$, $-n$ means the key \textbf{n} is released, $n$ means the key \textbf{n} is pressed.
+
+\subsection{Mapping a Replay to Beatmap}
+
+In this, we match all similar actions in their respective columns.
 
 There are a few things we need to take note of when matching:
 \begin{enumerate}

@@ -1,6 +1,10 @@
 # docs
 docs/*
 
+# TeXMaker
+.synctex.gz
+.aux
+
 # knime
 .savedWithData
 .knimeLock
