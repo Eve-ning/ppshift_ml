@@ -18,7 +18,7 @@ def get_player_ids(beatmap_id: int):
     id_list = [x['user_id'] for x in score_list]
     return id_list
     
-def main():
+def run():
 
     # Get all diff id from the dir
     files = os.listdir(save_to.dirs.dir_acd)
@@ -48,8 +48,7 @@ def main():
         
         save_to.diff_directory(save_to.dirs.dir_plyrid,id_list,beatmap_id,"plyrid",False)
         
-if __name__== "__main__":
-    main()
+
 # =============================================================================
 # print(api_main.get_replay(823842, 3, 1824775))
 # =============================================================================

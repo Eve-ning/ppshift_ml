@@ -8,13 +8,15 @@ Created on Sun Mar  3 14:38:57 2019
 import os
 
 class dirs:
-    dir_base = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\"
-    dir_diff = dir_base + "difficulties\\"
+    dir_doc = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\"
+    dir_diff = dir_doc + "difficulties\\"
     dir_conv = dir_diff + "conversions\\"
     dir_acd = dir_conv + "acd\\"
     dir_osuho = dir_conv + "osuho\\"
     dir_osutp = dir_conv + "osutp\\"
     dir_plyrid = dir_conv + "plyrid\\"
+    dir_acr = dir_conv + "acr\\"
+    
 
 
 def diff_directory(path: dirs, data_list: list, filename: str, extension: str, join: bool = True):

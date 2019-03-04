@@ -7,8 +7,6 @@ Created on Sat Mar  2 18:13:05 2019
 import os
 import save_to
 
-diff_dir = save_to.dirs.dir_diff
-
 # returns offset, value, is_bpm
 def read_timing_point(tp: str):
     tp_list = tp.split(",")
@@ -28,7 +26,7 @@ def read_hit_object(ho: str, keys: int):
 
 # Saves difficulty as .osuho/.osutp (osu simple <osus>)
 def save_osu_diff(ho_list: list, tp_list: list, beatmap_id: int):
-    beatmap_file_tp = open(diff_dir + "conversions\\osutp\\" + str(beatmap_id) + ".osutp", "w+", encoding="utf-8")
+    beatmap_file_tp = open(save_to.dirs.dir_diff + "conversions\\osutp\\" + str(beatmap_id) + ".osutp", "w+", encoding="utf-8")
     
     for tp in tp_list:
         tpj = ",".join(tuple(map(str,tp)))
@@ -36,7 +34,7 @@ def save_osu_diff(ho_list: list, tp_list: list, beatmap_id: int):
       
     beatmap_file_tp.close()
     
-    beatmap_file_ho = open(diff_dir + "conversions\\osuho\\" + str(beatmap_id) + ".osuho", "w+", encoding="utf-8")
+    beatmap_file_ho = open(save_to.dirs.dir_diff + "conversions\\osuho\\" + str(beatmap_id) + ".osuho", "w+", encoding="utf-8")
         
     for ho in ho_list:
         hoj = ",".join(tuple(map(str,ho)))
@@ -47,7 +45,7 @@ def save_osu_diff(ho_list: list, tp_list: list, beatmap_id: int):
 # Checks if the convert already exists
 def check_osus_exist(beatmap_id: int):
     
-    files = os.listdir(diff_dir + "conversions\\osuho")
+    files = os.listdir(save_to.dirs.dir_diff + "conversions\\osuho")
     beatmap_id_w_ext = str(beatmap_id) + '.osus'
     return beatmap_id_w_ext in files
     
@@ -58,7 +56,7 @@ def parse_osu_diff(beatmap_id: int):
     if (save_to.exists(save_to.dirs.dir_osuho, str(beatmap_id))):
         return [],[];
         
-    beatmap_file = open(diff_dir + str(beatmap_id) + ".osu", 'r', encoding="utf-8")
+    beatmap_file = open(save_to.dirs.dir_diff + str(beatmap_id) + ".osu", 'r', encoding="utf-8")
     beatmap_lines = beatmap_file.readlines()
     
     counter = 0
@@ -103,10 +101,10 @@ def parse_osu_diff(beatmap_id: int):
     
     return ho_list, tp_list
     
-def main():
+def run():
 
     # Get all diff id from the dir
-    files = os.listdir(diff_dir)
+    files = os.listdir(save_to.dirs.dir_diff)
     files_len = len(files)
     files_counter = 0
     
@@ -129,5 +127,3 @@ def main():
         save_to.diff_directory(save_to.dirs.dir_osuho,tp_list,str(beatmap_id),"osuho")
         
         
-if __name__== "__main__":
-    main()

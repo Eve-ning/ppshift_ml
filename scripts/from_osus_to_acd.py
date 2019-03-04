@@ -90,7 +90,7 @@ def parse_osus_diff(beatmap_id: int):
     
 #parse_osus_diff(888279)
     
-def main():
+def run():
 
     # Get all diff id from the dir
     files = os.listdir(save_to.dirs.dir_osuho)
@@ -115,10 +115,5 @@ def main():
         save_to.diff_directory(save_to.dirs.dir_acd, acd_list, str(beatmap_id), "acd")
         
         
-if __name__== "__main__":
-    main()
-    
-    
-    
     
     

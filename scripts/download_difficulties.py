@@ -10,8 +10,7 @@ from time import sleep
 import random
 from datetime import datetime
 import os
-
-doc_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\"
+import save_to
 
 # ---
 
@@ -58,13 +57,13 @@ def osu_diff_get(beatmap_id: int, session: requests.session):
     sleep(1)
     r = session.get("https://osu.ppy.sh/osu/" + beatmap_id)
     r.raise_for_status()
-    open(doc_dir + 'difficulties\\' + beatmap_id + '.osu', 'wb+').write(r.content)
+    open(save_to.dirs.dir_doc + 'difficulties\\' + beatmap_id + '.osu', 'wb+').write(r.content)
     
 # ---
     
 def osu_beatmap_id_get():
     
-    id_file = open(doc_dir + 'regr\\beatmap_ids.csv', 'r')
+    id_file = open(save_to.dirs.dir_doc + 'regr\\beatmap_ids.csv', 'r')
     id_list = id_file.read().splitlines()
     return id_list
 
@@ -72,11 +71,11 @@ def osu_beatmap_id_get():
     
 def check_diff_exist(beatmap_id: int):
     
-    files = os.listdir(doc_dir + 'difficulties')
+    files = os.listdir(save_to.dirs.dir_doc + 'difficulties')
     beatmap_id_w_ext = str(beatmap_id) + '.osu'
     return beatmap_id_w_ext in files
     
-def main():
+def run():
     
     session = osu_auth()
     id_list = osu_beatmap_id_get()
@@ -91,6 +90,3 @@ def main():
         print("get: " + map_id + "\t|\t" + str(id_counter) + " out of " + str(id_list_len))
         osu_diff_get(map_id, session)
         
-if __name__== "__main__":
-    main()
-
