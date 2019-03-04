@@ -8,52 +8,75 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Comparing Accuracy in Replays to Patterns}{1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {2}Machine Learning}{2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Making a Prediction}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Valid inputs}{2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Valid input}{2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Hit Object Neurons}{2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Column Neurons}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Subdivide the Issue}{2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Subdivide the Issue}{2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Patterns to Difficulties}{2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Difficulties to Map Rating}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Data Analysis}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Replay data to actions}{3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}GETting beatmap\_id data from osu!API}{3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}GETting Replay data from osu!API}{3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Difficulty data to actions}{3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}Downloading Difficulties through web crawling}{3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}Converting Difficulties to Action format}{3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Scroll Speed Manipulation Threshold}{4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Mapping $action_{replay}$ to $action_{difficulty}$}{4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Difficulty from Patterning}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Reading}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Strain}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Density}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Note Type Weights}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$weight_{NN}$}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$weight_{LNh}$}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$weight_{LNt}$}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$weight_{SSh}$}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$weight_{SSb}$}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Reading}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$n$}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$\theta $}{5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$\Gamma $}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Density}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$\Delta _{nx}^k$}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$\sigma $}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Strain}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Strain Shift}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Hand}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Body}{6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2}Strain Example}{7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Density Generalization}{7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Assigning Hyperparameters}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Reading) $\theta $}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Reading) $\Gamma $}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Density) $\sigma $}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{NN}$}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{LNh}$}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{LNt}$}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{SSh}$}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{SSb}$}{8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Creating a Neural Network}{9}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}What is our input?}{9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Expected output}{3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Differing and Multiple Accuracies}{3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Multiple Players}{3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Different Players}{3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Recap}{3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Machine Learning}{3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Making a Prediction}{3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Valid input}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hit Object Neurons}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Column Neurons}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Subdivide the Issue}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Patterns to Difficulties}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Difficulties to Map Rating}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Expected output}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Differing and Multiple Accuracies}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Multiple Players}{4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Different Players}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Recap}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {part}{II\hspace  {1em}Process}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {part}{III\hspace  {1em}Process}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Grabbing Beatmaps}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Beatmap Downloading}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{osu!API GET beatmaps}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Downloading through web crawling}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Beatmap Validation}{5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scroll Speed Manipulation Threshold}{6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Grabbing Replays}{6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Replay Downloading}{6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{osu!API GET replay}{6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Replay Decoding}{6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Replay Validation}{6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Difficulty from Patterning}{6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reading}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Strain}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Density}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Note Type Weights}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$weight_{NN}$}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$weight_{LNh}$}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$weight_{LNt}$}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$weight_{SSh}$}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$weight_{SSb}$}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Reading}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$n$}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$\theta $}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$\Gamma $}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Density}{7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$\Delta _{nx}^k$}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$\sigma $}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Strain}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.4.1}Strain Shift}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hand}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Body}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.4.2}Strain Example}{8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Density Generalization}{9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6}Assigning Hyperparameters}{9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Reading) $\theta $}{9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Reading) $\Gamma $}{9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Density) $\sigma $}{9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{NN}$}{10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{LNh}$}{10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{LNt}$}{10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{SSh}$}{10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(Density) $weight_{SSb}$}{10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Mapping $action_{replay}$ to $action_{difficulty}$}{10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Creating a Neural Network}{11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}What is our input?}{11}\protected@file@percent }

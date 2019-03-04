@@ -1,0 +1,28 @@
+\begin{document}
+
+\section{Grabbing Replays}
+
+\subsection{Replay Downloading}
+
+We need to look at $replays$ as a mean to find out how well the player does (in other words, $difficulty$ of the map)
+
+\paragraph{osu!API GET replay} The API provides us with the replay file itself. Not going into detail, we are able to extract all key taps (including releases) of the player during the play.
+
+\subsection{Replay Decoding}
+
+The format we get from running the python code goes as follows
+
+$$ action_{replay} := \lbrace(offset_1, action_1), (offset_2, action_2), ... , (offset_n, action_n)\rbrace $$
+
+Whereby, 
+$$n \in \lbrace-9, -8, ... , -2, -1, 1, 2, ... , 8, 9\rbrace$$
+
+$offset$ is when the $action$ happens. For $action$, $-n$ means the key \textbf{n} is released, $n$ means the key \textbf{n} is pressed.
+
+We will save this data in a file with $<beatmap\_id>.acr$ extension.
+
+\subsection{Replay Validation}
+
+As discussed in the preface, we need to resolve two issues. \textbf{Multiple Replays} and \textbf{Multiple Players}, we will talk about it in a future section, but for this, we will create a different data file with $<beatmap\_id>.acrs$ extension.
+
+\end{document}

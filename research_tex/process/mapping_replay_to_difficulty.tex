@@ -1,0 +1,36 @@
+\begin{document}
+\section{Mapping $action_{replay}$ to $action_{difficulty}$}
+
+This is the last essential step to find out $accuracy$ as a vector. We will match all similar actions in their respective columns together.
+
+There are a few things we need to take note of when matching:
+\begin{enumerate}
+	\item Not all $action_{beatmap}$ will have a matching $action_{replay}$
+	\item We put the threshold of this matching as $100ms$.
+	\item The nearest $action_{replay}$ will match the $action_{beatmap}$, not the earliest one.
+	\item We will deviate on how osu! calculate accuracy due to the above pointers, but its difference is insignificant.
+\end{enumerate}
+
+We will expect the output of:
+
+$$ deviation := \lbrace(offset_1, deviation_1), (offset_2, deviation_2), ..., (offset_n, deviation_n)\rbrace $$
+
+Where:
+$$ n = length(action_{beatmap}) $$
+
+And if there's no match, $deviation = 101$, this is to allow us to understand that it's a \textbf{miss} instead of a $100ms$ hit.
+
+However, this is a bit ugly, so what we will use is the following:
+$$ accuracy := \lbrace(offset_1, accuracy_1), (offset_2, accuracy_2), ..., (offset_n, accuracy_n)\rbrace $$
+
+Where:
+$$ accuracy_n = \frac{1}{deviation_n} $$
+$$ n = length(action_{beatmap}) $$
+
+Therefore, a \textbf{miss} would simply just be $accuracy = 0$ instead of the ugly $accuracy = 1/101$
+
+So accuracy will only span:
+$$ (Miss) 0 \leq accuracy_n \leq (Perfect) 1 $$
+$$ deviation_n \in [0, 1, 2, ..., 99, 100] $$
+
+\end{document}
