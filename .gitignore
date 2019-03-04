@@ -2,8 +2,8 @@
 docs/*
 
 # TeXMaker
-.synctex.gz
-.aux
+*.gz
+*.aux
 
 # knime
 .savedWithData
@@ -123,3 +123,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
