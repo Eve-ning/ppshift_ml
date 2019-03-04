@@ -8,8 +8,8 @@
 	
 	In this document, we will be discussing methods of obtaining a credible way of classifying difficulty in VSRG maps. We will first establish what makes a map difficult, then we build from there!
 	
-\part{Define Difficulty}
-\section{Difficulty in Playing}
+\part{Preface}
+\section{Define Difficulty}
 
 	What makes a map difficult, what is a difficult map? Could it be the following?
 	The map was difficult because of ...
@@ -37,27 +37,54 @@ While stamina is a good way to look at difficulty, it can readily be derived fro
 
 This is the best way to look at difficulty, because not only it gives us a figure, it tells us the story and correlation between \textbf{accuracy} and \textbf{patterning}. This will be the main focus of the document.
 
-\section{Difficulty from Accuracy}
+\subsection{Comparing Accuracy in Replays to Patterns}
 
-It is possible to measure difficulty, by just looking at accuracy, in-fact, it's quite straight-forward to do so.
+Details aside, how can we describe the impact of patterns on replays, what story does the replay tell us about the pattern?
 
 Consider this...
 \begin{enumerate}
-	\item $Player_1$ plays $Beatmap_A$ and $Beatmap_B$
+	\item $Player_1$ plays $Pattern_A$ and $Pattern_B$
 	\item $Player_1$ achieves $Accuracy_A > Accuracy_B$
 	\item Considering $Accuracy_A$ and $Accuracy_B$ are independent events
-	\item We deduce $Difficulty_A < Difficulty_B$
+	\item We deduce $Pattern_A < Pattern_B$ in difficulty
 \end{enumerate}
 
-Now, on a larger scale...
+It is a simple idea to pitch, but we will have to dive into more details on how we can "teach" a machine this concept and "learn" from it!
+
+\section{Machine Learning}
+
+A tangent from this article, I will briefly talk about what is machine learning.
+
+\paragraph{Making a Prediction} Machine Learning is all about making a prediction, by looking at already curated data. \textit{We show the someone 100 pictures of rabbits and explained to them that they are rabbits, can they tell if the next picture of an animal is a rabbit?}
+
+Same idea we have here, we show the machine hundred of beatmaps, we tell the machine how difficult all of them are (according to score regression). Can the machine predict the difficulty of the next one? The answer is yes, but it won't be accurate!
+
+\subsection{Valid inputs}
+
+Think about a neural network, you've most likely seen one, it's circle(s) connected to more circle(s), in the end, there will be circle(s) that tell you something. Each circle represents a \textbf{neuron}.
+
+Each neuron holds a numeric value (between 0 and 1), we need to put a value in each of these neurons. Ignoring Timing Points and Scroll Speed Changes, how do we squeeze a beatmap into these neurons?
+
+\paragraph{Hit Object Neurons} Remember that a neuron will only work with numeric values, what do you want to have in the neuron that represents a Hit Object? Putting either the \textbf{offset} or \textbf{column} will not work because both are vital!
+
+\paragraph{Column Neurons} It is a possible idea, to have a neuron for \textbf{each millisecond}, then put \textbf{column value} on those neurons that match the \textbf{offset}. We run into a glaring issue where input neurons will stretch to the \textbf{hundred thousands}, computational power required on this scale would be too high. If we decide to \textbf{bin} the offsets (binning is the act of grouping things together to reduce the number of fields) to \textbf{100ms} steps, it'll still be in the thousands.
+
+\subsection{Subdivide the Issue}
+
+\textbf{Does it have to be the whole map?}
+
+It doesn't! That's what we are doing for this research, we don't look at the whole map, we look at parts of it, the inner mechanisms, the \textbf{patterns}! Sure, even though the whole map must be present to calculate difficulty but if we break it into \textbf{2 distinct procedures}, it's easier to visualize and control the system.
+
 \begin{enumerate}
-	\item $Player_{all}$ play $Beatmap_A$ and $Beatmap_B$
-	\item $\prod_{} (Accuracy_A / Accuracy_B) > 1$
-	\item Considering $Accuracy_A$ and $Accuracy_B$ are independent events
-	\item We deduce $Difficulty_A < Difficulty_B$
+	\item Patterns to Difficulties
+	\item Difficulties to  Map Rating
 \end{enumerate}
 
-We can further develop this algorithm to estimate what the difficulties would be by just looking at the ratios, I won't elaborate this further as this won't be the main aim of this document because \textbf{this only works if you have scores to pivot from}. This will not work with newly developed maps.
+\paragraph{Patterns to Difficulties} In the following sections we will be discussing how we can task the machine to learn what patterns are easy and which are harder
+
+\paragraph{Difficulties to Map Rating} Using the \textbf{difficulty} values defined previously, we can find out how to use that to reliably give the map a rating. Do we rate it by the average, maximum or median? We will discuss those later.
+
+\part{Data Analysis}
 
 \subsection{Replay data to actions}
 
