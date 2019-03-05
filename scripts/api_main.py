@@ -52,7 +52,11 @@ def get_replay(beatmap_id: int, mode: int, user: int):
     if (response.status_code != 200):
         return "bad request", response.status_code
     
-    decoded = base64.b64decode(json_data["content"])
+    try:
+        decoded = base64.b64decode(json_data["content"])
+    except:
+        return [], 0
+    
     decompressed = str(lzma.decompress(decoded))[:-2]
     decompressed = decompressed[2:]
     

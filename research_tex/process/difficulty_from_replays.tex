@@ -1,7 +1,7 @@
 \begin{document}
 \section{Difficulty from Replays}
 
-We are able to extract data from replays, however, they are not linked to the beatmaps themselves. This means that it only has data of what keys and when did the player press it, there's not data on what accuracy did the player.
+We are able to extract data from replays, however, they are not linked to the beatmaps themselves. This means that it only has data of what keys and when did the player press it, there's no data on accuracy achieved.
 
 To recap, we managed to decode the replay sent into the following format:
 
@@ -31,19 +31,52 @@ $$ deviation := \lbrace(offset_1, deviation_1), (offset_2, deviation_2), ..., (o
 Where:
 $$ n = length(action_{beatmap}) $$
 
-And if there's no match, $deviation = 101$, this is to allow us to understand that it's a \textbf{miss} instead of a $100ms$ hit.
+And if there's no match, $deviation > 100$, this is to allow us to understand that it's a \textbf{miss} instead of a $100ms$ hit.
 
 However, this is a bit ugly, so what we will use is the following:
 $$ accuracy := \lbrace(offset_1, accuracy_1), (offset_2, accuracy_2), ..., (offset_n, accuracy_n)\rbrace $$
 
 Where:
-$$ accuracy_n = \frac{1}{deviation_n} $$
-$$ n = length(action_{beatmap}) $$
+$$ accuracy_n = 100 - {deviation_n} $$
 
-Therefore, a \textbf{miss} would simply just be $accuracy = 0$ instead of the ugly $accuracy = 1/101$
+Therefore, a \textbf{miss} would simply just be $accuracy = 0$ instead.
 
 So accuracy will only span:
 $$ (Miss) 0 \leq accuracy_n \leq (Perfect) 1 $$
 $$ deviation_n \in [0, 1, 2, ..., 99, 100] $$
+
+\subsection{Replay Soloing}
+
+As discussed in the preface, we need to resolve two issues. \textbf{Multiple Replays} and \textbf{Multiple Players}. We will expect an output similar to a replay, this is where the first major assumption kicks in.
+
+\subsubsection{Assumption of the Top 50}
+In this, we assume that if we took the \textbf{median} all top 50 replays, we will end up with a replay that is all-encompassing.
+
+This leads some problems:
+
+\begin{enumerate}
+	\item The neural network will perform worse on easier maps $ \approx 3.0 S.R. $ due to most replay in easier maps being too consistently perfect, this leads to amplification of noise (in this case, chokes).
+	\item This assumption will only hold if the beatmaps are old enough such that most of the general playerbase has played it, else it doesn't represent the population well enough due to low participation
+\end{enumerate}
+
+\subsubsection{Assumption of the Player}
+In this, instead of looking at it \textbf{per beatmap}, we will do it \textbf{per player}. This is much more consistent in data, however it's consistent \textbf{for that player only}.
+
+In this method, we grab the all replays that \textbf{Player X} has played and compare them with each other. However this still leads to assumptions:
+
+\begin{enumerate}
+	\item The player played all the beatmaps at a similar time, or the player never improved
+	\item The player is representative of the community (bias)
+\end{enumerate}
+
+The problem of the machine being \textbf{biased} to only the player can be fixed if we ran an averaging function on the output with hundreds of other players.
+
+\textbf{However,} due to how osu! sends API scores, I couldn't get more than \textbf{50} scores \textbf{per player}. This means that there will be no data for these replays.
+
+\subsection{Choosing an Assumption}
+
+Despite this, we will work with \textbf{Assumption of the Top 50} as it's reasonable enough, and it's easier.
+
+This means that the median of all replays will be saved in a different data file with $<beatmap\_id>.acrs$ extension.
 
 \end{document}

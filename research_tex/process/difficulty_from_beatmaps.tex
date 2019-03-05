@@ -214,4 +214,19 @@ Whereby we estimate difficulty at offset \textbf{n} from the map itself:
 
 $$ difficulty_n \approx reading_n + \sum_{k=1}^{keys} \left(strain_k \right) $$
 
+\subsubsection{Values of Hyperparameters}
+
+There will definitely be issues when it comes to assuming hyperparameters because of how it will affect accuracy of the model. However, as long as we \textbf{reasonably} assign them, most of the errors will be offset by the neural network learning. We just need to focus on if a certain value should be \textbf{larger/smaller} or \textbf{negative/positive}.
+
+\paragraph{(Reading) $\theta$} 1000 (ms)
+\paragraph{(Reading) $\Gamma$} 0.75 (note that we already established that a $LN$ counts as 2 $NN$, so we will need to provide a value of $<1.0$ to compensate that an $LN$ is not as hard as 2 $NN$.)
+
+\paragraph{(Density) $\sigma$} 2
+
+\paragraph{(Density) $weight_{NN}$} 1
+\paragraph{(Density) $weight_{LNh}$} 0.75 (we will follow Reading)
+\paragraph{(Density) $weight_{LNt}$} 0.75 (we will follow Reading)
+\paragraph{(Density) $weight_{SSh}$} 0.25
+\paragraph{(Density) $weight_{SSb}$} 0.1
+
 \end{document}

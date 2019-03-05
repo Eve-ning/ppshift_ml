@@ -35,6 +35,11 @@ def get_player_replays(player_id_list: list, beatmap_id: int):
             status_count = 0
             player_id_it += 1;
             replay_list.append(replay)
+        elif (status_code == 0):
+            # When the replay is corrupt we append a dummy value
+            replay_list.append([0, 0])
+            print("Bad Replay, appending dummy value.")
+            player_id_it += 1;
         else:
             # Count up Status Errors 
             status_count += 1
@@ -79,8 +84,8 @@ def run():
             print("Program break")
             input("Enter to Exit: ")
             return
-            
-        save_to.diff_directory(save_to.dirs.dir_acr, rpl,beatmap_id, "acr")
+        
+        save_to.diff_directory(save_to.dirs.dir_acr, rpl, beatmap_id, "acr")
   
 run()          
 # =============================================================================
