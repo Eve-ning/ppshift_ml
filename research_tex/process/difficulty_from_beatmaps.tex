@@ -7,7 +7,7 @@ $$ difficulty := \lbrace(offset_1, difficulty_1), (offset_2, difficulty_2), ...,
 
 Whereby we estimate difficulty at offset \textbf{n} from the map itself:
 
-$$ difficulty_n \approx reading_n + \sum_{k=1}^{keys} \left(strain_k \right) + ... $$
+$$ difficulty_n \approx model \left( reading_n, \sum_{k=1}^{keys} \left(strain_k \right), ... \right)$$
 
 There are more factors (denoted by $...$) that contribute to difficulty, but we will regard them as noise in this research and fine tune this equation later.
 
@@ -212,7 +212,7 @@ $$ difficulty := \lbrace(offset_1, difficulty_1), (offset_2, difficulty_2), ...,
 
 Whereby we estimate difficulty at offset \textbf{n} from the map itself:
 
-$$ difficulty_n \approx reading_n + \sum_{k=1}^{keys} \left(strain_k \right) $$
+$$ difficulty_n \approx model \left( reading_n, \sum_{k=1}^{keys} \left(strain_k \right), ... \right)$$
 
 \subsubsection{Values of Hyperparameters}
 

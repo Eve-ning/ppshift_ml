@@ -54,10 +54,9 @@ In this, we assume that if we took the \textbf{median} all top 50 replays, we wi
 
 This leads some problems:
 
-\begin{enumerate}
-	\item The neural network will perform worse on easier maps $ \approx 3.0 S.R. $ due to most replay in easier maps being too consistently perfect, this leads to amplification of noise (in this case, chokes).
-	\item This assumption will only hold if the beatmaps are old enough such that most of the general playerbase has played it, else it doesn't represent the population well enough due to low participation
-\end{enumerate}
+\paragraph{Top Player Bias} The neural network will perform worse on easier maps $ \approx 3.0 S.R. $ due to the median in easier maps being too consistently perfect, this leads to amplification of noise (in this case, chokes).
+\paragraph{Population Interaction} This assumption will only hold if the beatmaps are old enough such that most of the general playerbase has played it, else it doesn't represent the population well enough due to low participation
+\paragraph{Population Decay/Improvement} The beatmaps we check must be ranked within close proximity with each other, this is to avoid the Top 50 median from adjusting too much
 
 \subsubsection{Assumption of the Player}
 In this, instead of looking at it \textbf{per beatmap}, we will do it \textbf{per player}. This is much more consistent in data, however it's consistent \textbf{for that player only}.
@@ -77,6 +76,10 @@ The problem of the machine being \textbf{biased} to only the player can be fixed
 
 Despite this, we will work with \textbf{Assumption of the Top 50} as it's reasonable enough, and it's easier.
 
-This means that the median of all replays will be saved in a different data file with $<beatmap\_id>.acrs$ extension.
+This means that the median of all replays will be saved in a different data file with $<beatmap\_id>.acrv$ extension. \textit{(v represents virtual)}
+
+\subsection{Virtual Player/Replay}
+
+The median of the top 50 creates a \textbf{virtual replay}, where we expect it to be a \textbf{good enough} representation of a \textbf{virtual player}. We can now pivot from this player as we calculate difficulty!
 
 \end{document}
