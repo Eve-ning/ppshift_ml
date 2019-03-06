@@ -86,8 +86,7 @@ def run():
             return
         
         save_to.diff_directory(save_to.dirs.dir_acr, rpl, beatmap_id, "acr")
-  
-run()          
+         
 # =============================================================================
 # if (not save_to.exists(save_to.dirs.dir_acr, str(342369))):
 #     id_list = load_player_ids(342369)[0:2]

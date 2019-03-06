@@ -115,7 +115,5 @@ def run():
             continue;
         
         save_to.diff_directory(save_to.dirs.dir_acd, acd_list, str(beatmap_id), "acd")
-        
-run()
-    
+
     

@@ -16,8 +16,8 @@ class dirs:
     dir_osutp = dir_conv + "osutp\\"
     dir_plyrid = dir_conv + "plyrid\\"
     dir_acr = dir_conv + "acr\\"
+    dir_acrv = dir_conv + "acrv\\"
     
-
 
 def diff_directory(path: dirs, data_list: list, filename: str, extension: str, join: bool = True):
     beatmap_file = open(path + filename + "." + extension, "w+", encoding="utf-8")
