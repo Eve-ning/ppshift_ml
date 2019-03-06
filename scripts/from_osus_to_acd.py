@@ -39,9 +39,11 @@ def within_manipulation_threshold(bpm_list: list, sv_list: list):
     return True;
 
 def osuho_to_acd(osuho: list):
-    acd_nn = [[ho[0], ho[2]] for ho in list(filter(lambda ho: ho[1] == "0", osuho))]
-    acd_lnh = [[ho[0],"+" + ho[2]] for ho in list(filter(lambda ho: ho[1] != "0", osuho))]
-    acd_lnt = [[ho[1],"-" + ho[2]] for ho in list(filter(lambda ho: ho[1] != "0", osuho))]
+    
+    # Fix acd starting from 0 by adding 1
+    acd_nn = [[ho[0], str(int(ho[2]) + 1)] for ho in list(filter(lambda ho: ho[1] == "0", osuho))]
+    acd_lnh = [[ho[0],"+" + str(int(ho[2]) + 1)] for ho in list(filter(lambda ho: ho[1] != "0", osuho))]
+    acd_lnt = [[ho[1],"-" + str(int(ho[2]) + 1)] for ho in list(filter(lambda ho: ho[1] != "0", osuho))]
     
     acd = []
     acd.extend(acd_nn)
@@ -114,6 +116,6 @@ def run():
         
         save_to.diff_directory(save_to.dirs.dir_acd, acd_list, str(beatmap_id), "acd")
         
-        
+run()
     
     
