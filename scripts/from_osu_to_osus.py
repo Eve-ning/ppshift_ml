@@ -120,10 +120,11 @@ def run():
         print("get: " + str(beatmap_id) + "\t|\t" + str(files_counter) + " out of " + str(files_len))
         
         ho_list, tp_list = parse_osu_diff(beatmap_id)
+        
         if (len(ho_list) == 0):
             continue;
         
         save_to.diff_directory(save_to.dirs.dir_osutp,tp_list,str(beatmap_id),"osutp")
-        save_to.diff_directory(save_to.dirs.dir_osuho,tp_list,str(beatmap_id),"osuho")
-        
-        
+        save_to.diff_directory(save_to.dirs.dir_osuho,ho_list,str(beatmap_id),"osuho")
+
+run()
