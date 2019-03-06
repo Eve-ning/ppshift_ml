@@ -17,6 +17,7 @@ def get_arcv_data():
     for x in files:
         beatmap_id = int(x.split(".")[0])
         
+        # I understand it's ugly
         print("Get: " + x)
         content, status = api_main.get_beatmap(beatmap_id)
         if (status != 200):
