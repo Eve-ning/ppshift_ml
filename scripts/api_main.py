@@ -18,6 +18,19 @@ api_key_url = open("D:\\Data Documents\\auth\\osu_api_key.txt", "r")
 api_key = api_key_url.readline()
 api_key_url.close()
 
+def get_beatmap(beatmap_id: int):
+    param = {
+            "k": str(api_key),
+            "b": beatmap_id,
+            }
+    api_url = base_api_url + "get_beatmaps"
+    response = requests.get(api_url, params = param)
+    json_data = json.loads(response.text)
+    
+    time.sleep(1) # Pause
+    
+    return json_data, response.status_code
+
 def get_scores(beatmap_id: int, mode: int, limit: int):
     param = {
             "k": str(api_key),
