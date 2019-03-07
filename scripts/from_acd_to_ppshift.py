@@ -174,9 +174,12 @@ def get_replay(beatmap_id: int):
     replay_df = replay_df.apply(pandas.to_numeric)
     replay_df = replay_df.sort_values(by='offset')
 
-    return replay_df
     replay_df['roll'] = replay_df['median'].rolling(window=30).mean()
-    replay_df.plot(x='offset')
+    replay_df = replay_df.drop(['median'], axis=1)
+    replay_df.fillna(0)
+
+    return replay_df
+
     
 def get_data(beatmap_id: int):
         
@@ -227,6 +230,5 @@ def run():
         print("get: " + beatmap_id + "\t|\t" + str(files_counter) + " out of " + str(files_len))
 
         save_data(get_data(int(beatmap_id)), int(beatmap_id))
-    
     
 run()
