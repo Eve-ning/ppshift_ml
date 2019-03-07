@@ -17,6 +17,7 @@ class dirs:
     dir_plyrid = dir_conv + "plyrid\\"
     dir_acr = dir_conv + "acr\\"
     dir_acrv = dir_conv + "acrv\\"
+    dir_ppshift = dir_conv + "ppshift\\"
     
 
 def diff_directory(path: dirs, data_list: list, filename: str, extension: str, join: bool = True):

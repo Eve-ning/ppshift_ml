@@ -7,6 +7,7 @@ Created on Wed Mar  6 18:32:15 2019
 
 import pandas
 import save_to
+import os
 import get_beatmap_metadata
 
 # Output
@@ -24,8 +25,7 @@ weight_ssb = 0.1
 strain_decay_per_s = 5
 strain_decay_perc_per_s = 75
 
-BEATMAP_ID = 1
-beatmap_ids = {(BEATMAP_ID, get_beatmap_metadata.metadata_from_id(BEATMAP_ID))  }
+beatmap_id = (1001780, get_beatmap_metadata.metadata_from_id(1001780))
 
 
 # This represents the distribution from the keys to the fingers
@@ -72,10 +72,9 @@ def get_reading(acd: pandas.DataFrame) -> pandas.DataFrame:
             else: 
                 lnt_count += 1
                 
-        # Calculate reading difficulty here!
         reading_val = (nn_count + (lnh_count + lnt_count) * gamma)/theta
         counts_l.append([x, nn_count, lnh_count, lnt_count, reading_val])
-        
+                
     acd = pandas.DataFrame(counts_l, columns = ['offset', 'nn_count', 'lnh_count', 'lnt_count', 'reading_val'])
     
     return acd
@@ -165,35 +164,69 @@ def get_strain(weight_df: pandas.DataFrame):
     return strain_df
 
 def get_replay(beatmap_id: int):
-    f = [x.split(',') for x in open(save_to.dirs.dir_acrv + str(beatmap_id) + '.acrv', "r").read().splitline()]
+    f = [x.split(',') for x in open(save_to.dirs.dir_acrv + str(beatmap_id) + '.acrv', "r").read().splitlines()]
+
     
     replay_df = pandas.DataFrame(f, columns=['offset','key','median','mean','variance'])
-    replay_df.drop([['key','variance']])
+    
+    replay_df.drop(replay_df.columns[[1,3,4]], axis=1, inplace=True)
+
+    replay_df = replay_df.apply(pandas.to_numeric)
+    replay_df = replay_df.sort_values(by='offset')
+
+    return replay_df
+    replay_df['roll'] = replay_df['median'].rolling(window=30).mean()
     replay_df.plot(x='offset')
     
+def get_data(beatmap_id: int):
+        
+    # Grab ACD
+    acd = pandas.DataFrame(get_acd(beatmap_id), columns = ['offset', 'key'])
     
-get_replay(1249382)
-# =============================================================================
-#     
-# 
-# for beatmap_id in beatmap_ids:
-#     acd = pandas.DataFrame(get_acd(beatmap_id[0]), columns = ['offset', 'key'])
-#     plot = get_strain(get_weights(acd)).plot(x='offset', title=beatmap_id[1]).get_figure()
-#     plot.savefig(str(beatmap_id))
-# 
-# 
-# =============================================================================
+    # Get strain via weight
+    strain = get_strain(get_weights(acd))
+    
+    # Get reading
+    reading = get_reading(acd)
 
+    # strain + reading Merge
+    df = pandas.merge(strain, reading, how='inner', on=['offset'])
 
-# =============================================================================
-# get_weights(acd)   
-# =============================================================================
-# =============================================================================
-# print(get_reading(acd))
-# =============================================================================
+    # strain + reading + replay (last col)
+    replay = get_replay(beatmap_id)
+    df = pandas.merge(df, replay, how='inner', on=['offset'])  
+    
+    df = df.apply(pandas.to_numeric)
+    return df
+        
+def save_data(df: pandas.DataFrame, beatmap_id: int):
+    
+    df.to_pickle(save_to.dirs.dir_ppshift + str(beatmap_id) + '.pkl')   
+    
 
-# =============================================================================
-# ts = pandas.Series(numpy.random.randn(1000),index=pandas.date_range('1/1/2000', periods=1000))
-# ts = ts.cumsum()
-# ts.plot()
-# =============================================================================
+def run():
+    # Get all diff id from the dir
+    files = os.listdir(save_to.dirs.dir_acrv)
+    files_len = len(files)
+    files_counter = 0
+    
+    for f in files:
+        files_counter += 1
+        
+        # Skip non .osu files
+        if (not "." in f):
+            continue
+        
+        # Extract Ids
+        beatmap_id = str(f.split(".")[0])
+        
+        # Skip if exist
+        if (save_to.exists(save_to.dirs.dir_ppshift, beatmap_id)):
+            continue
+        
+        print("get: " + beatmap_id + "\t|\t" + str(files_counter) + " out of " + str(files_len))
+
+        save_data(get_data(int(beatmap_id)), int(beatmap_id))
+    
+    
+run()
