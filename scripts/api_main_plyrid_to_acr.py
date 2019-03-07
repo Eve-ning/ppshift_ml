@@ -62,6 +62,7 @@ def run():
     files_counter = 0
     
     for f in files:
+        
         files_counter += 1
         
         # Skip non .osu files

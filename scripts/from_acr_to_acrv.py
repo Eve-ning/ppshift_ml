@@ -135,7 +135,8 @@ def run():
         # Convert Dict to List
         for k, x in dev_med.items():
             dev_med_as_list.append([k[0], k[1], x[0], x[1], x[2]])
-
+            
+    
         save_to.diff_directory(save_to.dirs.dir_acrv, dev_med_as_list, beatmap_id, "acrv")
 
 run()

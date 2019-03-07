@@ -7,6 +7,7 @@ Created on Wed Mar  6 18:32:15 2019
 
 import pandas
 import save_to
+import get_beatmap_metadata
 
 # Output
 # Offset, Reading, Strain
@@ -20,14 +21,11 @@ weight_lnh = 0.75
 weight_lnt = 0.75
 weight_ssh = 0.25
 weight_ssb = 0.1
-strain_decay_per_s = 1
+strain_decay_per_s = 5
 strain_decay_perc_per_s = 75
 
-# =============================================================================
-# beatmap_ids = {(1001780, 'ETERNAL DRAIN - Eternal'),
-#                (1104774, 'ETERNAL DRAIN - Black Another'),
-#                (1002502, 'ETERNAL DRAIN - Another')}
-# =============================================================================
+BEATMAP_ID = 1
+beatmap_ids = {(BEATMAP_ID, get_beatmap_metadata.metadata_from_id(BEATMAP_ID))  }
 
 
 # This represents the distribution from the keys to the fingers
@@ -166,12 +164,25 @@ def get_strain(weight_df: pandas.DataFrame):
         
     return strain_df
 
-for beatmap_id in beatmap_ids:
-    acd = pandas.DataFrame(get_acd(beatmap_id[0]), columns = ['offset', 'key'])
-    plot = get_strain(get_weights(acd)).plot(x='offset', title=beatmap_id[1]).get_figure()
-    plot.savefig(str(beatmap_id))
-
-
+def get_replay(beatmap_id: int):
+    f = [x.split(',') for x in open(save_to.dirs.dir_acrv + str(beatmap_id) + '.acrv', "r").read().splitline()]
+    
+    replay_df = pandas.DataFrame(f, columns=['offset','key','median','mean','variance'])
+    replay_df.drop([['key','variance']])
+    replay_df.plot(x='offset')
+    
+    
+get_replay(1249382)
+# =============================================================================
+#     
+# 
+# for beatmap_id in beatmap_ids:
+#     acd = pandas.DataFrame(get_acd(beatmap_id[0]), columns = ['offset', 'key'])
+#     plot = get_strain(get_weights(acd)).plot(x='offset', title=beatmap_id[1]).get_figure()
+#     plot.savefig(str(beatmap_id))
+# 
+# 
+# =============================================================================
 
 
 # =============================================================================

@@ -8,8 +8,12 @@ Created on Sat Mar  2 20:02:04 2019
 import os
 import save_to
 
+OVERRIDE_THRESHOLD = True
+
+
 # Returns a boolean on if it's within threshold
 def within_manipulation_threshold(bpm_list: list, sv_list: list):
+
     # The 2 rules of keeping within threshold
     # 1: no BPM changes
     # 2: no SV changes
@@ -82,12 +86,15 @@ def parse_osus_diff(beatmap_id: int):
     bpm_list = [bpm[1] for bpm in list(filter(lambda x: x[2] == 'True', tp_list))]
     sv_list = [sv[1] for sv in list(filter(lambda x: x[2] == 'False', tp_list))]
     
-    thr_pass = within_manipulation_threshold(bpm_list, sv_list)
-    print("Treshold Pass: " + str(thr_pass))
-    
-    if (thr_pass):
+    if (OVERRIDE_THRESHOLD):
         return osuho_to_acd(ho_list)
-    
+    else:
+        thr_pass = within_manipulation_threshold(bpm_list, sv_list)
+        print("Treshold Pass: " + str(thr_pass))
+        
+        if (thr_pass):
+            return osuho_to_acd(ho_list)
+        
     return []
     
 #parse_osus_diff(888279)
