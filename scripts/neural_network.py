@@ -8,11 +8,16 @@ Created on Thu Mar  7 15:17:26 2019
 import os
 import pandas
 import save_to
-import numpy
 import keras
+import get_beatmap_metadata
+from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn import preprocessing
+from keras.models import load_model as ld_mdl
+import numpy
+import random
+
 
 # MERGES ALL EXISTING DFS
 def merge_df():
@@ -31,59 +36,115 @@ def merge_df():
     
 def load_merge():
     
-    return pandas.read_pickle(save_to.dirs.dir_ppshift + "1231418.pkl")
-
-# =============================================================================
-# # 15 labels
-# print(pandas.read_pickle(save_to.dirs.dir_ppshift + "merged.pkl").columns)
-# =============================================================================
+    return pandas.read_pickle(save_to.dirs.dir_ppshift + "merged.pkl")
 
 def model_c():
+    
     model = keras.models.Sequential()
-    model.add(keras.layers.Dense(14, input_shape=(14,), kernel_initializer='normal', activation='sigmoid'))
-    model.add(keras.layers.Dense(7))
-    model.add(keras.layers.Dense(1))
     
-    sgd = keras.optimizers.SGD(lr=0.01, momentum=0.7)
+    model.add(keras.layers.Dense(351, input_shape=(13,), kernel_initializer='normal', activation='relu'))
+    model.add(keras.layers.Dense(1, kernel_initializer='normal'))
     
-    model.compile(loss=keras.losses.mean_squared_error, optimizer=sgd,metrics=['accuracy'])
+    model.compile(loss='mean_squared_error', optimizer='adam')
     
     return model
 
-seed = 1
+def train_model() -> KerasRegressor:
+    seed = 1
+    
+    df = load_merge()   
+    
+    df_s = df.sample(frac=0.025, random_state=seed)
+    
+    ds_s = df_s.values
+    
+    min_max_scaler = preprocessing.MinMaxScaler()
+    ds_s = min_max_scaler.fit_transform(ds_s)
 
-df = load_merge()   
-df_s = df.sample(frac=0.5, random_state=seed)
-df_t = df.sample(frac=0.2, random_state=seed+1)
 
-ds_s = df_s.values
-ds_t = df_t.values
-#
-#ds_s = preprocessing.MinMaxScaler().fit_transform(ds_s)
-#ds_t = preprocessing.MinMaxScaler().fit_transform(ds_t) 
+    in_ds_s = ds_s[:,1:14]
+    out_ds_s = ds_s[:,14]
+    
+    model = model_c()
+    
+    estimator = KerasRegressor(build_fn=model_c, epochs=15, batch_size=1, verbose=1)
+    
+    kfold = KFold(n_splits=2, random_state=seed)
+    results = cross_val_score(estimator, in_ds_s, out_ds_s, cv=kfold)
+    print("Results: %.2f (%.2f) MSE" % (results.mean(), results.std()))
+    
+    model.fit(in_ds_s, out_ds_s)
+    model.model.save('14_14_1_35_5.hdf5')
+    
+    return model
 
-in_ds_s = ds_s[:,0:14]
-out_ds_s = ds_s[:,14]
+def load_model() -> KerasRegressor:
+    
+    def dummy():
+        return
+    model = KerasRegressor(build_fn=dummy, epochs=1, batch_size=10, verbose=1)
+    model.model = ld_mdl('14_14_1_35_5.hdf5')
+    
+    return model
 
-print(in_ds_s)
+def test_model(model: KerasRegressor, beatmap_id: list):
+    
+    for b_id in beatmap_id:
+        df = pandas.read_pickle(save_to.dirs.dir_ppshift + str(b_id) + '.pkl')
+    #    Partitions the test by 33% - 66%
+    #    df = df[(df.index>numpy.percentile(df.index, 33)) & (df.index<=numpy.percentile(df.index, 66))]
+        ds = df.values
+        
+        min_max_scaler = preprocessing.MinMaxScaler()
+        ds = min_max_scaler.fit_transform(ds)
+        
+        in_ds = ds[:,1:14]
+        out_ds = ds[:,[0,14]]
+        
 
-in_ds_t = ds_t[:,0:14]
-out_ds_t = ds_t[:,14]
+        b_id = int(b_id)
+        out_p = model.predict(in_ds, verbose=0)
+        
+        out_o = pandas.DataFrame(out_ds, columns=['offset','original'])
+        out_p = pandas.DataFrame(out_p, columns=['pred'])
+        
+        out = out_o.join(out_p)
+        
+        out = min_max_scaler.inverse_transform(out)
 
-#estimator = keras.wrappers.scikit_learn.KerasRegressor(build_fn=model_c, epochs=10, batch_size=10, verbose=1)
-model = model_c()
-model.fit(in_ds_s,out_ds_s, epochs=5, batch_size=5, verbose=1)
+        out.plot(x='offset', title=get_beatmap_metadata.metadata_from_id(b_id))
 
-scores =model.evaluate(in_ds_t,out_ds_t, verbose=1)
+        print("Rating: " + str(out['pred'].mean() / out['original'].mean()) + "\t", end='')
+        
+        print(get_beatmap_metadata.metadata_from_id(b_id))
+        
+    
+def random_test_model(maps_to_test: int):
+    files = [x.split('.')[0] for x in os.listdir(save_to.dirs.dir_ppshift)[0:-1]]
+    random_list = random.sample(files, maps_to_test)
+    
+    test_model(load_model(), random_list)
 
-print(scores)
+random_test_model(1)
 
-df_v = pandas.read_pickle(save_to.dirs.dir_ppshift + "1104774.pkl")
+#test_model(load_model(), [1001517])
+# =============================================================================
+# 
+# model.fit(in_ds_s,out_ds_s, epochs=100, batch_size=5, verbose=1)
+# 
+# scores =model.evaluate(in_ds_t,out_ds_t, verbose=1)
+# =============================================================================
 
-ds_v = df_v.values
-ds_v = ds_v[:,0:14]
-predictions = model.predict(ds_v)
-print(predictions)
+#print(scores)
+
+# =============================================================================
+# df_v = pandas.read_pickle(save_to.dirs.dir_ppshift + "1104774.pkl")
+# 
+# ds_v = df_v.values
+# ds_v = ds_v[:,0:14]
+# predictions = model.predict(ds_v)
+# print(predictions)
+# =============================================================================
 
 # =============================================================================
 # 	
