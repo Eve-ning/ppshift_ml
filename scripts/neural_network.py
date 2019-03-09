@@ -53,7 +53,7 @@ def model_c():
     
     model.add(keras.layers.Dense(104, input_shape=(13,), kernel_initializer='normal', activation='relu'))
     model.add(keras.layers.Dropout(0.3))
-    model.add(keras.layers.Dense(52))
+#    model.add(keras.layers.Dense(52))
     model.add(keras.layers.Dense(1, kernel_initializer='normal'))
 
     model.compile(loss='mean_squared_error', optimizer='adam')
@@ -147,6 +147,6 @@ def random_test_model(maps_to_test: int, model_name: str, sub_folder: str = 'plo
 
 
 #merge_df(0.8)
-train_model("two_layer")
-random_test_model(41, "two_layer", "two_layer_plots")
+train_model("one_layer")
+random_test_model(41, "one_layer", "one_layer_plots")
 #test_model( load_model("two_layer"), [1505212], "two_layer_plots")
