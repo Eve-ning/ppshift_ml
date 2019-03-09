@@ -52,8 +52,6 @@ def model_c():
     model = keras.models.Sequential()
     
     model.add(keras.layers.Dense(104, input_shape=(13,), kernel_initializer='normal', activation='relu'))
-    model.add(keras.layers.Dropout(0.3))
-#    model.add(keras.layers.Dense(52))
     model.add(keras.layers.Dense(1, kernel_initializer='normal'))
 
     model.compile(loss='mean_squared_error', optimizer='adam')
