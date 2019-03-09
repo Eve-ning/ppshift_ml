@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import random
 import re
 import statistics
+from keras.utils import plot_model
 
 # MERGES ALL EXISTING DFS
 def merge_df(partition: float):
@@ -50,10 +51,13 @@ def model_c():
     
     model = keras.models.Sequential()
     
-    model.add(keras.layers.Dense(78, input_shape=(13,), kernel_initializer='normal', activation='relu'))
-    model.add(keras.layers.Dense(78))
-    model.add(keras.layers.Dense(39))
+    model.add(keras.layers.Dense(104, input_shape=(13,), kernel_initializer='normal', activation='relu'))
+    model.add(keras.layers.Dense(52))
+    model.add(keras.layers.Dropout(0.3))
+    model.add(keras.layers.Dense(26))
     model.add(keras.layers.Dense(1, kernel_initializer='normal'))
+    
+    plot_model(model, to_file="three" + ".png")
     
     model.compile(loss='mean_squared_error', optimizer='adam')
     
@@ -64,7 +68,7 @@ def train_model(model_name: str) -> KerasRegressor:
     
     df = load_merge()   
     
-    df_s = df.sample(frac=0.5, random_state=seed)
+    df_s = df.sample(frac=0.010, random_state=seed)
     
     ds_s = df_s.values
     
@@ -78,7 +82,7 @@ def train_model(model_name: str) -> KerasRegressor:
     
     estimator = KerasRegressor(build_fn=model_c, epochs=15, batch_size=1, verbose=1)
     
-    kfold = KFold(n_splits=2, random_state=seed)
+    kfold = KFold(n_splits=3, random_state=seed)
     results = cross_val_score(estimator, in_ds_s, out_ds_s, cv=kfold)
     print("Results: %.2f (%.2f) MSE" % (results.mean(), results.std()))
     
@@ -99,7 +103,6 @@ def load_model(model_name: str) -> KerasRegressor:
 def test_model(model: KerasRegressor, beatmap_id: list, sub_folder: str = 'plots'):
     
     rating_list = []
-    
     
     for b_id in beatmap_id:
         df = pandas.read_pickle(save_to.dirs.dir_ppshift + str(b_id) + '.pkl')
@@ -128,7 +131,6 @@ def test_model(model: KerasRegressor, beatmap_id: list, sub_folder: str = 'plots
         plt.close()
 
         print("Rating: " + str(out['pred'].mean() / out['original'].mean()) + "\t", end='')
-        
         print(get_beatmap_metadata.metadata_from_id([b_id])['metadata'].values[0])
         
         rating_list.append(out['pred'].mean() / out['original'].mean())
@@ -137,6 +139,7 @@ def test_model(model: KerasRegressor, beatmap_id: list, sub_folder: str = 'plots
     print("stdev: " + str(statistics.stdev(rating_list)))
     
 def random_test_model(maps_to_test: int, model_name: str, sub_folder: str = 'plots'):
+        
     files = list(map(int, [x.split('.')[0] for x in os.listdir(save_to.dirs.dir_ppshift)[0:-1]]))
     # We will filter out < 5 star rating
     files_filter = get_beatmap_metadata.get_id_by_filters(5.0)  
