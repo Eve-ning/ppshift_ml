@@ -109,8 +109,9 @@ def test_model(model: KerasRegressor, beatmap_id: list):
         out_p = pandas.DataFrame(out_p, columns=['pred'])
         
         out = out_o.join(out_p)
-        
-        out = min_max_scaler.inverse_transform(out)
+#        
+#        out = min_max_scaler.inverse_transform(out)
+        min_max_scaler.
 
         out.plot(x='offset', title=get_beatmap_metadata.metadata_from_id(b_id))
 
@@ -129,9 +130,7 @@ random_test_model(1)
 
 #test_model(load_model(), [1001517])
 # =============================================================================
-# 
 # model.fit(in_ds_s,out_ds_s, epochs=100, batch_size=5, verbose=1)
-# 
 # scores =model.evaluate(in_ds_t,out_ds_t, verbose=1)
 # =============================================================================
 

@@ -6,7 +6,6 @@ Created on Sun Mar  3 09:19:13 2019
 """
 
 import api_main
-import os
 import save_to
 
 def get_player_ids(beatmap_id: int):
@@ -20,28 +19,17 @@ def get_player_ids(beatmap_id: int):
     
 def run():
 
-    # Get all diff id from the dir
-    files = os.listdir(save_to.dirs.dir_acd)
-    files_len = len(files)
-    files_counter = 0
+    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_osuho, save_to.dirs.dir_acd)
+    id_len = len(beatmap_ids)
+    id_counter = 0
     
-    for f in files:
-        files_counter += 1
+    for beatmap_id in beatmap_ids:
+        id_counter += 1
         
-        # Skip non .osu files
-        if (not "." in f):
-            continue
-        
-        # Extract Ids
-        beatmap_id = str(f.split(".")[0])
-        
-        # Skip if exist
-        if (save_to.exists(save_to.dirs.dir_plyrid, beatmap_id)):
-            continue
-        
-        print("get: " + beatmap_id + "\t|\t" + str(files_counter) + " out of " + str(files_len))
+        print("get: " + beatmap_id + "\t|\t" + str(id_counter) + " out of " + str(id_len))
         
         id_list = get_player_ids(beatmap_id)
+        
         if (id_list == None):
             print("Skipped on error: " + beatmap_id)
             continue;

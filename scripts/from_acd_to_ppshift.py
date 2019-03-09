@@ -208,27 +208,14 @@ def save_data(df: pandas.DataFrame, beatmap_id: int):
     
 
 def run():
-    # Get all diff id from the dir
-    files = os.listdir(save_to.dirs.dir_acrv)
-    files_len = len(files)
-    files_counter = 0
+    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_acd, save_to.dirs.dir_ppshift)
+    id_len = len(beatmap_ids)
+    id_counter = 0
     
-    for f in files:
-        files_counter += 1
-        
-        # Skip non .osu files
-        if (not "." in f):
-            continue
-        
-        # Extract Ids
-        beatmap_id = str(f.split(".")[0])
-        
-        # Skip if exist
-        if (save_to.exists(save_to.dirs.dir_ppshift, beatmap_id)):
-            continue
-        
-        print("get: " + beatmap_id + "\t|\t" + str(files_counter) + " out of " + str(files_len))
+    for beatmap_id in beatmap_ids:
+        id_counter += 1
+
+        print("get: " + beatmap_id + "\t|\t" + str(id_counter) + " out of " + str(id_len))
 
         save_data(get_data(int(beatmap_id)), int(beatmap_id))
     
-get_data(1231418).plot(x='offset')

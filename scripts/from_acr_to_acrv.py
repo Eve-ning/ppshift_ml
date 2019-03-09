@@ -104,27 +104,15 @@ def load_acd(beatmap_id: int):
     return [x.split(",") for x in f]
 
 def run():
-
-      # Get all diff id from the dir
-    files = os.listdir(save_to.dirs.dir_acr)
-    files_len = len(files)
-    files_counter = 0
     
-    for f in files:
-        files_counter += 1
+    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_acr, save_to.dirs.dir_acrv)
+    id_len = len(beatmap_ids)
+    id_counter = 0
+    
+    for beatmap_id in beatmap_ids:
+        id_counter += 1
         
-        # Skip non .osu files
-        if (not "." in f):
-            continue
-        
-        # Extract Ids
-        beatmap_id = str(f.split(".")[0])
-        
-        # Skip if exist
-        if (save_to.exists(save_to.dirs.dir_acrv, beatmap_id)):
-            continue
-        
-        print("get: " + beatmap_id + "\t|\t" + str(files_counter) + " out of " + str(files_len))
+        print("get: " + str(beatmap_id) + "\t|\t" + str(id_counter) + " out of " + str(id_len))
             
         acr = load_acr(int(beatmap_id))
         acd = load_acd(int(beatmap_id))
@@ -136,7 +124,8 @@ def run():
         for k, x in dev_med.items():
             dev_med_as_list.append([k[0], k[1], x[0], x[1], x[2]])
             
-    
-        save_to.diff_directory(save_to.dirs.dir_acrv, dev_med_as_list, beatmap_id, "acrv")
+        save_to.diff_directory(save_to.dirs.dir_acrv, \
+                               save_to.flatten_2d_list(dev_med_as_list), 
+                               str(beatmap_id), "acrv")
 
 run()

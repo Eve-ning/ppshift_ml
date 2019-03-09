@@ -20,17 +20,24 @@ class dirs:
     dir_ppshift = dir_conv + "ppshift\\"
     
 
-def diff_directory(path: dirs, data_list: list, filename: str, extension: str, join: bool = True):
+def diff_directory(path: dirs, str_data_list: list, filename: str, extension: str, join: bool = True):
     beatmap_file = open(path + filename + "." + extension, "w+", encoding="utf-8")
     
-    for data in data_list:
-        if (join == True):
-            dataj = ",".join(tuple(map(str, data)))
-        else:  
-            dataj = data
-        beatmap_file.write(dataj + "\n")
+    for data in str_data_list:
+
+        beatmap_file.write(data + "\n")
       
     beatmap_file.close()
+    
+def flatten_2d_list(data: list):
+    
+    str_data = []
+    for x in data:
+        # convert all into str
+        x = list(map(str, x))
+        str_data.append(','.join(x))
+        
+    return str_data
     
     
 def exists(path: dirs, filename: str):
@@ -43,16 +50,19 @@ def exists(path: dirs, filename: str):
 
     return exists_flag
 
-# =============================================================================
-# def custom_func():
-#     ids = [x.split('.')[0] for x in os.listdir(dirs.dir_plyrid)]
-#     acds = [x.split('.')[0] for x in os.listdir(dirs.dir_acd)]
-#     
-#     for id_ in ids:
-#         if (id_ not in acds):
-#             idf = open(dirs.dir_plyrid + id_ + ".plyrid", "w+")
-#             idf.write("999" * 99)
-#             
-#             
-# custom_func()
-# =============================================================================
+def get_beatmap_ids(path: dirs, compare_exist: dirs) -> list:
+    files = list(filter(lambda x: x.count('.') == 1, os.listdir(path)))
+    files = [x.split('.')[0] for x in files]
+    
+    files = list(map(int, files))
+    
+    compare_files = list(filter(lambda x: x.count('.') == 1, os.listdir(compare_exist)))
+    compare_files = [x.split('.')[0] for x in compare_files]
+    
+    compare_files = list(map(int, compare_files))
+
+    files = list(filter(lambda x : x not in compare_files, files))
+    print(files)
+    return files
+
+

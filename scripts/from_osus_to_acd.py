@@ -5,11 +5,9 @@ Created on Sat Mar  2 20:02:04 2019
 @author: user
 """
 
-import os
 import save_to
 
 OVERRIDE_THRESHOLD = True
-
 
 # Returns a boolean on if it's within threshold
 def within_manipulation_threshold(bpm_list: list, sv_list: list):
@@ -97,30 +95,25 @@ def parse_osus_diff(beatmap_id: int):
         
     return []
     
-#parse_osus_diff(888279)
     
 def run():
 
-    # Get all diff id from the dir
-    files = os.listdir(save_to.dirs.dir_osuho)
-    files_len = len(files)
-    files_counter = 0
+    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_osuho, save_to.dirs.dir_acd)
+    id_len = len(beatmap_ids)
+    id_counter = 0
     
-    for f in files:
-        files_counter += 1
+    for beatmap_id in beatmap_ids:
+        id_counter += 1
         
-        # Skip non .osuho files
-        if (not ".osuho" in f):
-            continue
-        
-        # Extract Ids
-        beatmap_id = str(f.split(".")[0])
-        print("get: " + str(beatmap_id) + "\t|\t" + str(files_counter) + " out of " + str(files_len))
+        print("get: " + str(beatmap_id) + "\t|\t" + str(id_counter) + " out of " + str(id_len))
         
         acd_list = parse_osus_diff(beatmap_id)
+        
         if (len(acd_list) == 0):
             continue;
         
-        save_to.diff_directory(save_to.dirs.dir_acd, acd_list, str(beatmap_id), "acd")
+        save_to.diff_directory(save_to.dirs.dir_acd, \
+                               save_to.flatten_2d_list(acd_list), \
+                               str(beatmap_id), "acd")
 
 run()

@@ -5,7 +5,6 @@ Created on Sun Mar  3 09:19:13 2019
 @author: user
 """
 
-import os
 import api_main
 import save_to
 import time
@@ -57,29 +56,17 @@ def get_player_replays(player_id_list: list, beatmap_id: int):
 def run():
 
     # Get all diff id from the dir
-    files = os.listdir(save_to.dirs.dir_acd)
-    files_len = len(files)
-    files_counter = 0
+    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_diff, save_to.dirs.dir_acr)
+    id_len = len(beatmap_ids)
+    id_counter = 0
     
-    for f in files:
+    for beatmap_id in beatmap_ids:
         
-        files_counter += 1
+        id_counter += 1
+        print("get: " + str(beatmap_id) + "\t|\t" + str(id_counter) + " out of " + str(id_len))
         
-        # Skip non .osu files
-        if (not "." in f):
-            continue
-        
-        # Extract Ids
-        beatmap_id = str(f.split(".")[0])
-        
-        # Skip if exist
-        if (save_to.exists(save_to.dirs.dir_acr, beatmap_id)):
-            continue
-        
-        print("get: " + beatmap_id + "\t|\t" + str(files_counter) + " out of " + str(files_len))
-        
-        id_list = load_player_ids(int(beatmap_id))
-        rpl = get_player_replays(id_list, int(beatmap_id))
+        id_list = load_player_ids(beatmap_id)
+        rpl = get_player_replays(id_list, beatmap_id)
         
         if (rpl == None):
             print("Program break")
@@ -88,17 +75,5 @@ def run():
         
         save_to.diff_directory(save_to.dirs.dir_acr, rpl, beatmap_id, "acr")
          
-# =============================================================================
-# if (not save_to.exists(save_to.dirs.dir_acr, str(342369))):
-#     id_list = load_player_ids(342369)[0:2]
-#     rpl = get_player_replays(id_list, 342369)
-#     save_to.diff_directory(save_to.dirs.dir_acd,rpl,str(342369),"acr")
-# else:
-#     print("Exists")
-# =============================================================================
-# =============================================================================
-# print(api_main.get_replay(823842, 3, 1824775))
-# =============================================================================
-
 
 run()
