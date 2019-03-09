@@ -25,7 +25,6 @@ weight_ssb = 0.1
 strain_decay_per_s = 5
 strain_decay_perc_per_s = 75
 
-beatmap_id = (1001780, get_beatmap_metadata.metadata_from_id(1001780))
 
 
 # This represents the distribution from the keys to the fingers
@@ -164,9 +163,9 @@ def get_strain(weight_df: pandas.DataFrame):
     return strain_df
 
 def get_replay(beatmap_id: int):
+    
     f = [x.split(',') for x in open(save_to.dirs.dir_acrv + str(beatmap_id) + '.acrv', "r").read().splitlines()]
 
-    
     replay_df = pandas.DataFrame(f, columns=['offset','key','median','mean','variance'])
     
     replay_df.drop(replay_df.columns[[1,3,4]], axis=1, inplace=True)
@@ -174,8 +173,10 @@ def get_replay(beatmap_id: int):
     replay_df = replay_df.apply(pandas.to_numeric)
     replay_df = replay_df.sort_values(by='offset')
 
+    # We replace median with a rolling mean of a 30 window
     replay_df['roll'] = replay_df['median'].rolling(window=30).mean()
     replay_df = replay_df.drop(['median'], axis=1)
+    # Due to rolling, we need to clean the NaNs with 0
     replay_df = replay_df.fillna(0)
 
     return replay_df
