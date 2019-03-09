@@ -23,20 +23,26 @@ import random
 def merge_df():
     
     # Get all diff id from the dir
-    files = os.listdir(save_to.dirs.dir_ppshift)            
+    files = save_to.get_beatmap_ids(save_to.dirs.dir_ppshift)
+
+    # We will filter out < 5 star rating
+    files_filter = get_beatmap_metadata.get_id_by_filters(5.0)  
+    files = list(filter(lambda x : x in files_filter, files))       
+
+    print("Merging " + str(len(files)) + " files")
 
     df_list = []
     
     for f in files:
-        df = pandas.read_pickle(save_to.dirs.dir_ppshift + f)
+        df = pandas.read_pickle(save_to.dirs.dir_ppshift + str(f) + '.pkl')
         df_list.append(df)
         
     df_all = pandas.concat(df_list)
-    df_all.to_pickle(save_to.dirs.dir_ppshift + "merged.pkl")
+    df_all.to_pickle(save_to.dirs.dir_ppshift + "\\merge\\merged.pkl")
     
 def load_merge():
     
-    return pandas.read_pickle(save_to.dirs.dir_ppshift + "merged.pkl")
+    return pandas.read_pickle(save_to.dirs.dir_ppshift + "\\merge\\merged.pkl")
 
 def model_c():
     
@@ -54,7 +60,7 @@ def train_model() -> KerasRegressor:
     
     df = load_merge()   
     
-    df_s = df.sample(frac=0.025, random_state=seed)
+    df_s = df.sample(frac=0.5, random_state=seed)
     
     ds_s = df_s.values
     
@@ -101,7 +107,6 @@ def test_model(model: KerasRegressor, beatmap_id: list):
         in_ds = ds[:,1:14]
         out_ds = ds[:,[0,14]]
         
-
         b_id = int(b_id)
         out_p = model.predict(in_ds, verbose=0)
         
@@ -109,9 +114,6 @@ def test_model(model: KerasRegressor, beatmap_id: list):
         out_p = pandas.DataFrame(out_p, columns=['pred'])
         
         out = out_o.join(out_p)
-#        
-#        out = min_max_scaler.inverse_transform(out)
-        min_max_scaler.
 
         out.plot(x='offset', title=get_beatmap_metadata.metadata_from_id(b_id))
 
@@ -126,9 +128,10 @@ def random_test_model(maps_to_test: int):
     
     test_model(load_model(), random_list)
 
-random_test_model(1)
-
-#test_model(load_model(), [1001517])
+#random_test_model(1)
+#merge_df()
+#train_model()
+test_model(load_model(), [646681])
 # =============================================================================
 # model.fit(in_ds_s,out_ds_s, epochs=100, batch_size=5, verbose=1)
 # scores =model.evaluate(in_ds_t,out_ds_t, verbose=1)

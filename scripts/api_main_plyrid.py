@@ -34,11 +34,9 @@ def run():
             print("Skipped on error: " + beatmap_id)
             continue;
         
-        save_to.diff_directory(save_to.dirs.dir_plyrid,id_list,beatmap_id,"plyrid",False)
+        save_to.diff_directory(save_to.dirs.dir_plyrid, \
+                               id_list,str(beatmap_id),"plyrid",False)
         
 run()
-# =============================================================================
-# print(api_main.get_replay(823842, 3, 1824775))
-# =============================================================================
 
 

@@ -8,6 +8,7 @@ Created on Sun Mar  3 09:19:13 2019
 import api_main
 import save_to
 import time
+import get_beatmap_metadata
 
 def load_player_ids(beatmap_id: int):
     # Limit doesn't work
@@ -57,6 +58,12 @@ def run():
 
     # Get all diff id from the dir
     beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_diff, save_to.dirs.dir_acr)
+    
+    # This filters out any beatmap < 5.0 SR
+    filtered_ids = get_beatmap_metadata.get_id_by_filters(5)
+    beatmap_ids = list(filter(lambda x: x in filtered_ids, beatmap_ids))
+
+    
     id_len = len(beatmap_ids)
     id_counter = 0
     
@@ -73,7 +80,9 @@ def run():
             input("Enter to Exit: ")
             return
         
-        save_to.diff_directory(save_to.dirs.dir_acr, rpl, beatmap_id, "acr")
+        save_to.diff_directory(save_to.dirs.dir_acr, \
+                               save_to.flatten_2d_list(rpl), \
+                               str(beatmap_id), "acr")
          
 
 run()

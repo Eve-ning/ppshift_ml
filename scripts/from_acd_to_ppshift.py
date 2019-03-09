@@ -205,17 +205,18 @@ def get_data(beatmap_id: int):
 def save_data(df: pandas.DataFrame, beatmap_id: int):
     
     df.to_pickle(save_to.dirs.dir_ppshift + str(beatmap_id) + '.pkl')   
-    
 
 def run():
-    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_acd, save_to.dirs.dir_ppshift)
+    # Should be relative to acrv as it's dependent
+    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_acrv, save_to.dirs.dir_ppshift)
     id_len = len(beatmap_ids)
     id_counter = 0
     
     for beatmap_id in beatmap_ids:
         id_counter += 1
 
-        print("get: " + beatmap_id + "\t|\t" + str(id_counter) + " out of " + str(id_len))
+        print("get: " + str(beatmap_id) + "\t|\t" + str(id_counter) + " out of " + str(id_len))
 
         save_data(get_data(int(beatmap_id)), int(beatmap_id))
     
+run()

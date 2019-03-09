@@ -30,6 +30,7 @@ def diff_directory(path: dirs, str_data_list: list, filename: str, extension: st
     beatmap_file.close()
     
 def flatten_2d_list(data: list):
+    # Squish all data in a 2d list for saving
     
     str_data = []
     for x in data:
@@ -38,7 +39,6 @@ def flatten_2d_list(data: list):
         str_data.append(','.join(x))
         
     return str_data
-    
     
 def exists(path: dirs, filename: str):
     # We get all file names (excluding folders) <excluded by lambda filter>
@@ -50,19 +50,23 @@ def exists(path: dirs, filename: str):
 
     return exists_flag
 
-def get_beatmap_ids(path: dirs, compare_exist: dirs) -> list:
+def get_beatmap_ids(path: dirs, compare_exist: dirs = None) -> list:
     files = list(filter(lambda x: x.count('.') == 1, os.listdir(path)))
     files = [x.split('.')[0] for x in files]
     
     files = list(map(int, files))
+    
+    if (compare_exist == None):
+        return files
     
     compare_files = list(filter(lambda x: x.count('.') == 1, os.listdir(compare_exist)))
     compare_files = [x.split('.')[0] for x in compare_files]
     
     compare_files = list(map(int, compare_files))
 
+    # Get all files not in the compare dir
     files = list(filter(lambda x : x not in compare_files, files))
-    print(files)
+    
     return files
 
 

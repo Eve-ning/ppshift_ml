@@ -6,7 +6,6 @@ Created on Wed Mar  6 12:33:32 2019
 """
 
 import save_to
-import os
 import ast
 import statistics
 
