@@ -52,8 +52,8 @@ def model_c():
     model = keras.models.Sequential()
     
     model.add(keras.layers.Dense(104, input_shape=(13,), kernel_initializer='normal', activation='relu'))
-    model.add(keras.layers.Dense(52, input_shape=(13,), kernel_initializer='normal', activation='relu'))
-#    model.add(keras.layers.Dense(26, input_shape=(13,), kernel_initializer='normal', activation='relu'))
+    model.add(keras.layers.Dense(52))
+    model.add(keras.layers.Dense(26))
     model.add(keras.layers.Dense(1, kernel_initializer='normal'))
 
     model.compile(loss='mean_squared_error', optimizer='adam')
@@ -147,6 +147,6 @@ def random_test_model(maps_to_test: int, model_name: str, sub_folder: str = 'plo
 
 
 #merge_df(0.8)
-train_model("one_layer")
-random_test_model(41, "one_layer", "one_layer_plots")
+train_model("three_layer")
+random_test_model(41, "three_layer", "three_layer_plots")
 #test_model( load_model("two_layer"), [1505212], "two_layer_plots")
