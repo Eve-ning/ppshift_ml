@@ -10,11 +10,78 @@ Before we dive into creating a neural network to finalize the calculation, we ne
 	\item Layers
 \end{enumerate}
 
-\paragraph{Input} Our input will be a 12-
+\paragraph{Input} Our input will be a vector containing information about 12 parameters.
+
+\begin{tabular}{|c|r|l|} 
+\hline
+\# & name & description \\
+\hline
+1 & LP  		& Left Pinky \\
+2 & LR  		& Left Ring \\
+3 & LM  		& Left Middle \\
+4 & LI 			& Left Index \\
+5 & S   		& Spacebar \\
+6 & RI 			& Right Index \\
+7 & RM 			& Right Middle \\
+8 & RR 			& Right Ring \\
+9 & RP 			& Right Pinky \\
+10& NN(count)	& Normal Note (count) \\
+11& LNH(count)	& Long Note Head (count) \\
+12& LNT(count)	& Long Note Tail (count) \\
+\hline
+\end{tabular}	
 
 \paragraph{Output} The output will be the expected $accuracy$, which is gathered from the replays.
 
-\paragraph{Layers} The amount and neurons of layers we use will be a hyperparameter. We will assign a value for those later
+\begin{tabular}{|c|r|l|} 
+\hline
+\# & name & description \\
+\hline
+1 & roll  		& Rolling average (window=30) of the replays' Medians \\
+\hline
+\end{tabular}	
+
+\paragraph{Layers} The amount and neurons of layers we use will be a hyperparameter. We will assign a value for those later, and talk more about this in the next part, we will firstly look into \textbf{bad data}
+
+\subsection{Bad Data Filtering}
+
+One of the biggest problems in the model is how we didn't take into consideration a few things. This stems from ignoring them in the difficulty calculation \textit{from beatmaps}.
+
+\begin{enumerate}
+	\item Scroll Speed Changes
+	\item 8 Key Bias
+\end{enumerate}
+
+So, can we just ignore them?
+
+\subsubsection{Scroll Speed Changes}
+
+It's hard to tell specifically which data is affected by the scroll speed change, but it's easy to tell what maps have scroll speed changes. However, by totally ignoring any maps with a slither of scroll speed changes, we will be left with a small group of \textbf{hard maps}. This is largely due to the nature that harder maps are frequently paired with them, so we need to find a filter.
+
+\paragraph{Scroll Speed Manipulation Selection}
+
+This is a subjective issue to tackle. I personally have tried doing an automated rejection of maps that have more than 1 SV or BPM value, however that proved to fail due to maps having intentional scroll speed changes, despite not oriented to be difficult in that aspect.
+
+We will source out these maps manually, it is not a hard task, so it will be worth the effort.
+
+
+\subsection{Drafting the Model}
+
+Firstly, we need to identify the nature of this issue. This falls under the category of \textbf{Regression} as we are dealing with a range of values, instead of a \textbf{yes} or \textbf{no}, which is instead labelled \textbf{Classification}.
+
+The main problem we will face is scoring. We can label how many \textbf{yes} or \textbf{no} predictions are \textit{false positives}, but we require another method to score how well we did by prediction.
+
+\subsection{Custom Scoring}
+
+We will use a custom scoring to find out if the model has done well. It's a simple function we are going to use, which is to find the \textbf{average absolute difference} between the expected graph and predicted graph. In mathematical terms:
+
+$$\frac{\sum \left(|prediction - actual|\right)}{length(prediction)} = score$$
+
+Where, the score is better if it's closer to 0. We also calculate the \textit{standard deviation} of the absolutes as an extra parameter to reference.
+
+\subsection{Input Shuffling}
+
+After we have calculated our parameters from our maps, we will merge \textbf{all} extracted parameters into one \textit{pickle} file, where we will randomly split our training and test set.
 
 
 \end{document}
