@@ -50,7 +50,7 @@ def model_c():
     
     model = keras.models.Sequential()
     
-    model.add(keras.layers.Dense(104, input_shape=(13,), kernel_initializer='normal', activation='relu'))
+    model.add(keras.layers.Dense(104, input_shape=(12,), kernel_initializer='normal', activation='relu'))
     model.add(keras.layers.Dense(52))
     model.add(keras.layers.Dense(26))
     model.add(keras.layers.Dense(1, kernel_initializer='normal'))
@@ -65,17 +65,11 @@ def train_model(model_name: str, frac: float, epochs: int) -> KerasRegressor:
     df_s = df.sample(frac=frac)
     ds_s = df_s.values
     
-    in_ds_s = ds_s[:,1:14]
-    out_ds_s = ds_s[:,14]
+    in_ds_s = ds_s[:,1:13]
+    out_ds_s = ds_s[:,13]
     
-    model = model_c()
-    
-    KerasRegressor(build_fn=model_c, epochs=epochs, batch_size=1, verbose=1)
-    
-#    kfold = KFold(n_splits=3, random_state=seed)
-#    cross_val_score(estimator, in_ds_s, out_ds_s, cv=kfold)
-    
-    model.fit(in_ds_s, out_ds_s)
+    model = model_c()    
+    model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=1)
     model.model.save(model_name + '.hdf5')
     
     return model
@@ -109,8 +103,8 @@ def test_model(model: KerasRegressor, beatmap_id: list, model_name: str):
         df = pandas.read_pickle(save_to.dirs.dir_ppshift + str(b_id) + '.pkl')
         ds = df.values
         
-        in_ds = ds[:,1:14]
-        out_ds = ds[:,[0,14]]
+        in_ds = ds[:,1:13]
+        out_ds = ds[:,[0,13]]
         
         b_id = int(b_id)
         out_p = model.predict(in_ds, verbose=0)
@@ -153,7 +147,9 @@ def random_test_model(maps_to_test: int, model_name: str):
     
     test_model(load_model(model_name), random_list, model_name)
 
+model_name = "three_layer"
+
 #merge_df(0.8)
-train_model("three_layer",0.5,100)
-random_test_model(41, "three_layer")
+train_model(model_name,0.5,10)
+random_test_model(41, model_name)
 #test_model( load_model("two_layer"), [1505212], "two_layer_plots")

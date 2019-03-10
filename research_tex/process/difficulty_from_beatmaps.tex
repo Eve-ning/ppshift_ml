@@ -11,11 +11,11 @@ $$ difficulty_n \approx model \left( reading_n, \sum_{k=1}^{keys} \left(strain_k
 
 There are more factors (denoted by $...$) that contribute to difficulty, but we will regard them as noise in this research and fine tune this equation later.
 
-\paragraph{Reading} This denotes how hard is it to read all the patterns on the screen. We can draw similarities between this and density, however this looks beyond note density and estimates the difficulty of reading different similar density patterns.
+\paragraph{Reading} This denotes how hard is it to read all the patterns on the screen. We can draw similarities between this and density, however density focuses a lot more on its previous and future surroundings where reading looks at the future ones only. 
+
+\paragraph{Density} This focuses on the \textbf{imminent} density of the offset. contrary to strain, it disregards the global trends of patterns. We will not use this in our network as strain does a better job in calculation.
 
 \paragraph{Strain} This is reliant on $density$ whereby continuous high values of $ density$ will result in a high $strain$. This has an additional hyperparameter, $decay$, where it denotes how fast the player can recover from $strain_n$. Finger $strain$ on the same hand will likely affect the other $strain$ values of the other fingers.
-
-\paragraph{Density} This focuses on the imminent density of the offset (contrary to strain), whereby it disregards the global trends of patterns.
 
 \subsection{Note Type Weights}
 
@@ -29,7 +29,7 @@ This will define the \textbf{weightages} of each note type.
 \subsection{Reading}
 
 $$ reading_{(n,n+\theta)} := 
-count(NN), \left[ count(LNh) + count(LNt)\right]
+count(NN), count(LNh), count(LNt)
 = \lbrace n \leq offset \leq (n+ \theta) \rbrace$$
 
 Where,
@@ -43,8 +43,8 @@ We will not take into consideration the length of $note_{long}$
 We will look into density before strain as it's derived from this.
 
 Considering the notes on the $k$ column
-$$ \lbrace n-2, n-1, n, n+1, n+2 \rbrace $$
-$$ \Delta_{nx}^k = \frac{1}{n - x}$$
+$$ \lbrace ..., n-2, n-1, n, n+1, n+2, ... \rbrace $$
+$$ \Delta_{nx}^k = \frac{1}{|n - x|}$$
 $$ density_n^k =
 \sum_{N=n-\sigma}^{n+\sigma}
 \left(
@@ -54,11 +54,11 @@ $$ density_n^k =
 So for $\sigma = 2$ and 
 $$ column_k := \lbrace a, b, n, d, e\rbrace$$
 $$ density_n^k = \Delta_{na}^k + \Delta_{nb}^k + \Delta_{nd}^k + \Delta_{ne}^k $$
+$$ density_n^k = \frac{1}{|n-a|} + \frac{1}{|n-b|} + \frac{1}{|n-d|} + \frac{1}{|n-e|}$$
 
-\paragraph{$\Delta_{nx}^k$} will be the the inverse of the (ms) distance between notes $n$ and $x$ on column $k$. Notes that are further away will be penalized with a square. 
+\paragraph{$\Delta_{nx}^k$} will be the the inverse of the (ms) distance between notes $n$ and $x$ on column $k$. Notes that are further away will be penalized more heavily.
 
 \paragraph{$\sigma$} defines the range, front and back of the search. Higher sigma may prove to be useless with further $\Delta_{nx}^k$ being too small.
-
 
 \subsection{Strain}
 
@@ -118,7 +118,7 @@ Consider the case, with \textbf{Strain Shift}
 \end{tabular}
 \end{center}
 
-It's hard to include the calculations in the table, so we'll look at $density_{(1,1000)}$, we will also elaborate on the calculations without strain shift.
+It's hard to include the calculations in the table, so we'll look at $density_{(1,1000)}$.
 
 $$density_{1000}^1 =
 (\Delta_{(1000,0)}^{1}) +
@@ -212,11 +212,11 @@ As to counter this, we need to find out the \textbf{most common set-up} for play
 \end{tabular}
 \end{center}
 
-\textbf{L} represents left, \textbf{R} is right, the second letter will be the name for the fingers (LP: Left Pinky, LR: Left Ring and so on...)
+\textbf{L} represents left, \textbf{R} is right, the second letter will be th	e name for the fingers (LP: Left Pinky, LR: Left Ring and so on...)
 
-This allocation will give us a consistent result for all beatmaps
+This allocation will give us a consistent result for all beatmaps, so $key=1$ will always mean \textbf{Left Pinky}, $key=2$ for \textbf{Left Ring}, and so on...
 
-\subsubsection{8 Key Bias and inaccuracy}
+\subsubsection{8 Key Scratch Bias}
 The issue with 8 Key maps is how maps will usually have a \textit{scratch column}, this will create a setup that \textbf{excludes a pinky but includes the thumb}. This assumption may prove to be important if the results are heavily affected by including/excluding 8 Key maps.
 
 \subsection{Assigning Hyperparameters}
@@ -224,8 +224,6 @@ The issue with 8 Key maps is how maps will usually have a \textit{scratch column
 In this section alone, we have used quite a few hyperparameters. To recap:
 
 \paragraph{(Reading) $\theta$} is the hyperparameter for reading length.
-\paragraph{(Reading) $\Gamma$} is the hyperparameter for how difficult a long note is to read
-
 \paragraph{(Density) $\sigma$} defines the range, front and back of the density search. Higher sigma may prove to be useless with further $\Delta_{nx}^k$ being too small.
 
 \paragraph{(Density) $weight_{NN}$} defines for normal notes
@@ -241,12 +239,15 @@ Whereby we estimate difficulty at offset \textbf{n} from the map itself:
 
 $$ difficulty_n \approx model \left( reading_n, \sum_{k=1}^{keys} \left(strain_k \right), ... \right)$$
 
+We can further expand this to:
+
+$$ difficulty_n \approx model \left( count(NN), count(LNh), count(LNt), \sum_{k=1}^{keys} \left(strain_k \right)  \right)  $$
+
 \subsubsection{Values of Hyperparameters}
 
 There will definitely be issues when it comes to assuming hyperparameters because of how it will affect accuracy of the model. However, as long as we \textbf{reasonably} assign them, most of the errors will be offset by the neural network learning. We just need to focus on if a certain value should be \textbf{larger/smaller} or \textbf{negative/positive}.
 
 \paragraph{(Reading) $\theta$} 1000 (ms)
-\paragraph{(Reading) $\Gamma$} 0.75 (note that we already established that a $LN$ counts as 2 $NN$, so we will need to provide a value of $<1.0$ to compensate that an $LN$ is not as hard as 2 $NN$.)
 
 \paragraph{(Density) $\sigma$} 2
 
