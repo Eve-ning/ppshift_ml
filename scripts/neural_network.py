@@ -13,13 +13,12 @@ import get_beatmap_metadata
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
-from sklearn import preprocessing
 from keras.models import load_model as ld_mdl
 import matplotlib.pyplot as plt
 import random
 import re
 import statistics
-from keras.utils import plot_model
+from datetime import datetime
 
 # MERGES ALL EXISTING DFS
 def merge_df(partition: float):
@@ -60,28 +59,21 @@ def model_c():
     
     return model
 
-def train_model(model_name: str) -> KerasRegressor:
-    seed = 1
-    
+def train_model(model_name: str, frac: float, epochs: int) -> KerasRegressor:
     df = load_merge()   
     
-    df_s = df.sample(frac=0.010, random_state=seed)
-    
+    df_s = df.sample(frac=frac)
     ds_s = df_s.values
     
-    min_max_scaler = preprocessing.MinMaxScaler()
-    ds_s = min_max_scaler.fit_transform(ds_s)
-
     in_ds_s = ds_s[:,1:14]
     out_ds_s = ds_s[:,14]
     
     model = model_c()
     
-    estimator = KerasRegressor(build_fn=model_c, epochs=15, batch_size=1, verbose=1)
+    KerasRegressor(build_fn=model_c, epochs=epochs, batch_size=1, verbose=1)
     
-    kfold = KFold(n_splits=3, random_state=seed)
-    results = cross_val_score(estimator, in_ds_s, out_ds_s, cv=kfold)
-    print("Results: %.2f (%.2f) MSE" % (results.mean(), results.std()))
+#    kfold = KFold(n_splits=3, random_state=seed)
+#    cross_val_score(estimator, in_ds_s, out_ds_s, cv=kfold)
     
     model.fit(in_ds_s, out_ds_s)
     model.model.save(model_name + '.hdf5')
@@ -97,18 +89,25 @@ def load_model(model_name: str) -> KerasRegressor:
     
     return model
 
-def test_model(model: KerasRegressor, beatmap_id: list, sub_folder: str = 'plots'):
+def test_model(model: KerasRegressor, beatmap_id: list, model_name: str):
     
     rating_list = []
+    log = []
+    
+    plot_path = 'models\\plots\\' + model_name + '\\'
+    
+    # Check if plot path is valid
+    try:
+        # Create target Directory
+        os.mkdir(plot_path)
+        print(plot_path + " newly created")
+    except FileExistsError:
+        print(plot_path + " already created")
+        
     
     for b_id in beatmap_id:
         df = pandas.read_pickle(save_to.dirs.dir_ppshift + str(b_id) + '.pkl')
-    #    Partitions the test by 33% - 66%
-    #    df = df[(df.index>numpy.percentile(df.index, 33)) & (df.index<=numpy.percentile(df.index, 66))]
         ds = df.values
-        
-        min_max_scaler = preprocessing.MinMaxScaler()
-        ds = min_max_scaler.fit_transform(ds)
         
         in_ds = ds[:,1:14]
         out_ds = ds[:,[0,14]]
@@ -121,21 +120,30 @@ def test_model(model: KerasRegressor, beatmap_id: list, sub_folder: str = 'plots
         
         out = out_o.join(out_p)
         
+        # CREATE PLOTS
         title = get_beatmap_metadata.metadata_from_id([b_id])['metadata'].values[0]
         title = re.sub('[^\w_.)( -]', '', title)
         out.plot(x='offset', title=title)
-        plt.savefig(sub_folder + '\\' + title + '.jpg')
+        
+        # Save plot
+        plt.savefig(plot_path + title + '.jpg')
+        # Do not display plot in IPython console
         plt.close()
+        
+        # RATE PLOTS
+        out['delta'] = out['pred'].subtract(out['original']).abs()
+        log.append(str(out['delta'].mean()) + "\t" + \
+                   get_beatmap_metadata.metadata_from_id([b_id])['metadata'].values[0])
 
-        print("Rating: " + str(out['pred'].mean() / out['original'].mean()) + "\t", end='')
-        print(get_beatmap_metadata.metadata_from_id([b_id])['metadata'].values[0])
+        rating_list.append(out['delta'].mean())
         
-        rating_list.append(out['pred'].mean() / out['original'].mean())
-        
-    print("mean: " + str(statistics.mean(rating_list)))
-    print("stdev: " + str(statistics.stdev(rating_list)))
+    log.append("mean: " + str(statistics.mean(rating_list)))
+    log.append("stdev: " + str(statistics.stdev(rating_list)))
     
-def random_test_model(maps_to_test: int, model_name: str, sub_folder: str = 'plots'):
+    log_f = open(plot_path + "results.txt", "w+")
+    log_f.write('\n'.join(log))
+    
+def random_test_model(maps_to_test: int, model_name: str):
         
     files = list(map(int, [x.split('.')[0] for x in os.listdir(save_to.dirs.dir_ppshift)[0:-1]]))
     # We will filter out < 5 star rating
@@ -143,10 +151,9 @@ def random_test_model(maps_to_test: int, model_name: str, sub_folder: str = 'plo
     files = list(filter(lambda x : x in files_filter, files))     
     random_list = random.sample(files, maps_to_test)
     
-    test_model(load_model(model_name), random_list, sub_folder)
-
+    test_model(load_model(model_name), random_list, model_name)
 
 #merge_df(0.8)
-train_model("three_layer")
-random_test_model(41, "three_layer", "three_layer_plots")
+train_model("three_layer",0.5,100)
+random_test_model(41, "three_layer")
 #test_model( load_model("two_layer"), [1505212], "two_layer_plots")
