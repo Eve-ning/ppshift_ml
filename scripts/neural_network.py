@@ -60,6 +60,7 @@ def model_c():
     return model
 
 def train_model(model_name: str, frac: float, epochs: int) -> KerasRegressor:
+    
     df = load_merge()   
     
     df_s = df.sample(frac=frac)
@@ -70,7 +71,7 @@ def train_model(model_name: str, frac: float, epochs: int) -> KerasRegressor:
     
     model = model_c()    
     model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=1)
-    model.model.save(model_name + '.hdf5')
+    model.model.save('models\\' + model_name + '.hdf5')
     
     return model
 
@@ -79,7 +80,7 @@ def load_model(model_name: str) -> KerasRegressor:
     def dummy():
         return
     model = KerasRegressor(build_fn=dummy, epochs=1, batch_size=10, verbose=1)
-    model.model = ld_mdl(model_name + '.hdf5')
+    model.model = ld_mdl('models\\' + model_name + '.hdf5')
     
     return model
 
