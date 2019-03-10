@@ -10,7 +10,7 @@ $$ action_{replay} := \lbrace(offset_1, action_1), (offset_2, action_2), ... , (
 Whereby, 
 $$n \in \lbrace-9, -8, ... , -2, -1, 1, 2, ... , 8, 9\rbrace$$
 
-$offset$ is when the $action$ happens. For $action$, $-n$ means the key \textbf{n} is released, $n$ means the key \textbf{n} is pressed.
+$offset$ is when the $action$ happens. For $action$, $-n$ means the key \textbf{n} is released, $n$ means the key \textbf{n} is pressed. In this section, we will be discussing how we can make this a suitable output for the neural network to predict.
 
 \subsection{Mapping a Replay to Beatmap}
 
@@ -19,9 +19,9 @@ In this, we match all similar actions in their respective columns.
 There are a few things we need to take note of when matching:
 \begin{enumerate}
 	\item Not all $action_{beatmap}$ will have a matching $action_{replay}$
-	\item We put the threshold of this matching as $100ms$.
+	\item We put the threshold of this matching as $100ms$, i.e. $action_{beatmap}$ that doesn't have any $action_{replay}$ within $100ms$ will be regarded as a miss.
 	\item The nearest $action_{replay}$ will match the $action_{beatmap}$, not the earliest one.
-	\item We will deviate on how osu! calculate accuracy due to the above pointers, but its difference is insignificant.
+	\item We will deviate on how osu! calculate accuracy due to the above pointers, this allows us to calculate on a more common basis.
 \end{enumerate}
 
 We will expect the output of:
@@ -33,7 +33,7 @@ $$ n = length(action_{beatmap}) $$
 
 And if there's no match, $deviation > 100$, this is to allow us to understand that it's a \textbf{miss} instead of a $100ms$ hit.
 
-However, this is a bit ugly, so what we will use is the following:
+This doesn't proportionally represent accuracy (which will be easier to understand), as its lower value represents a better judgement, so we will adjust to the following:
 $$ accuracy := \lbrace(offset_1, accuracy_1), (offset_2, accuracy_2), ..., (offset_n, accuracy_n)\rbrace $$
 
 Where:
@@ -43,7 +43,7 @@ Therefore, a \textbf{miss} would simply just be $accuracy = 0$ instead.
 
 So accuracy will only span:
 $$ (Miss) 0 \leq accuracy_n \leq (Perfect) 1 $$
-$$ deviation_n \in [0, 1, 2, ..., 99, 100] $$
+$$ where, deviation_n \in [0, 1, 2, ..., 99, 100] $$
 
 \subsection{Replay Soloing}
 
