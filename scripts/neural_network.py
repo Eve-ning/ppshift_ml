@@ -147,9 +147,9 @@ def random_test_model(maps_to_test: int, model_name: str):
     
     test_model(load_model(model_name), random_list, model_name)
 
-model_name = "three_layer"
+model_name = "three_layer_25"
 
 #merge_df(0.8)
-train_model(model_name,0.5,10)
+train_model(model_name,0.5,25)
 random_test_model(41, model_name)
 #test_model( load_model("two_layer"), [1505212], "two_layer_plots")

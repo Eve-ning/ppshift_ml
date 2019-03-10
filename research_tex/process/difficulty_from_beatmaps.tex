@@ -191,6 +191,9 @@ $$
 
 From here, we can calculate the strain by running the through a python code.
 
+\subsection{Strain Calculation}
+
+
 \subsection{Allocating Notes to Fingers}
 
 We cannot assume that $column_1$ where $keys = 4$ is the same as $column_1$ where $keys = 7$. This is due to how \textbf{different fingers interact with the same column}.
@@ -219,6 +222,8 @@ This allocation will give us a consistent result for all beatmaps, so $key=1$ wi
 \subsubsection{8 Key Scratch Bias}
 The issue with 8 Key maps is how maps will usually have a \textit{scratch column}, this will create a setup that \textbf{excludes a pinky but includes the thumb}. This assumption may prove to be important if the results are heavily affected by including/excluding 8 Key maps.
 
+
+
 \subsection{Assigning Hyperparameters}
 
 In this section alone, we have used quite a few hyperparameters. To recap:
@@ -242,6 +247,8 @@ $$ difficulty_n \approx model \left( reading_n, \sum_{k=1}^{keys} \left(strain_k
 We can further expand this to:
 
 $$ difficulty_n \approx model \left( count(NN), count(LNh), count(LNt), \sum_{k=1}^{keys} \left(strain_k \right)  \right)  $$
+
+Where strain
 
 \subsubsection{Values of Hyperparameters}
 
