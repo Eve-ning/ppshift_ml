@@ -28,16 +28,14 @@ This will define the \textbf{weightages} of each note type.
 
 \subsection{Reading}
 
-$$ reading_{(n,n+\theta)} = 
-\frac{ count(NN) + \left[ count(LNh) + count(LNt)\right] * \Gamma }{\theta}
+$$ reading_{(n,n+\theta)} := 
+count(NN), \left[ count(LNh) + count(LNt)\right]
 = \lbrace n \leq offset \leq (n+ \theta) \rbrace$$
 
 Where,
 
 \paragraph{$n$} is the initial offset
 \paragraph{$\theta$} is the hyperparameter for length.
-\paragraph{$\Gamma$} is the hyperparameter for how difficult a long note is to read
-
 We will not take into consideration the length of $note_{long}$
 
 \subsection{Density}
@@ -150,10 +148,11 @@ $$ density_{1000}^2 =
 $$ density_{1000}^3 =
 \frac{3 * weight_{SSb}}{250} $$
 
-$$ density_{1000} =
-density_{1000}^1, density_{1000}^2, density_{1000}^3 =
-0.006,
-\frac{3 * weight_{SSh}}{250}, \frac{3 * weight_{SSb}}{250} $$
+$$ density_{1000} :=
+{density_{1000}^1, density_{1000}^2, density_{1000}^3} =
+\lbrace0.006,
+\frac{3 * weight_{SSh}}{250},
+\frac{3 * weight_{SSb}}{250}\rbrace $$
 
 \subsection{Density Generalization}
 
@@ -184,13 +183,41 @@ $$ = $$
 \]
 
 $$
+density_n :=
 \begin{bmatrix}
 	density_{n+\sigma} & \dots & density_{n+1} & density_{n} & density_{n-1} & \dots & density_{n-\sigma} 
 \end{bmatrix}
-= density_n
 $$ 
 
 From here, we can calculate the strain by running the through a python code.
+
+\subsection{Allocating Notes to Fingers}
+
+We cannot assume that $column_1$ where $keys = 4$ is the same as $column_1$ where $keys = 7$. This is due to how \textbf{different fingers interact with the same column}.
+
+As to counter this, we need to find out the \textbf{most common set-up} for players.
+
+\begin{center}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|} 
+	\hline
+	key & LP & LR & LM & LI & S  & RI & RM & RR & RP\\
+	\hline
+	4   & {} & {} & 1  & 2  & {} & 3  & 4  & {} & {}\\
+	5   & {} & {} & 1  & 2  & 3  & 4  & 5  & {} & {}\\
+	6   & {} & 1  & 2  & 3  & {} & 4  & 5  & 6  & {}\\
+	7   & {} & 1  & 2  & 3  & 4  & 5  & 6  & 7  & {}\\
+	8   & 1  & 2  & 3  & 4  & {} & 5  & 6  & 7  & 8\\
+	9   & 1  & 2  & 3  & 4  & 5  & 6  & 7  & 8  & 9\\
+	\hline
+\end{tabular}
+\end{center}
+
+\textbf{L} represents left, \textbf{R} is right, the second letter will be the name for the fingers (LP: Left Pinky, LR: Left Ring and so on...)
+
+This allocation will give us a consistent result for all beatmaps
+
+\subsubsection{8 Key Bias and inaccuracy}
+The issue with 8 Key maps is how maps will usually have a \textit{scratch column}, this will create a setup that \textbf{excludes a pinky but includes the thumb}. This assumption may prove to be important if the results are heavily affected by including/excluding 8 Key maps.
 
 \subsection{Assigning Hyperparameters}
 
