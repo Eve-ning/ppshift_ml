@@ -15,18 +15,4 @@ Using python, we can download $.osu$ (osu! difficulty file extension) using the 
 $$https://osu.ppy.sh/osu/<beatmap\_id>$$
 
 We save all of these using $<beatmap\_id>.osu$ file naming system.
-
-\subsection{Beatmap Validation}
-
-We should note that maps with \textbf{variable scroll speeds} will cause anomalies in our calculation, so we need to further define what maps defy a threshold we set to remove these from our calculations.
-
-\paragraph{Scroll Speed Manipulation Threshold}
-A simple way of tackling this issue would be to skip all beatmaps that has any of the following:
-\begin{enumerate}
-	\item Any \textbf{slight} SV Change $ 0.97 \leq TP_{SV} \leq 1.03 $
-	\item Any BPM Change
-\end{enumerate}
-
-After skipping beatmaps, we will grab all remaining $.osu$ and convert them to $.acd$. The action format is the same idea, where we have a list of offset and action.
-
 \end{document}
