@@ -82,4 +82,10 @@ This means that the median of all replays will be saved in a different data file
 
 The median of the top 50 creates a \textbf{virtual replay}, where we expect it to be a \textbf{good enough} representation of a \textbf{virtual player}. We can now pivot from this player as we calculate difficulty!
 
+\subsection{Smoothing}
+
+As expected, the median gathered will not be a smooth graph, we will smooth out with an \textbf{moving aggregation of its mean with a window of 30}. This means that it'll grab 30 data points, front and back, and calculate its median, creating a new series/vector.
+
+As player's deviations usually will not be consistent throughout, this will help hammer down large errors, while also affecting its neighbouring data points. In turn, this aids the machine to learn that the error may not only be the issue of that one note, but instead a group of it.
+
 \end{document}
