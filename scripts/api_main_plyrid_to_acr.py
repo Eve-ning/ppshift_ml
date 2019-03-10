@@ -60,7 +60,7 @@ def run():
     beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_diff, save_to.dirs.dir_acr)
     
     # This filters out any beatmap < 5.0 SR
-    filtered_ids = get_beatmap_metadata.get_id_by_filters(5)
+    filtered_ids = get_beatmap_metadata.get_id_by_filters(4.5)
     beatmap_ids = list(filter(lambda x: x in filtered_ids, beatmap_ids))
 
     
