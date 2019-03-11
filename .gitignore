@@ -1,6 +1,7 @@
 # docs
 docs/*
 *.png
+/scripts/models/plots/*
 
 # TeXMaker
 *.gz
