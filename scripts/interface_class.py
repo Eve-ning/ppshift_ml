@@ -6,6 +6,22 @@ Created on Mon Mar 11 15:30:55 2019
 """
 import pandas
 
+import api_main
+import api_main_beatmap_id_data
+import api_main_plyrid
+import api_main_plyrid_to_acr
+
+import download_difficulties
+
+import from_acd_to_ppshift
+import from_acr_to_acrv
+import osu_to_osus
+import from_osus_to_acd
+
+import get_osu_from_website
+import save_to
+import interface_io
+
 
 column_to_action = {
     4: [2,3,5,6],
@@ -20,69 +36,55 @@ def to_action(self, offset:float, keys:int, column:int):
     return column_to_action[keys][column]
 
 class beatmap:
-    def __init__(self, beatmap_id):
-        self.beatmap_id = beatmap_id
+    def __init__(self, beatmap_id: int):
+        self.osu = interface_io.load_pkl(self.params['beatmap_id'], 'osu')
+            
+        # vector<initial_offset, end_offset, column>
+        self.osuho = interface_io.load_pkl(self.params['beatmap_id'], 'osuho')
         
-    self.beatmap_id: int
-    
-    # Grab from settings
-    keys: int
-    is_special_style: bool
-    
-    # User Input
-    is_scroll_change_valid: bool
-    
-    # default osu format
-    osu: str
-    
-    # vector<initial_offset, end_offset, column>
-    osuho: pandas.DataFrame
-    
-    # vector<initial_offset, value, is_bpm>
-    osutp: pandas.DataFrame
-    
-    # vector<action_offset>
-    acd: pandas.DataFrame
-    
-    # 50 Replays
-    # vector<vector<action_offset>>
-    acr: pandas.DataFrame
-    
-    # 1 Replay
-    # vector<action_offset>
-    acrv: pandas.DataFrame
-    
-    metadata: dict = {
-            'keys': None,
-            'title': None,
-            'artist': None,
-            'creator': None,
-            'version': None
-            }
-    
+        # vector<initial_offset, value, is_bpm>
+        self.osutp = interface_io.load_pkl(self.params['beatmap_id'], 'osutp')
+        
+        # vector<offset, action>
+        self.acd = interface_io.load_pkl(self.params['beatmap_id'], 'acd')
+        
+        # 50 Replays
+        # vector<vector<offset, action>>
+        self.acr = interface_io.load_pkl(self.params['beatmap_id'], 'acr')
+        
+        # 1 Replay
+        # vector<offset, action>
+        self.acrv = interface_io.load_pkl(self.params['beatmap_id'], 'acrv')
+        
+        # vector<neural_network_parameters>
+        self.ppshift = interface_io.load_pkl(self.params['beatmap_id'], 'ppshift')
+        
+        self.params = interface_io.load_pkl(self.params['beatmap_id'], 'params')
+        
+        #  dict = {
+        #         'keys': None,
+        #         'title': None,
+        #         'artist': None,
+        #         'creator': None,
+        #         'version': None,
+        #         'beatmap_id': beatmap_id,
+        
+        #         # Grab from settings
+        #         'special_style': None,
+                
+        #         # User Input
+        #         'is_scroll_change_valid': None
+        #         }
+
     def get_beatmap_metadata(self) -> str:
         metadata_str = \
-        self.metadata['artist'] + ' - ' + \
-        self.metadata['title'] + ' (' + \
-        self.metadata['version'] + ') <' + \
-        self.metadata['creator'] + '>'
+        self.params['artist'] + ' - ' + \
+        self.params['title'] + ' (' + \
+        self.params['version'] + ') <' + \
+        self.params['creator'] + '>'
         
         return metadata_str
     
-    def get_beatmap_from_website(self) -> bool:
-        return
-    def get_plyrid(self) -> bool:
-        return
-    def plyrid_to_acr(self) -> bool:
-        return
-    def osu_to_osus(self) -> bool:
-        return
-    def osus_to_acd(self) -> bool:
-        return
-    def acr_to_acrv(self) -> bool:
-        return
-    def ac_to_ppshift(self) -> bool:
-        return
 
     @classmethod
     def parse_osu(self) -> bool:
@@ -97,9 +99,10 @@ class beatmap:
 #   this means we don't have replays for it, so it's impossible to
 #   train them
 # =============================================================================
-
+        
         if (self.osu == None):
-            self.osu = self.get_beatmap_from_website(self)
+            self.osu = get_osu_from_website.run(self.params['beatmap_id'])
+            interface_io.save_pkl(self.params['beatmap_id'], self.osu, 'osu')
         
 # =============================================================================
 #   .osu -> .osuho + .osutp
@@ -115,19 +118,42 @@ class beatmap:
 # =============================================================================
     
         if (self.osuho == None or self.osutp == None):
-            self.osuho, self.osutp = self.osu_to_osus(self)
+            self.osuho, self.osutp, \
+            self.params['keys'], \
+            self.params['title'], \
+            self.params['artist'], \
+            self.params['creator'], \
+            self.params['version'], \
+            self.params['special_style'] = \
+            osu_to_osus(self.osu)
+            
+            interface_io.save_pkl(self.params['beatmap_id'], self.osuho, 'osuho')
+            interface_io.save_pkl(self.params['beatmap_id'], self.osutp, 'osutp')
+            
+            # Even though is_scroll_change_valid is None
+            # we will save the params just in case of error
+            interface_io.save_pkl(self.params['beatmap_id'], self.params, 'params')
         
 # =============================================================================
 #   filter: scroll_change_filter
 #   If the scroll change is not valid, we will reject this input
 # =============================================================================
             
-        if(self.is_scroll_change_valid == None):
+        if (self.params['is_scroll_change_valid'] == None):
             # User will manually decide if new osu has a valid scroll change
             print(self.get_beatmap_metadata())
-            input("Is scroll change valid: [y/n]")
-        
-        if(not self.is_scroll_change_valid):
+            user_input = ''
+            while (user_input != 'y' or user_input != 'n'):
+                user_input = input("Is scroll change valid: [y/n]")
+            if (user_input == 'y'):
+                self.params['is_scroll_change_valid'] = True
+            else: # for 'n'
+                self.params['is_scroll_change_valid'] = False
+            
+            # This will complete the save_pkl for params
+            interface_io.save_pkl(self.params['beatmap_id'], self.params, 'params')
+            
+        if (not self.params['is_scroll_change_valid']):
             # Halt all calculations if scroll change is not valid
             return
     
@@ -142,9 +168,11 @@ class beatmap:
 #       -X = release key X,
 #       0 = nothing
 # =============================================================================
+        
+        if (self.acd == None):
+            self.acd = osuho_to_acd(self.osuho, self.params['is_scroll_change_valid'])
+            interface_io.save_pkl(self.params['beatmap_id'], self.acd, 'acd')
             
-        self.acd = self.osus_to_acd(self)
-    
 # =============================================================================
 #   API -> .plyrid
 #   Similar to downloading .osu, we get the .plyrid list 
@@ -152,8 +180,10 @@ class beatmap:
 #   Download into /plyrid/ folder
 # =============================================================================
         
-        self.plyrid = self.get_plyrid(self)
-        
+        if (self.plyrid == None):
+            self.plyrid = get_plyrid(self.params['beatmap_id'])
+            interface_io.save_pkl(self.params['beatmap_id'], self.plyrid, 'plyrid')      
+            
 # =============================================================================
 #   .plyrid -> .acr
 #   For this function, we will need to map the columns to the actual
@@ -163,8 +193,10 @@ class beatmap:
 #   FORMAT: <offset>, <action>
 # =============================================================================
         
-        self.acr = self.plyrid_to_acr(self)
-        
+        if (self.acr == None):
+            self.acr = self.plyrid_to_acr(self.plyrid)
+            interface_io.save_pkl(self.params['beatmap_id'], self.acr, 'acr')   
+            
 # =============================================================================
 #   .acr + .acd -> .acrv
 #   Matches the acr to acd
@@ -172,22 +204,32 @@ class beatmap:
 #   FORMAT: 
 # =============================================================================
     
-        self.acrv = self.get_
-    
+        if (self.acrv == None):
+            self.acrv = ac_to_acrv(self.acr, self.acd)
+            interface_io.save_pkl(self.params['beatmap_id'], self.acrv, 'acrv')   
+            
 # =============================================================================
 #   .acd + .acrv -> .ppshift
 #   Gets all required parameters from the beatmap and replay to prepare
 #   for neural network learning
 # =============================================================================
-        # 
-        # .ppshift -> .pkl
-    
-        # .pkl -> merge
+        
+        if (self.ppshift == None):
+            self.ppshift = ac_to_ppshift(self.acrv, self.acd)
+            interface_io.save_pkl(self.params['beatmap_id'], self.ppshift, 'ppshift')   
+            
+# =============================================================================
+#   End    
+# =============================================================================
+        return True
+
     
         # merge -> train -> .hdf5
     
         # .acd + .hdf5 -> pred
     
-    
-    
+        
+
+
+
     
