@@ -5,6 +5,8 @@ Created on Sat Mar  2 18:13:05 2019
 @author: user
 """
 
+import pandas
+
 # returns offset, value, is_bpm
 def read_timing_point(tp: str):
     tp_list = tp.split(",")
@@ -18,7 +20,7 @@ def read_hit_object(ho: str, keys: int):
     ho_list = ho.split(",")
     offset = int(ho_list[2])
     offset_end = int(ho_list[5].split(":")[0]) if ho.count(":") == 5 else 0
-    column = round((int(ho_list[0]) * keys - 256)/512)
+    column = round((int(ho_list[0]) * keys - 256)/512) + 1
     
     return offset, offset_end, column
 
@@ -96,7 +98,11 @@ def run(osu):
             
         counter += 1
     
-    return ho_list, tp_list, keys, title, artist, creator, version, special_style
+    # Convert HO and TP into Dataframes
+    ho_df = pandas.DataFrame(ho_list, columns=['offset', 'offset_end', 'column'])
+    tp_df = pandas.DataFrame(tp_list, columns=['offset', 'value', 'is_bpm'])
+
+    return ho_df, tp_df, keys, title, artist, creator, version, special_style
     
 # =============================================================================
 # osu file format v13
