@@ -16,7 +16,7 @@ import download_difficulties
 import from_acd_to_ppshift
 import from_acr_to_acrv
 import osu_to_osus
-import from_osus_to_acd
+import osuho_to_acd
 
 import get_osu_from_website
 import save_to
@@ -182,7 +182,7 @@ class beatmap:
 # =============================================================================
         
         if (self.acd == None):
-            self.acd = osuho_to_acd(self.osuho, self.params['keys'])
+            self.acd = osuho_to_acd.run(self.osuho, self.params['keys'])
             if (self.acd == None):
                 raise AssertionError('Fail to convert Hit Objects to Action Difficulty')
             

@@ -7,7 +7,6 @@ This is a temporary script file.
 
 import requests
 from time import sleep
-import save_to
 
 # ---
 
@@ -44,20 +43,16 @@ def osu_auth():
     
     return s;
 
-# ---
-    
 def osu_diff_get(beatmap_id: int, session: requests.session):
     
     sleep(1)
     r = session.get("https://osu.ppy.sh/osu/" + beatmap_id)
     r.raise_for_status()
-    open(save_to.dirs.dir_doc + 'difficulties\\' + beatmap_id + '.osu', 'wb+').write(r.content)
-
-# ---
+    return r.content
     
-def run(beatmap_id: int, session = None):
+def run(beatmap_id: int, session = None) -> list:
     
     if (session == None):
         session = osu_auth()
-    osu_diff_get(beatmap_id, session)
+    return osu_diff_get(beatmap_id, session).splitlines()
         

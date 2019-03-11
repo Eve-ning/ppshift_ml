@@ -26,7 +26,7 @@ def read_hit_object(ho: str, keys: int):
 
 # We take a beatmap_id as an input
 # We will create a separate file format for easier reading
-def run(osu):
+def run(osu: list):
 
     special_style = None
     
