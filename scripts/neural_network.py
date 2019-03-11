@@ -67,7 +67,7 @@ def train_model(model_name: str, frac: float, epochs: int) -> KerasRegressor:
     out_ds_s = ds_s[:,13]
     
     model = model_c()    
-    model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=5)
+    model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=100)
     model.model.save('models\\' + model_name + '.hdf5')
     
     return model
@@ -145,7 +145,7 @@ def random_test_model(maps_to_test: int, model_name: str):
     
     test_model(load_model(model_name), random_list, model_name)
 
-model_name = "e25_96_48_24_5"
+model_name = "e25_96_48_24_100"
 
 #merge_df(0.8)
 train_model(model_name,0.5,25)
