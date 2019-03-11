@@ -32,5 +32,23 @@ def model_c():
 
 \paragraph{optimizer} It's hard to describe what is \textbf{Adam} (adaptive moment estimation), however, it is described to be "better" than \textbf{SGD} (Stochastic Gradient Descent). More info here: https://machinelearningmastery.com/adam-optimization-algorithm-for-deep-learning/
 
+\subsubsection{Layer Improvements}
+
+We will keep it short on the guess and check for neuron layers, here are the results and improvements done.
+
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|} 
+\hline
+\multicolumn{7}{|c|}{Parameters} & \multicolumn{2}{|c|}{Loss} & {} \\
+\hline
+\# & $L_1$ & $L_2$ & $L_3$ & $L_4$ & Epochs & Batch Size & Mean & STDEV & File Name \\
+\hline
+1 & 108 & 54 & 27 & {} & 1.87 & 0.46 & 25 & 1 & e25\_104\_52\_26 \\
+\hline
+\multicolumn{10}{|c|}{Make Layers divisible by input dimensions (12)} \\
+\hline
+2 & 96 & 48 & 24 & {} & 1.87 & 0.46 & 25 & 1 & e25\_96\_48\_24 \\
+\hline
+\end{tabular}	
+
 
 \end{document}

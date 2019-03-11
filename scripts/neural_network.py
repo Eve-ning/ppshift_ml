@@ -11,14 +11,11 @@ import save_to
 import keras
 import get_beatmap_metadata
 from keras.wrappers.scikit_learn import KerasRegressor
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import KFold
 from keras.models import load_model as ld_mdl
 import matplotlib.pyplot as plt
 import random
 import re
 import statistics
-from datetime import datetime
 
 # MERGES ALL EXISTING DFS
 def merge_df(partition: float):
@@ -50,9 +47,9 @@ def model_c():
     
     model = keras.models.Sequential()
     
-    model.add(keras.layers.Dense(104, input_shape=(12,), kernel_initializer='normal', activation='relu'))
-    model.add(keras.layers.Dense(52))
-    model.add(keras.layers.Dense(26))
+    model.add(keras.layers.Dense(96, input_shape=(12,), kernel_initializer='normal', activation='relu'))
+    model.add(keras.layers.Dense(48))
+    model.add(keras.layers.Dense(24))
     model.add(keras.layers.Dense(1, kernel_initializer='normal'))
 
     model.compile(loss='mean_squared_error', optimizer='adam')
@@ -148,7 +145,7 @@ def random_test_model(maps_to_test: int, model_name: str):
     
     test_model(load_model(model_name), random_list, model_name)
 
-model_name = "three_layer_25"
+model_name = "e25_96_48_24"
 
 #merge_df(0.8)
 train_model(model_name,0.5,25)
