@@ -23,14 +23,7 @@ import save_to
 import interface_io
 
 
-column_to_action = {
-    4: [2,3,5,6],
-    5: [2,3,4,5,6],
-    6: [1,2,3,5,6,7],
-    7: [1,2,3,4,5,6,7],
-    8: [0,1,2,3,5,6,7,8],
-    9: [0,1,2,3,4,5,6,7,8],
-}
+
 
 def to_action(self, offset:float, keys:int, column:int):
     return column_to_action[keys][column]
@@ -189,7 +182,7 @@ class beatmap:
 # =============================================================================
         
         if (self.acd == None):
-            self.acd = osuho_to_acd(self.osuho, self.params['is_scroll_change_valid'])
+            self.acd = osuho_to_acd(self.osuho, self.params['keys'])
             if (self.acd == None):
                 raise AssertionError('Fail to convert Hit Objects to Action Difficulty')
             
@@ -254,9 +247,6 @@ class beatmap:
         return True
 
     
-        # merge -> train -> .hdf5
-    
-        # .acd + .hdf5 -> pred
     
         
 

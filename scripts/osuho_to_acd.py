@@ -5,34 +5,42 @@ Created on Sat Mar  2 20:02:04 2019
 @author: user
 """
 
+import pandas
 
-def osuho_to_acd(osuho: list):
+column_to_action = {
+    4: [2,3,5,6],
+    5: [2,3,4,5,6],
+    6: [1,2,3,5,6,7],
+    7: [1,2,3,4,5,6,7],
+    8: [0,1,2,3,5,6,7,8],
+    9: [0,1,2,3,4,5,6,7,8],
+}
+
+def run(osuho: pandas.DataFrame, keys: int) -> pandas.DataFrame:
     
-    # Fix acd starting from 0 by adding 1
-    acd_nn = [[ho[0], str(int(ho[2]) + 1)] for ho in list(filter(lambda ho: ho[1] == "0", osuho))]
-    acd_lnh = [[ho[0],"+" + str(int(ho[2]) + 1)] for ho in list(filter(lambda ho: ho[1] != "0", osuho))]
-    acd_lnt = [[ho[1],"-" + str(int(ho[2]) + 1)] for ho in list(filter(lambda ho: ho[1] != "0", osuho))]
+    osuho['column'] = convert_column_to_action(osuho['column'], keys)
     
-    acd = []
-    acd.extend(acd_nn)
-    acd.extend(acd_lnh)
-    acd.extend(acd_lnt)
+    # We will merge the offset and column if it's not an LN
+    acd_nn = pandas.concat([osuho['offset'][osuho['offset_end'] == 0],\
+                            osuho['column'][osuho['offset_end'] == 0]], axis=1)
+    
+    # We will merge the offset and column if it's an LN
+    acd_lnh = pandas.concat([osuho['offset'][osuho['offset_end'] != 0],\
+                             osuho['column'][osuho['offset_end'] != 0]], axis=1)
+    
+    # We will merge the offset_end and column if it's an LN
+    acd_lnt = pandas.concat([osuho['offset_end'][osuho['offset_end'] != 0],\
+                             osuho['column'][osuho['offset_end'] != 0]], axis=1)
+    
+    acd_lnt['column'] = [-x for x in acd_lnt['column']]
+    acd_lnt.rename(index=str, columns={"offset_end": "offset"})
+    
+    acd = pandas.concat([acd_nn, acd_lnh, acd_lnt], axis=0)
+    
+    acd.rename(index=str, columns={"column": "action"})
     
     return acd;
 
-def run(beatmap_id: int):
-    if (save_to.exists(save_to.dirs.dir_acd, str(beatmap_id))):
-        return []
-    
-    tp_list = read_osutp(beatmap_id)
-    ho_list = read_osuho(beatmap_id)
-    
-    bpm_list = [bpm[1] for bpm in list(filter(lambda x: x[2] == 'True', tp_list))]
-    sv_list = [sv[1] for sv in list(filter(lambda x: x[2] == 'False', tp_list))]
-    
-
-    return osuho_to_acd(ho_list)
-
-    
-
-run()
+def convert_column_to_action(column: pandas.Series, keys: int):
+    # Columns start from 1, so we need to minus off 1
+    return [column_to_action[keys][x - 1] for x in column]
