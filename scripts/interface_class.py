@@ -85,7 +85,6 @@ class beatmap:
         
         return metadata_str
     
-
     @classmethod
     def parse_osu(self) -> bool:
 
@@ -102,6 +101,9 @@ class beatmap:
         
         if (self.osu == None):
             self.osu = get_osu_from_website.run(self.params['beatmap_id'])
+            if (self.osu == None):
+                raise AssertionError('Fail to get .osu from website')
+            
             interface_io.save_pkl(self.params['beatmap_id'], self.osu, 'osu')
         
 # =============================================================================
@@ -126,6 +128,23 @@ class beatmap:
             self.params['version'], \
             self.params['special_style'] = \
             osu_to_osus(self.osu)
+            
+            if (self.osuho == None):
+                raise AssertionError('Fail to read Hit Object from .osu')
+            elif (self.osutp == None):
+                raise AssertionError('Fail to read Timing Point from .osu')
+            elif (self.params['keys'] == None):
+                raise AssertionError('Fail to read Keys from .osu')
+            elif (self.params['title'] == None):
+                raise AssertionError('Fail to read Title from .osu')
+            elif (self.params['artist'] == None):
+                raise AssertionError('Fail to read Artist from .osu')
+            elif (self.params['creator'] == None):
+                raise AssertionError('Fail to read Creator from .osu')
+            elif (self.params['version'] == None):
+                raise AssertionError('Fail to read Version from .osu')
+            elif (self.params['special_style'] == None):
+                raise AssertionError('Fail to read Special Style from .osu')
             
             interface_io.save_pkl(self.params['beatmap_id'], self.osuho, 'osuho')
             interface_io.save_pkl(self.params['beatmap_id'], self.osutp, 'osutp')
@@ -171,6 +190,9 @@ class beatmap:
         
         if (self.acd == None):
             self.acd = osuho_to_acd(self.osuho, self.params['is_scroll_change_valid'])
+            if (self.acd == None):
+                raise AssertionError('Fail to convert Hit Objects to Action Difficulty')
+            
             interface_io.save_pkl(self.params['beatmap_id'], self.acd, 'acd')
             
 # =============================================================================
@@ -182,6 +204,8 @@ class beatmap:
         
         if (self.plyrid == None):
             self.plyrid = get_plyrid(self.params['beatmap_id'])
+            if (self.plyrid == None):
+                raise AssertionError('Fail to get Player IDs from Beatmap ID')
             interface_io.save_pkl(self.params['beatmap_id'], self.plyrid, 'plyrid')      
             
 # =============================================================================
@@ -195,6 +219,8 @@ class beatmap:
         
         if (self.acr == None):
             self.acr = self.plyrid_to_acr(self.plyrid)
+            if (self.acr == None):
+                raise AssertionError('Fail to convert Player IDs to Action Replay')
             interface_io.save_pkl(self.params['beatmap_id'], self.acr, 'acr')   
             
 # =============================================================================
@@ -206,6 +232,8 @@ class beatmap:
     
         if (self.acrv == None):
             self.acrv = ac_to_acrv(self.acr, self.acd)
+            if (self.acrv == None):
+                raise AssertionError('Fail to convert Actions to Action Replay Virtual')
             interface_io.save_pkl(self.params['beatmap_id'], self.acrv, 'acrv')   
             
 # =============================================================================
@@ -216,6 +244,8 @@ class beatmap:
         
         if (self.ppshift == None):
             self.ppshift = ac_to_ppshift(self.acrv, self.acd)
+            if (self.ppshift == None):
+                raise AssertionError('Fail to convert Actions to PPShift')
             interface_io.save_pkl(self.params['beatmap_id'], self.ppshift, 'ppshift')   
             
 # =============================================================================
