@@ -147,7 +147,7 @@ def random_test_model(maps_to_test: int, model_name: str):
 
 model_name = "e25_96_48_24_100"
 
-#merge_df(0.8)
+# merge_df(0.8)
 train_model(model_name,0.5,25)
-random_test_model(41, model_name)
+random_test_model(121, model_name)
 #test_model( load_model("two_layer"), [1505212], "two_layer_plots")
