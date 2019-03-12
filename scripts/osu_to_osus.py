@@ -5,15 +5,13 @@ Created on Sat Mar  2 18:13:05 2019
 @author: user
 """
 
-import pandas
-
 # returns offset, value, is_bpm
 def read_timing_point(tp: str):
     tp_list = tp.split(",")
     offset = int(round(float(tp_list[0])))
     value = (60000.0 if tp_list[6] == '1' else -100.0) / float(tp_list[1])
     
-    return offset, value, tp_list[6] == '1'
+    return [offset, value, tp_list[6] == '1']
     
 # returns offset, offset_end(0 if normal note), column
 def read_hit_object(ho: str, keys: int):       
@@ -22,11 +20,13 @@ def read_hit_object(ho: str, keys: int):
     offset_end = int(ho_list[5].split(":")[0]) if ho.count(":") == 5 else 0
     column = round((int(ho_list[0]) * keys - 256)/512) + 1
     
-    return offset, offset_end, column
+    return [offset, offset_end, column]
 
 # We take a beatmap_id as an input
 # We will create a separate file format for easier reading
 def run(osu: list):
+    
+    osu = list(filter(lambda x : len(x) != 0, osu))
 
     special_style = None
     
@@ -98,11 +98,7 @@ def run(osu: list):
             
         counter += 1
     
-    # Convert HO and TP into Dataframes
-    ho_df = pandas.DataFrame(ho_list, columns=['offset', 'offset_end', 'column'])
-    tp_df = pandas.DataFrame(tp_list, columns=['offset', 'value', 'is_bpm'])
-
-    return ho_df, tp_df, keys, title, artist, creator, version, special_style
+    return ho_list, tp_list, keys, title, artist, creator, version, special_style
     
 # =============================================================================
 # osu file format v13
