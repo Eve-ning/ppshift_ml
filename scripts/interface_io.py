@@ -12,14 +12,15 @@ class interface_io:
         self.beatmap_id = beatmap_id
         self.base_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\difficulties\\conversions\\"
         
-    def load_nested(self, file_type:str, nest: str, suffix: str):
+    def load_nested(self, file_type: str, nest: str, suffix: str):
         
         path_dir = self.base_dir + file_type + '\\' + nest + '\\'
         path = path_dir + str(self.beatmap_id) + '_' + suffix + '.' + file_type
         
         try:
-            with open(path, 'r') as f:
-                out = f.read().splitlines()
+            f = open(path, 'r')
+            out = eval(f.read())
+            f.close()
             return out
         except:
             print("Failed to read: {path}".format(path=path))
@@ -31,8 +32,9 @@ class interface_io:
         path = path_dir + str(self.beatmap_id) + '.' + file_type
 
         try:
-            with open(path, 'r') as f:
-                out = f.read().splitlines()
+            f = open(path, 'r')
+            out = eval(f.read())
+            f.close()
             return out
         except:
             print("Failed to read: {path}".format(path=path))
