@@ -4,39 +4,96 @@ Created on Mon Mar 11 13:13:08 2019
 
 @author: user
 """
-
-import pickle
 import os
 
-base_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\"
-
-def load_pkl(beatmap_id: int, file_type: str, file_extension: str = 'pkl'):
+class interface_io:
     
-    path = base_dir + file_type + '\\' + str(beatmap_id) + '.' + file_extension
-    
-    try:
-        with open(path, 'r') as f:
-            data = pickle.load(f)    
-        return data
-    except:
-        return None
-    
-def save_pkl(beatmap_id: int, data, file_type: str, \
-             file_extension: str = 'pkl', create_dir: bool = True):
-
-    path = base_dir + file_type + '\\' + str(beatmap_id) + '.' + file_extension
-    
-    if (create_dir):
-        try:  
-            os.mkdir(path)
-        except OSError:  
-            print ("Path %s exists" % path)
-        else:  
-            print ("Created path %s" % path)
+    def __init__(self, beatmap_id: int):
+        self.beatmap_id = beatmap_id
+        self.base_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\difficulties\\conversions\\"
         
-    try:
-        with open(path, 'w+') as f:
-            pickle.dump(data, f)
-        return True
-    except:
-        return False
+    def load_nested(self, file_type:str, nest: str, suffix: str):
+        
+        path_dir = self.base_dir + file_type + '\\' + nest + '\\'
+        path = path_dir + str(self.beatmap_id) + '_' + suffix + '.' + file_type
+        
+        try:
+            with open(path, 'r') as f:
+                out = f.read().splitlines()
+            return out
+        except:
+            print("Failed to read: {path}".format(path=path))
+            return None
+        
+    def load(self, file_type: str) -> list:
+
+        path_dir = self.base_dir + file_type + '\\'
+        path = path_dir + str(self.beatmap_id) + '.' + file_type
+
+        try:
+            with open(path, 'r') as f:
+                out = f.read().splitlines()
+            return out
+        except:
+            print("Failed to read: {path}".format(path=path))
+            return None
+        
+    def save_nested(self, file_type:str, nest: str, suffix: str, data: str, \
+                    skip_if_exist: bool):
+        
+        path_dir = self.base_dir + file_type + '\\' + nest + '\\'
+        path = path_dir + str(self.beatmap_id) + '_' + suffix + '.' + file_type
+        
+        try:
+            os.mkdir(path_dir)
+            print("Creating directory: {dir}".format(dir = path_dir))
+        except:
+            pass
+        
+        if (skip_if_exist and os.path.isfile(path)):
+            print("Skipping: {path}".format(path=path))
+        
+        try:
+            f = open(path, 'w+')
+            f.write(data)
+            f.close()
+            return True
+        except:
+            print("Failed to save: {path}".format(path=path))
+            return False
+
+    def save(self, file_type: str, data: str, skip_if_exist: bool):
+
+        path_dir = self.base_dir + file_type + '\\'
+        path = path_dir + str(self.beatmap_id) + '.' + file_type
+        
+        try:
+            os.mkdir(path_dir)
+            print("Creating directory: {dir}".format(dir = path_dir))
+        except:
+            pass
+        
+        if (skip_if_exist and os.path.isfile(path)):
+            print("Skipping: {path}".format(path=path))
+        
+        try:
+            f = open(path, 'w+')
+            f.write(data)
+            f.close()
+            return True
+        except:
+            print("Failed to save: {path}".format(path=path))
+            return False
+
+        
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
