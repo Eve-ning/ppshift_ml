@@ -10,8 +10,9 @@ class interface_io:
     
     def __init__(self, beatmap_id: int):
         self.beatmap_id = beatmap_id
-        self.base_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\difficulties\\conversions\\"
+        self.base_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\"
         
+
     def load_nested(self, file_type: str, nest: str, suffix: str):
         
         path_dir = self.base_dir + file_type + '\\' + nest + '\\'
@@ -19,7 +20,7 @@ class interface_io:
         
         try:
             f = open(path, 'r')
-            out = eval(f.read())
+            out = f.read()
             f.close()
             return out
         except:
@@ -33,7 +34,7 @@ class interface_io:
 
         try:
             f = open(path, 'r')
-            out = eval(f.read())
+            out = f.read()
             f.close()
             return out
         except:
@@ -42,6 +43,8 @@ class interface_io:
         
     def save_nested(self, file_type:str, nest: str, suffix: str, data: str, \
                     skip_if_exist: bool):
+        
+        data = str(data)
         
         path_dir = self.base_dir + file_type + '\\' + nest + '\\'
         path = path_dir + str(self.beatmap_id) + '_' + suffix + '.' + file_type
@@ -64,8 +67,8 @@ class interface_io:
             print("Failed to save: {path}".format(path=path))
             return False
 
-    def save(self, file_type: str, data: str, skip_if_exist: bool):
-
+    def save(self, file_type: str, data, skip_if_exist: bool):
+        
         path_dir = self.base_dir + file_type + '\\'
         path = path_dir + str(self.beatmap_id) + '.' + file_type
         
@@ -87,7 +90,6 @@ class interface_io:
             print("Failed to save: {path}".format(path=path))
             return False
 
-        
         
     
     
