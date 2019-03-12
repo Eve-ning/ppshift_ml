@@ -2,6 +2,12 @@
 docs/*
 *.png
 /scripts/models/plots/*
+*.acr
+*.acd
+*.osu
+*.acrv
+*.osuho
+*.osutp
 
 # TeXMaker
 *.gz
