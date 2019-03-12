@@ -8,8 +8,9 @@ Created on Sun Mar  3 09:19:13 2019
 import api_main
 import time
 import osuho_to_acd
+import pandas
 
-def run(player_id_list: list, beatmap_id: int, keys: int):
+def run(player_id_list: list, beatmap_id: int, keys: int) -> pandas.DataFrame:
     
     replay_list = []
     status_count = 0
@@ -36,12 +37,12 @@ def run(player_id_list: list, beatmap_id: int, keys: int):
                 action = osuho_to_acd.column_to_action[keys][abs(column) - 1]
                 action = -action if is_release else action
                 
-                replay_n.append([offset, action])
+                replay_n.append([offset, action, player_id_list[player_id_it], player_id_it])
             
             # Reset Count on Good input
             status_count = 0
             player_id_it += 1
-            replay_list.append(replay_n)
+            replay_list.extend(replay_n)
             
         elif (status_code == 0):
             # When the replay is corrupt we append a dummy value
@@ -59,9 +60,10 @@ def run(player_id_list: list, beatmap_id: int, keys: int):
             if (status_count == status_break):
                 print ("Bad Status Threshold Exceeded")
                 return None
-            
-    return replay_list
+         
+    replay_df = pandas.DataFrame(replay_list, columns=['offset', 'action', 'player_id', 'player_id_it'])       
+    return replay_df
         
         
 
-print(run([6659363],1104774,4))
+# print(run([6659363,6702799],1104774,4))
