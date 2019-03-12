@@ -46,7 +46,7 @@ def osu_auth():
 def osu_diff_get(beatmap_id: int, session: requests.session):
     
     sleep(1)
-    r = session.get("https://osu.ppy.sh/osu/" + beatmap_id)
+    r = session.get("https://osu.ppy.sh/osu/" + str(beatmap_id))
     r.raise_for_status()
     return r.content
     
