@@ -9,6 +9,8 @@ docs/*
 *.osuho
 *.osutp
 *.params
+*.plyrid
+*.zip
 
 # TeXMaker
 *.gz
