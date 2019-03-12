@@ -8,25 +8,17 @@ import pandas
 
 import api_main
 import api_main_beatmap_id_data
-import api_main_plyrid
-import api_main_plyrid_to_acr
-
-import download_difficulties
 
 import from_acd_to_ppshift
 import from_acr_to_acrv
-import osu_to_osus
-import osuho_to_acd
 
 import get_osu_from_website
-import save_to
+import osu_to_osus
+import osuho_to_acd
+import get_plyrid
+import plyrid_to_acr
+
 import interface_io
-
-
-
-
-def to_action(self, offset:float, keys:int, column:int):
-    return column_to_action[keys][column]
 
 class beatmap:
     def __init__(self, beatmap_id: int):
@@ -66,7 +58,7 @@ class beatmap:
         #         'special_style': None,
                 
         #         # User Input
-        #         'is_scroll_change_valid': None
+        #         'reject': None
         #         }
 
     def get_beatmap_metadata(self) -> str:
@@ -142,7 +134,7 @@ class beatmap:
             interface_io.save_pkl(self.params['beatmap_id'], self.osuho, 'osuho')
             interface_io.save_pkl(self.params['beatmap_id'], self.osutp, 'osutp')
             
-            # Even though is_scroll_change_valid is None
+            # Even though reject is None
             # we will save the params just in case of error
             interface_io.save_pkl(self.params['beatmap_id'], self.params, 'params')
         
@@ -151,21 +143,49 @@ class beatmap:
 #   If the scroll change is not valid, we will reject this input
 # =============================================================================
             
-        if (self.params['is_scroll_change_valid'] == None):
+        if (self.params['reject'] == None):
             # User will manually decide if new osu has a valid scroll change
             print(self.get_beatmap_metadata())
             user_input = ''
             while (user_input != 'y' or user_input != 'n'):
-                user_input = input("Is scroll change valid: [y/n]")
-            if (user_input == 'y'):
-                self.params['is_scroll_change_valid'] = True
+                user_input = input("Reject Map: [y/n]")
+                
+            if (user_input == 'y'): # for 'y'
+                self.params['reject'] = True
+                
+                user_input_reason = ""
+                reject_reason_dic = {
+                        "1": "Scroll Speed Changes",
+                        "2": "Not enough Scores",
+                        "3": "Broken beatmap",
+                        "4": "Others"
+                        }
+                
+                # This is where a specific reason is specified
+                while (user_input_reason != "1" or \
+                       user_input_reason != "2" or \
+                       user_input_reason != "3" or \
+                       user_input_reason != "4"):
+                    
+                    print(reject_reason_dic)
+                    user_input_reason = \
+                    input("Reason for rejection: ")
+                    
+                self.params['reject_reason'] = \
+                reject_reason_dic[user_input_reason]
+                    
+                # This is a broad reason
+                if (user_input == "4"):
+                    self.params['reject_reason'] = \
+                    input("Details of rejection: ")
+                
             else: # for 'n'
-                self.params['is_scroll_change_valid'] = False
+                self.params['reject'] = False
             
             # This will complete the save_pkl for params
             interface_io.save_pkl(self.params['beatmap_id'], self.params, 'params')
             
-        if (not self.params['is_scroll_change_valid']):
+        if (not self.params['reject']):
             # Halt all calculations if scroll change is not valid
             return
     
@@ -196,7 +216,7 @@ class beatmap:
 # =============================================================================
         
         if (self.plyrid == None):
-            self.plyrid = get_plyrid(self.params['beatmap_id'])
+            self.plyrid = get_plyrid.run(self.params['beatmap_id'])
             if (self.plyrid == None):
                 raise AssertionError('Fail to get Player IDs from Beatmap ID')
             interface_io.save_pkl(self.params['beatmap_id'], self.plyrid, 'plyrid')      
@@ -211,7 +231,7 @@ class beatmap:
 # =============================================================================
         
         if (self.acr == None):
-            self.acr = self.plyrid_to_acr(self.plyrid)
+            self.acr = plyrid_to_acr.run(self.plyrid, self.params['beatmap_id'], self.params['keys'])
             if (self.acr == None):
                 raise AssertionError('Fail to convert Player IDs to Action Replay')
             interface_io.save_pkl(self.params['beatmap_id'], self.acr, 'acr')   

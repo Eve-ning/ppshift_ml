@@ -18,6 +18,7 @@ api_key_url = open("D:\\Data Documents\\auth\\osu_api_key.txt", "r")
 api_key = api_key_url.readline()
 api_key_url.close()
 
+
 def get_beatmap(beatmap_id: int):
     param = {
             "k": str(api_key),
@@ -113,11 +114,7 @@ def convert_replay_data(replay_data: list):
         # 0:  0 - 0 | 1 - 1 <No Change>
         # -1: 0 - 1 <Key Released>
         
-#        print('prev: {}'.format(prev_flag))
-#        print('curr: {}'.format(curr_flag))
-#        print('diff: {}'.format(diff_flag))
-        
-        # We are required to + 1 as -0 and +0 are the same
+        # We are required to add 1 as -0 and +0 are the same
         # So columns will always start from 1 to 9
         key_p = [(i + 1) for i, y in enumerate(diff_flag) if y == 1]
         key_r = [-(i + 1) for i, y in enumerate(diff_flag) if y == -1]
@@ -142,9 +139,7 @@ def convert_replay_data(replay_data: list):
         
         # Skip if there's no change in action
         if (len(diff_action) == 0):
-#            print('--skip--')
             continue
-#        print ('diff: {}'.format(diff_action))
         # For each key press/release, we append to output as a separate action
         if (timestamp > 0):
             for key in diff_action:
@@ -152,14 +147,8 @@ def convert_replay_data(replay_data: list):
                 
         prev_action = curr_action
   
-#    print('otpt: {}'.format(output))
     return output
 
 
-# Granat - Drop, Player: GH_CHAIKA
-# Map: https://osu.ppy.sh/beatmapsets/281349#mania/647965
-#cont, code = get_replay(647965, 3, 2462317)
-#
-#print(cont)
 
 
