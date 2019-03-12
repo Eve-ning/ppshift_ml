@@ -6,11 +6,11 @@ Created on Mon Mar 11 15:30:55 2019
 """
 import pandas
 
-import api_main
-import api_main_beatmap_id_data
+# import api_main
+# import api_main_beatmap_id_data
 
-import from_acd_to_ppshift
-import from_acr_to_acrv
+# import from_acd_to_ppshift
+# import from_acr_to_acrv
 
 import get_osu_from_website
 import osu_to_osus
@@ -21,46 +21,51 @@ import plyrid_to_acr
 import interface_io
 
 class beatmap:
+    
     def __init__(self, beatmap_id: int):
-        self.osu = interface_io.load_pkl(self.params['beatmap_id'], 'osu')
-            
-        # vector<initial_offset, end_offset, column>
-        self.osuho = interface_io.load_pkl(self.params['beatmap_id'], 'osuho')
-        
-        # vector<initial_offset, value, is_bpm>
-        self.osutp = interface_io.load_pkl(self.params['beatmap_id'], 'osutp')
-        
-        # vector<offset, action>
-        self.acd = interface_io.load_pkl(self.params['beatmap_id'], 'acd')
-        
-        # 50 Replays
-        # vector<vector<offset, action>>
-        self.acr = interface_io.load_pkl(self.params['beatmap_id'], 'acr')
-        
-        # 1 Replay
-        # vector<offset, action>
-        self.acrv = interface_io.load_pkl(self.params['beatmap_id'], 'acrv')
-        
-        # vector<neural_network_parameters>
-        self.ppshift = interface_io.load_pkl(self.params['beatmap_id'], 'ppshift')
-        
-        self.params = interface_io.load_pkl(self.params['beatmap_id'], 'params')
-        
-        #  dict = {
-        #         'keys': None,
-        #         'title': None,
-        #         'artist': None,
-        #         'creator': None,
-        #         'version': None,
-        #         'beatmap_id': beatmap_id,
-        
-        #         # Grab from settings
-        #         'special_style': None,
+        self.beatmap_id = beatmap_id
                 
-        #         # User Input
-        #         'reject': None
-        #         }
+        self.io = interface_io.interface_io(beatmap_id)
+        
+        self.osu = self.io.load('osu')
+        self.osu = self.osu.splitlines() if self.osu else self.osu
+        
+        self.osuho = self.io.load('osuho')
+        if (self.osuho):
+            self.osuho = list(map(eval, self.osuho.splitlines()))
+        
+        self.osutp = self.io.load('osutp')
+        if (self.osutp):
+            self.osutp = list(map(eval, self.osutp.splitlines()))
+        
+        self.acd = self.io.load('acd')
+        if (self.acd):
+            self.acd = list(map(eval, self.acd.splitlines()))
 
+        self.plyrid = self.io.load('plyrid')
+        if (self.plyrid):
+            self.plyrid = list(map(eval, self.plyrid.splitlines()))
+        
+        self.acr = self.io.load('acr')
+        if (self.acr):
+            self.acr = list(map(eval, self.acr.splitlines()))
+
+        self.acrv = self.io.load('acrv')
+        if (self.acrv):
+            self.acrv = list(map(eval, self.acrv.splitlines()))
+
+        self.ppshift = self.io.load('ppshift')
+        if (self.ppshift):
+            self.ppshift = list(map(eval, self.osutp.splitlines()))
+        
+        self.params = self.io.load('params')
+        if (self.params):
+            self.params = eval(self.params)
+
+        if (self.params == None):
+            self.params = {}
+
+        
     def get_beatmap_metadata(self) -> str:
         metadata_str = \
         self.params['artist'] + ' - ' + \
@@ -70,7 +75,6 @@ class beatmap:
         
         return metadata_str
     
-    @classmethod
     def parse_osu(self) -> bool:
 
 # =============================================================================
@@ -84,12 +88,17 @@ class beatmap:
 #   train them
 # =============================================================================
         
+        print("[OSU]", end=' ')
         if (self.osu == None):
-            self.osu = get_osu_from_website.run(self.params['beatmap_id'])
+            self.osu = get_osu_from_website.run(self.beatmap_id)
+
             if (self.osu == None):
                 raise AssertionError('Fail to get .osu from website')
             
-            interface_io.save_pkl(self.params['beatmap_id'], self.osu, 'osu')
+            self.io.save('osu', '\n'.join(self.osu), True)
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
         
 # =============================================================================
 #   .osu -> .osuho + .osutp
@@ -103,8 +112,9 @@ class beatmap:
 #
 #   General Data -> append to .pkl as metadata for each id
 # =============================================================================
-    
-        if (self.osuho == None or self.osutp == None):
+
+        print("[OSUS]", end=' ')
+        if ((self.osuho == None) or (self.osutp == None)):
             self.osuho, self.osutp, \
             self.params['keys'], \
             self.params['title'], \
@@ -112,7 +122,7 @@ class beatmap:
             self.params['creator'], \
             self.params['version'], \
             self.params['special_style'] = \
-            osu_to_osus(self.osu)
+            osu_to_osus.run(self.osu)
             
             if (self.osuho == None):
                 raise AssertionError('Fail to read Hit Object from .osu')
@@ -131,24 +141,29 @@ class beatmap:
             elif (self.params['special_style'] == None):
                 raise AssertionError('Fail to read Special Style from .osu')
             
-            interface_io.save_pkl(self.params['beatmap_id'], self.osuho, 'osuho')
-            interface_io.save_pkl(self.params['beatmap_id'], self.osutp, 'osutp')
+            osuho_str = '\n'.join(list(map(str, self.osuho)))
+            osutp_str = '\n'.join(list(map(str, self.osutp)))
+            self.io.save('osuho', osuho_str, True)
+            self.io.save('osutp', osutp_str, True)
             
             # Even though reject is None
             # we will save the params just in case of error
-            interface_io.save_pkl(self.params['beatmap_id'], self.params, 'params')
-        
+            self.io.save('params', str(self.params), True)
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
+
 # =============================================================================
 #   filter: scroll_change_filter
 #   If the scroll change is not valid, we will reject this input
 # =============================================================================
-            
-        if (self.params['reject'] == None):
+        print("[PARAMS]", end=' ')           
+        if ('reject' not in self.params):
             # User will manually decide if new osu has a valid scroll change
             print(self.get_beatmap_metadata())
             user_input = ''
-            while (user_input != 'y' or user_input != 'n'):
-                user_input = input("Reject Map: [y/n]")
+            while (user_input != 'y' and user_input != 'n'):
+                user_input = input("Reject Map [y/n]: ")
                 
             if (user_input == 'y'): # for 'y'
                 self.params['reject'] = True
@@ -162,9 +177,9 @@ class beatmap:
                         }
                 
                 # This is where a specific reason is specified
-                while (user_input_reason != "1" or \
-                       user_input_reason != "2" or \
-                       user_input_reason != "3" or \
+                while (user_input_reason != "1" and \
+                       user_input_reason != "2" and \
+                       user_input_reason != "3" and \
                        user_input_reason != "4"):
                     
                     print(reject_reason_dic)
@@ -175,7 +190,7 @@ class beatmap:
                 reject_reason_dic[user_input_reason]
                     
                 # This is a broad reason
-                if (user_input == "4"):
+                if (user_input_reason == "4"):
                     self.params['reject_reason'] = \
                     input("Details of rejection: ")
                 
@@ -183,12 +198,16 @@ class beatmap:
                 self.params['reject'] = False
             
             # This will complete the save_pkl for params
-            interface_io.save_pkl(self.params['beatmap_id'], self.params, 'params')
+            self.io.save('params', str(self.params), True)
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
             
-        if (not self.params['reject']):
+        if (self.params['reject']):
+            print("[REJECTED]: {rsn}".format(rsn = self.params['reject_reason']))
             # Halt all calculations if scroll change is not valid
             return
-    
+        
 # =============================================================================
 #   .osuho -> .acd
 #   For this function, we will need to map the columns to the actual
@@ -200,13 +219,19 @@ class beatmap:
 #       -X = release key X,
 #       0 = nothing
 # =============================================================================
-        
+
+        print("[ACD]", end=' ')
         if (self.acd == None):
             self.acd = osuho_to_acd.run(self.osuho, self.params['keys'])
             if (self.acd == None):
                 raise AssertionError('Fail to convert Hit Objects to Action Difficulty')
             
-            interface_io.save_pkl(self.params['beatmap_id'], self.acd, 'acd')
+            acd_str = '\n'.join(list(map(str, self.acd)))
+            
+            self.io.save('acd', acd_str, True)
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
             
 # =============================================================================
 #   API -> .plyrid
@@ -215,11 +240,15 @@ class beatmap:
 #   Download into /plyrid/ folder
 # =============================================================================
         
+        print("[PLYRID]", end=' ')
         if (self.plyrid == None):
-            self.plyrid = get_plyrid.run(self.params['beatmap_id'])
+            self.plyrid = get_plyrid.run(self.beatmap_id)
             if (self.plyrid == None):
                 raise AssertionError('Fail to get Player IDs from Beatmap ID')
-            interface_io.save_pkl(self.params['beatmap_id'], self.plyrid, 'plyrid')      
+            self.io.save('plyrid', '\n'.join(self.plyrid), True)      
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
             
 # =============================================================================
 #   .plyrid -> .acr
@@ -230,12 +259,29 @@ class beatmap:
 #   FORMAT: <offset>, <action>
 # =============================================================================
         
+        print("[ACR]", end=' ')
         if (self.acr == None):
-            self.acr = plyrid_to_acr.run(self.plyrid, self.params['beatmap_id'], self.params['keys'])
+            print()
+            self.acr = plyrid_to_acr.run(self.plyrid[0:2], self.beatmap_id, self.params['keys'])
             if (self.acr == None):
                 raise AssertionError('Fail to convert Player IDs to Action Replay')
-            interface_io.save_pkl(self.params['beatmap_id'], self.acr, 'acr')   
             
+            acr_list = []
+            for replay in self.acr:
+                acr_list.append(str(list(map(str, replay))))
+                
+            # We will remove any quotes 
+            acr_str = '\n'.join(acr_list) \
+                          .replace("'","") \
+                          .replace("[[","[") \
+                          .replace("]]","]")
+            
+            self.io.save('acr', acr_str, True)   
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
+        return
+    
 # =============================================================================
 #   .acr + .acd -> .acrv
 #   Matches the acr to acd
@@ -244,10 +290,10 @@ class beatmap:
 # =============================================================================
     
         if (self.acrv == None):
-            self.acrv = ac_to_acrv(self.acr, self.acd)
+            # self.acrv = ac_to_acrv(self.acr, self.acd)
             if (self.acrv == None):
                 raise AssertionError('Fail to convert Actions to Action Replay Virtual')
-            interface_io.save_pkl(self.params['beatmap_id'], self.acrv, 'acrv')   
+            self.io.save('acrv', '\n'.join(self.acrv), True)   
             
 # =============================================================================
 #   .acd + .acrv -> .ppshift
@@ -256,10 +302,10 @@ class beatmap:
 # =============================================================================
         
         if (self.ppshift == None):
-            self.ppshift = ac_to_ppshift(self.acrv, self.acd)
+            # self.ppshift = ac_to_ppshift(self.acrv, self.acd)
             if (self.ppshift == None):
                 raise AssertionError('Fail to convert Actions to PPShift')
-            interface_io.save_pkl(self.params['beatmap_id'], self.ppshift, 'ppshift')   
+            self.io.save('ppshift', '\n'.join(self.ppshift), True)   
             
 # =============================================================================
 #   End    
@@ -268,8 +314,8 @@ class beatmap:
 
     
     
-        
-
+bm = beatmap(1104774)
+bm.parse_osu()
 
 
     
