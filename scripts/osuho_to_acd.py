@@ -5,8 +5,6 @@ Created on Sat Mar  2 20:02:04 2019
 @author: user
 """
 
-import pandas
-
 column_to_action = {
     4: [2,3,5,6],
     5: [2,3,4,5,6],
@@ -16,31 +14,28 @@ column_to_action = {
     9: [0,1,2,3,4,5,6,7,8],
 }
 
-def run(osuho: pandas.DataFrame, keys: int) -> pandas.DataFrame:
+def run(osuho: list, keys: int):
     
-    osuho['column'] = convert_column_to_action(osuho['column'], keys)
-    
+    osuho_ = []
+    for offset in osuho:
+        osuho_.append([offset[0], \
+                       offset[1], \
+                       column_to_action[keys][offset[2] - 1]])
+    osuho = osuho_
+
+    acd = []
     # We will merge the offset and column if it's not an LN
-    acd_nn = pandas.concat([osuho['offset'][osuho['offset_end'] == 0],\
-                            osuho['column'][osuho['offset_end'] == 0]], axis=1)
+    acd_nn = [[y[0], y[2]] for y in list(filter(lambda x : x[1] == 0, osuho))]
     
     # We will merge the offset and column if it's an LN
-    acd_lnh = pandas.concat([osuho['offset'][osuho['offset_end'] != 0],\
-                             osuho['column'][osuho['offset_end'] != 0]], axis=1)
+    acd_lnh = [[y[0], y[2]] for y in list(filter(lambda x : x[1] != 0, osuho))]
     
     # We will merge the offset_end and column if it's an LN
-    acd_lnt = pandas.concat([osuho['offset_end'][osuho['offset_end'] != 0],\
-                             osuho['column'][osuho['offset_end'] != 0]], axis=1)
-    
-    acd_lnt['column'] = [-x for x in acd_lnt['column']]
-    acd_lnt.rename(index=str, columns={"offset_end": "offset"})
-    
-    acd = pandas.concat([acd_nn, acd_lnh, acd_lnt], axis=0)
-    
-    acd.rename(index=str, columns={"column": "action"})
+    acd_lnt = [[-y[1], y[2]] for y in list(filter(lambda x : x[1] != 0, osuho))]
+
+    acd.extend(acd_nn)
+    acd.extend(acd_lnh)
+    acd.extend(acd_lnt)
     
     return acd;
 
-def convert_column_to_action(column: pandas.Series, keys: int):
-    # Columns start from 1, so we need to minus off 1
-    return [column_to_action[keys][x - 1] for x in column]
