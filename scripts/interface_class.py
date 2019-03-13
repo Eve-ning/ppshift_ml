@@ -37,9 +37,15 @@ class beatmap:
         # Hard load evaluates the file
         if (not soft_load_flag):
             self.hard_load()
+            
+        # We will load params anyway, it's not slow
+        self.params = self.io.load('params')
+        if (self.params):
+            self.params = eval(self.params)
+        if (self.params == None):
+            self.params = {}
 
     def soft_load(self):
-        
         self.osu = self.io.exist('osu')
         self.osuho = self.io.exist('osuho')
         self.osutp = self.io.exist('osutp')
@@ -48,7 +54,6 @@ class beatmap:
         self.acr = self.io.exist('acr')
         self.acrv = self.io.exist('acrv')
         self.ppshift = self.io.exist('ppshift')
-        self.params = self.io.exist('params')
 
     def hard_load(self):
         self.soft_load_flag=False
@@ -61,7 +66,6 @@ class beatmap:
         self.acr = self.io.load('acr')
         self.acrv = self.io.load('acrv')
         self.ppshift = self.io.load('ppshift')
-        self.params = self.io.load('params')
         
         if (self.osu):
             self.osu = self.osu.splitlines()
@@ -79,10 +83,7 @@ class beatmap:
             self.acrv = list(map(eval, self.acrv.splitlines()))
         if (self.ppshift):
             self.ppshift = list(map(eval, self.ppshift.splitlines()))  
-        if (self.params):
-            self.params = eval(self.params)
-        if (self.params == None):
-            self.params = {}
+
         
     def get_beatmap_metadata(self) -> str:
         try:
