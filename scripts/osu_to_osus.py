@@ -49,7 +49,7 @@ def run(osu: list):
     while (not "TimingPoints" in osu[counter]) and counter < len(osu):
         
         if (osu[counter].startswith("SpecialStyle:")):
-            special_style = (osu[counter].split(":")[1].strip() == 1)
+            special_style = (osu[counter].split(":")[1].strip() == '1')
             
         elif (osu[counter].startswith("Title:")):
             title = osu[counter].split(":")[1].strip()

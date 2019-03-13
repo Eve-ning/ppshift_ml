@@ -69,15 +69,18 @@ class beatmap:
 
         
     def get_beatmap_metadata(self) -> str:
-        
-        metadata_str = \
-        self.params['artist'] + ' - ' + \
-        self.params['title'] + ' (' + \
-        self.params['version'] + ') <' + \
-        self.params['creator'] + '>'
-        
-        return metadata_str
+        try:
+            metadata_str = \
+            self.params['artist'] + ' - ' + \
+            self.params['title'] + ' (' + \
+            self.params['version'] + ') <' + \
+            self.params['creator'] + '>'
+            return metadata_str
     
+        except:
+            return "Failed to get metadata, .params is not created."
+            
+        
     def parse_osu(self) -> bool:
 
         print("[BEGIN PARSING] " + self.get_beatmap_metadata())
@@ -225,11 +228,15 @@ class beatmap:
 #       X = press key X,
 #       -X = release key X,
 #       0 = nothing
+#            
+#   This is also where we correct the 8K Bias, it's a separate mapping compared
+#   to the generic 8k model
 # =============================================================================
 
         print("[ACD]", end=' ')
         if (self.acd == None):
-            self.acd = osuho_to_acd.run(self.osuho, self.params['keys'])
+            self.acd = osuho_to_acd.run(self.osuho, self.params['keys'], \
+                                        self.params['special_style'])
             if (self.acd == None):
                 raise AssertionError('Fail to convert Hit Objects to Action Difficulty')
             
@@ -269,7 +276,8 @@ class beatmap:
         print("[ACR]", end=' ')
         if (self.acr == None):
             print(' --------------')
-            self.acr = plyrid_to_acr.run(self.plyrid[0:3], self.beatmap_id, self.params['keys'])
+            self.acr = plyrid_to_acr.run(self.plyrid[0:3], self.beatmap_id, \
+                                         self.params['keys'], self.params['special_style'])
             if (self.acr == None):
                 raise AssertionError('Fail to convert Player IDs to Action Replay')
             
@@ -312,7 +320,7 @@ class beatmap:
 # =============================================================================
 #   .acd + .acrv -> .ppshift
 #   Gets all required parameters from the beatmap and replay to prepare
-#   for neural network learning
+#   for neural network learning    
 # =============================================================================
  
         print("[PPSHIFT]", end=' ')
@@ -334,8 +342,8 @@ class beatmap:
         print("[END PARSING] " + self.get_beatmap_metadata())
         return True
 
-bm = beatmap(1104774)
-bm.parse_osu()
+# bm = beatmap(681161)
+# bm.parse_osu()
 
 
     

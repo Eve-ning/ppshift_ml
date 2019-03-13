@@ -9,7 +9,11 @@ import api_main
 import time
 import osuho_to_acd
 
-def run(player_id_list: list, beatmap_id: int, keys: int):
+def run(player_id_list: list, beatmap_id: int, keys: int, special_style: bool):
+    
+    # We will adjust keys according to if it's special_style
+    if (special_style and (keys == 8)):
+        keys == 88
     
     replay_list = []
     status_count = 0

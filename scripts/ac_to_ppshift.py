@@ -31,11 +31,6 @@ strain_decay_perc_per_s = 75
 # 9: [LP][LR][LM][LI][S][RI][RM][RR][RP]
 
 
-def get_acd(beatmap_id: int) -> pandas.DataFrame:
-    f = [x.split(",") for x in open(save_to.dirs.dir_acd + str(beatmap_id) + ".acd").read().splitlines()]
-    f = list(map(lambda x: [int(x[0]),x[1]], f))
-    return f
-
 def get_reading(acd: pandas.DataFrame) -> pandas.DataFrame:
         
     # Unique offset
@@ -178,8 +173,9 @@ def get_rolling(acrv_df: pandas.DataFrame):
     
 def run(acd: list, acrv: list):
         
-    # Grab ACD
+    # Load both dataframes in
     acd_df = pandas.DataFrame(acd, columns = ['offset', 'key'])
+    acrv_df = pandas.DataFrame(acrv, columns = ['offset', 'med_dev'])
     
     # Get strain via weight
     strain = get_strain(get_weights(acd_df))
@@ -190,11 +186,11 @@ def run(acd: list, acrv: list):
     # strain + reading Merge
     merge_df1 = pandas.merge(strain, reading, how='inner', on=['offset'])
 
-    acrv_df = pandas.DataFrame(acrv, columns = ['offset', 'med_dev'])
-    acrv_df = get_rolling(acrv_df)
+    # Get rolling mean for acrv
+    rolling = get_rolling(acrv_df)
     
     # strain + reading + replay (last col)
-    merge_df2 = pandas.merge(merge_df1, acrv_df, how='inner', on=['offset'])  
+    merge_df2 = pandas.merge(merge_df1, rolling, how='inner', on=['offset'])  
     
     merge_df2 = merge_df2.apply(pandas.to_numeric)
     return merge_df2.to_numpy().tolist()

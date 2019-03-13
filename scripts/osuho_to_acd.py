@@ -11,11 +11,16 @@ column_to_action = {
     6: [2,3,4,6,7,8],
     7: [2,3,4,5,6,7,8],
     8: [1,2,3,4,6,7,8,9],
+    88: [1,2,3,4,5,6,7,8], # This is the special assortment for keys in this case
     9: [1,2,3,4,5,6,7,8,9],
 }
 
-def run(osuho: list, keys: int):
+def run(osuho: list, keys: int, special_style: bool):
     
+    # For the special_style 8k, we will override keys with 88
+    if (special_style and (keys == 8)):
+        keys = 88
+        
     osuho_ = []
     for offset in osuho:
         osuho_.append([offset[0], \
