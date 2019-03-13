@@ -168,25 +168,18 @@ def get_strain(weight_df: pandas.DataFrame):
         
     return strain_df
 
-def get_replay(beatmap_id: int):
-    
-    f = [x.split(',') for x in open(save_to.dirs.dir_acrv + str(beatmap_id) + '.acrv', "r").read().splitlines()]
+def get_rolling(acrv_df: pandas.DataFrame):
 
-    replay_df = pandas.DataFrame(f, columns=['offset','key','median','mean','variance'])
-    
-    replay_df.drop(replay_df.columns[[1,3,4]], axis=1, inplace=True)
-
-    replay_df = replay_df.apply(pandas.to_numeric)
-    replay_df = replay_df.sort_values(by='offset')
+    acrv_df = acrv_df.apply(pandas.to_numeric)
+    acrv_df = acrv_df.sort_values(by='offset')
 
     # We replace median with a rolling mean of a 30 window
-    replay_df['roll'] = replay_df['median'].rolling(window=30).mean()
-    replay_df = replay_df.drop(['median'], axis=1)
+    acrv_df['roll'] = acrv_df['med_dev'].rolling(window=30).mean()
+    acrv_df = acrv_df.drop(['med_dev'], axis=1)
     # Due to rolling, we need to clean the NaNs with 0
-    replay_df = replay_df.fillna(0)
+    acrv_df = acrv_df.fillna(0)
 
-    return replay_df
-
+    return acrv_df
     
 def run(acd: list, acrv: list):
         
@@ -198,16 +191,16 @@ def run(acd: list, acrv: list):
     
     # Get reading
     reading = get_reading(acd_df)
-    
-    print(strain)
-    print(reading)
 
     # strain + reading Merge
-    df = pandas.merge(strain, reading, how='inner', on=['offset'])
+    merge_df1 = pandas.merge(strain, reading, how='inner', on=['offset'])
 
-    # strain + reading + replay (last col)
-    df = pandas.merge(df, acrv, how='inner', on=['offset'])  
+    acrv_df = pandas.DataFrame(acrv, columns = ['offset', 'med_dev'])
+    acrv_df = get_rolling(acrv_df)
     
-    df = df.apply(pandas.to_numeric)
-    return df
+    # strain + reading + replay (last col)
+    merge_df2 = pandas.merge(merge_df1, acrv_df, how='inner', on=['offset'])  
+    
+    merge_df2 = merge_df2.apply(pandas.to_numeric)
+    return merge_df2.to_numpy().tolist()
         

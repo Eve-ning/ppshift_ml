@@ -81,25 +81,48 @@ def run(acr: list, acd: list):
             counter += 1
     
     deviation_dic = get_deviation_median(deviation_dic)
+    
     # Flatten the dictionary to a list
     deviation_l = []
     
     for dev_k, dev_v in deviation_dic.items():
         # print(dev_k)
         # print(dev_v)
-        deviation_l.append([dev_k[0], dev_k[1], dev_v[0], dev_v[1], dev_v[2]])
+        deviation_l.append([dev_k[0], dev_k[1], dev_v[0]])
     
+    # Sort by offset
     deviation_l.sort(key=lambda x : x[0])
-    return (deviation_l)
+    
+    # For each offset, we only want 1 output, so we will groupby and aggregate
+    # by mean
+    deviation_l_grouped = []
+    offset_buffer = deviation_l[0][0]
+    median_sum = 0
+    counter = 0
+    
+    deviation_l.append([99999999,9,0])
+    for dev in deviation_l:
+        
+        # If it's the same as the buffer, we will add onto the median
+        if (offset_buffer == dev[0]):
+           median_sum += dev[2] 
+           counter += 1
+           
+        else: # Not the same, new entry
+            # We will append the previous entry
+            deviation_l_grouped.append([offset_buffer, median_sum/counter])
+            # Reset all parameters
+            offset_buffer = dev[0]
+            median_sum = dev[2]
+            counter = 1
+    
+    return (deviation_l_grouped)
 
 def get_deviation_median(deviation: dict):
     
     for k, x in deviation.items():
         dev_abs = [abs(d) for d in x]
-        deviation[k] = [
-                statistics.median(dev_abs),
-                statistics.mean(dev_abs),
-                statistics.variance(dev_abs)]
+        deviation[k] = [statistics.median(dev_abs)]
         
     return deviation
 

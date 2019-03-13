@@ -11,7 +11,7 @@ docs/*
 *.params
 *.plyrid
 *.zip
-
+*.ppshift
 # TeXMaker
 *.gz
 *.aux
