@@ -277,7 +277,7 @@ class beatmap:
         print("[ACR]", end=' ')
         if (self.acr == None):
             print(' --------------')
-            self.acr = plyrid_to_acr.run(self.plyrid[0:3], self.beatmap_id, \
+            self.acr = plyrid_to_acr.run(self.plyrid, self.beatmap_id, \
                                          self.params['keys'], self.params['special_style'])
             if (self.acr == None):
                 raise AssertionError('Fail to convert Player IDs to Action Replay')
