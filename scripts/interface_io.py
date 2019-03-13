@@ -19,7 +19,7 @@ class interface_io:
         path = path_dir + str(self.beatmap_id) + '_' + suffix + '.' + file_type
         
         try:
-            f = open(path, 'r')
+            f = open(path, 'r', encoding='utf-8')
             out = f.read()
             f.close()
             return out
@@ -33,7 +33,7 @@ class interface_io:
         path = path_dir + str(self.beatmap_id) + '.' + file_type
 
         try:
-            f = open(path, 'r')
+            f = open(path, 'r', encoding='utf-8')
             out = f.read()
             f.close()
             return out

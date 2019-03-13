@@ -29,6 +29,7 @@ class beatmap:
         self.io = interface_io.interface_io(beatmap_id)
         
         self.osu = self.io.load('osu')
+        
         if (self.osu):
             self.osu = self.osu.splitlines()
         
@@ -342,8 +343,8 @@ class beatmap:
         print("[END PARSING] " + self.get_beatmap_metadata())
         return True
 
-# bm = beatmap(681161)
-# bm.parse_osu()
+bm = beatmap(681161)
+bm.parse_osu()
 
 
     
