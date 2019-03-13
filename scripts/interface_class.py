@@ -276,7 +276,7 @@ class beatmap:
         
         print("[ACR]", end=' ')
         if (self.acr == None):
-            print(' --------------')
+            print(' ---------<--------><--------><--------><--------><-------->')
             self.acr = plyrid_to_acr.run(self.plyrid, self.beatmap_id, \
                                          self.params['keys'], self.params['special_style'])
             if (self.acr == None):
@@ -293,7 +293,7 @@ class beatmap:
                           .replace("]]","]")
             
             self.io.save('acr', acr_str, True)   
-            print("[CREATED] ----------")
+            print("[CREATED] ------<--------><--------><--------><--------><-------->")
         else:
             print("[EXISTS]")
 
@@ -342,9 +342,5 @@ class beatmap:
 # =============================================================================
         print("[END PARSING] " + self.get_beatmap_metadata())
         return True
-
-bm = beatmap(681161)
-bm.parse_osu()
-
 
     
