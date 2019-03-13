@@ -19,6 +19,60 @@ api_key = api_key_url.readline()
 api_key_url.close()
 
 
+def get_beatmaps_since_ext(YYYYMMDD: str, until_YYYYMMDD: str):
+    
+    latest_YYYYMMDD = YYYYMMDD
+    
+    data_l = []
+    
+    while (int(latest_YYYYMMDD) < int(until_YYYYMMDD)):
+        
+        print("Getting from: " + str(latest_YYYYMMDD))
+        
+        data, status = get_beatmaps_since(latest_YYYYMMDD)
+        
+        if (status != 200):
+            print("Bad status on get_beatmaps_since_ext")
+            return
+        
+        latest_YYYYMMDD_d = data[-1]['approved_date']
+        # Shift forward latest
+        latest_YYYYMMDD = ( \
+                          latest_YYYYMMDD_d[0:4] + \
+                          latest_YYYYMMDD_d[5:7] + \
+                          latest_YYYYMMDD_d[8:10] \
+                          )
+        
+        data_l.extend(data)
+        
+        # This happens when the api runs out of recent data to show
+        if (len(data) < 500):
+            break
+        
+    return data_l
+    
+
+def get_beatmaps_since(YYYYMMDD: str):
+    
+    if (type(YYYYMMDD) is not str):
+        raise TypeError('Type Error on input')
+    elif (len(YYYYMMDD) != 8):
+        raise AssertionError('Length of input is invalid')
+    
+    param = {
+        "k": str(api_key),
+        "since": YYYYMMDD[:4] + '-' + YYYYMMDD[4:6] + '-' + YYYYMMDD[6:],
+        "m": 3
+        }
+    
+    api_url = base_api_url + "get_beatmaps"
+    response = requests.get(api_url, params = param)
+    json_data = json.loads(response.text)
+    
+    time.sleep(2) # Pause
+    
+    return json_data, response.status_code
+
 def get_beatmap(beatmap_id: int):
     param = {
             "k": str(api_key),
