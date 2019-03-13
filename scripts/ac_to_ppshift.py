@@ -111,7 +111,7 @@ def get_weights(acd: pandas.DataFrame) -> pandas.DataFrame:
             weight_b = weight * weight_ssb
             
             # The list excluded, we will get the SS weights
-            other_k = range(1,10) # [1,2,...,8,9]
+            other_k = list(range(1,10)) # [1,2,...,8,9]
             other_k.pop(k - 1) # Due to indexing, we need to -1
             
             for other_k_ea in other_k:
@@ -198,13 +198,15 @@ def run(acd: list, acrv: list):
     
     # Get reading
     reading = get_reading(acd_df)
+    
+    print(strain)
+    print(reading)
 
     # strain + reading Merge
     df = pandas.merge(strain, reading, how='inner', on=['offset'])
 
     # strain + reading + replay (last col)
-    replay = get_replay(beatmap_id)
-    df = pandas.merge(df, replay, how='inner', on=['offset'])  
+    df = pandas.merge(df, acrv, how='inner', on=['offset'])  
     
     df = df.apply(pandas.to_numeric)
     return df

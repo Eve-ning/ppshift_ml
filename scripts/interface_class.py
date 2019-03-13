@@ -18,6 +18,7 @@ import osuho_to_acd
 import get_plyrid
 import plyrid_to_acr
 import ac_to_acrv
+import ac_to_ppshift
 
 import interface_io
 
@@ -309,11 +310,16 @@ class beatmap:
 #   Gets all required parameters from the beatmap and replay to prepare
 #   for neural network learning
 # =============================================================================
+        print("[PPSHIFT]", end=' ')
         if (self.ppshift == None):
-            # self.ppshift = ac_to_ppshift(self.acrv, self.acd)
+            self.ppshift = ac_to_ppshift.run(self.acd, self.acrv)
             if (self.ppshift == None):
                 raise AssertionError('Fail to convert Actions to PPShift')
-            self.io.save('ppshift', '\n'.join(self.ppshift), True)   
+            print(self.ppshift)
+            # self.io.save('ppshift', '\n'.join(self.ppshift), True)   
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
             
 # =============================================================================
 #   End    
