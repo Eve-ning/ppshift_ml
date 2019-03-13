@@ -12,42 +12,43 @@ Same idea we have here, we show the machine hundred of beatmaps, we tell the mac
 
 Think about a neural network, you've most likely seen one, it's circle(s) connected to more circle(s), in the end, there will be circle(s) that tell you something. Each circle represents a \textbf{neuron}.
 
-Each neuron holds a numeric value (between 0 and 1), we need to put a value in each of these neurons. Ignoring Timing Points and Scroll Speed Changes, how do we squeeze a beatmap into these neurons?
+Each neuron holds a numeric value, we need to put a value in each of these neurons. Ignoring Timing Points and Scroll Speed Changes, how do we squeeze a beatmap into these neurons?
 
 \paragraph{Hit Object Neurons} Remember that a neuron will only work with numeric values, what do you want to have in the neuron that represents a Hit Object? Putting either the \textbf{offset} or \textbf{column} will not work because both are vital!
 
-\paragraph{Column Neurons} It is a possible idea, to have a neuron for \textbf{each millisecond}, then put \textbf{column value} on those neurons that match the \textbf{offset}. We run into a glaring issue where input neurons will stretch to the \textbf{hundred thousands}, computational power required on this scale would be too high. If we decide to \textbf{bin} the offsets (binning is the act of grouping things together to reduce the number of fields) to \textbf{100ms} steps, it'll still be in the thousands.
+\paragraph{Column Neurons} It is a possible idea, to have a neuron for \textbf{each millisecond}, then put \textbf{column value} on those neurons that match the \textbf{offset}. We run into a glaring issue where input neurons will stretch to the \textbf{hundred thousands}, computational power required on this scale would be too high. If we decide to \textbf{bin} the offsets (binning is the act of grouping things together to reduce the number of fields) to \textbf{100ms} steps, it might prove to be too inaccurate and prone to abuse.
 
 \subsubsection{Subdivide the Issue}
 
 \textbf{Does it have to be the whole map?}
 
-It doesn't! That's what we are doing for this research, we don't look at the whole map, we look at parts of it, the inner mechanisms, the \textbf{patterns}! Sure, even though the whole map must be present to calculate difficulty but if we break it into \textbf{2 distinct procedures}, it's easier to visualize and control the system.
+It doesn't! That's what we are doing for this research, we don't look at the whole map, we look at parts of it, the inner mechanisms, the \textbf{patterns}! Sure, even though the whole map must be present to calculate difficulty but consider this:
 
-\begin{enumerate}
-	\item Patterns to Difficulties
-	\item Difficulties to Map Rating
-\end{enumerate}
+For each note in the map, the player will have to play \textbf{a pattern} (the input) and produce \textbf{a feedback} (the output). If we can parse a pattern and get an input, we should be able to teach the machine the expected output, and predict with it afterwards.
 
-\paragraph{Patterns to Difficulties} In the following sections we will be discussing how we can task the machine to learn what patterns are easy and which are harder
+\paragraph{Patterns to Input} In the following sections we will be discussing how we can task the machine to learn what patterns are easy and which are harder
 
-\paragraph{Difficulties to Map Rating} Using the \textbf{difficulty} values defined previously, we can find out how to use that to reliably give the map a rating. Do we rate it by the average, maximum or median? We will discuss those later.
+\paragraph{Output to a Single Rating} We can get output for each specific pattern, but how do we represent the difficulty as \textbf{one number?} Do we rate it by the average, maximum or median? We will discuss those later.
 
 \subsection{Expected output}
 
 Just like the example in \textbf{valid inputs}, we have to tell the machine that \textbf{that picture is of a cat}, else it doesn't know what is and what isn't.
 
-In this case, we can relate back to $Accuracy$ (Player), where it is the most reliable source of difficulty rating as explained earlier.
+In this case, we can relate back to $Accuracy$ (from the player), where it is the most reliable source of difficulty rating as explained earlier.
 
 One good source of this data is to grab replays (not scores!), because we can then analyse small parts of it in order to match with the input. 
 
-\subsubsection{Differing and Multiple Accuracies}
-
-However, there are two problems:
+\subsection{Differing and Multiple Accuracies}
 
 \paragraph{Multiple Players} There will be multiple replays, there isn't a replay that is all-encompassing (it'll be too biased!). So we need to create a middle-ground for these data.
 
 \paragraph{Different Players} Not everyone will perform similarly for every beatmap, there will be discrepancies. We can't just take the accuracy as a raw value and run a function through them, we will have to make use of relative accuracies instead of raw accuracies before finding the "ideal" replay.
+
+\subsection{Differing Keys}
+
+Is it possible to mash all keys together, to form a model that works for 9 keys? I believe that it can be done, however, anything \textbf{beyond 7 keys} will be arguably bad in rating. This is mainly due to the lack of beatmaps in that category and also a lack of players. So how is it done?
+
+\paragraph{Column to Action} Is a small keyword I would use in my script to signify, map this column to the finger used in real life. To simply put, imagine if all columns were named by their most commonly pressed finger, that's the process I'm using to funnel all of them together.
 
 \subsection{Recap}
 
