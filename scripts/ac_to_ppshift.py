@@ -34,14 +34,7 @@ strain_decay_perc_per_s = 75
 # 7: [LR][LM][LI][S][RI][RM][RR]
 # 8: [LP][LR][LM][LI][RI][RM][RR][RP]
 # 9: [LP][LR][LM][LI][S][RI][RM][RR][RP]
-key_distr_dict = {
-        4: [2,3,5,6],
-        5: [2,3,4,5,6],
-        6: [1,2,3,5,6,7],
-        7: [1,2,3,4,5,6,7],
-        8: [0,1,2,3,5,6,7,8],
-        9: [0,1,2,3,4,5,6,7,8],
-        }
+
 
 def get_acd(beatmap_id: int) -> pandas.DataFrame:
     f = [x.split(",") for x in open(save_to.dirs.dir_acd + str(beatmap_id) + ".acd").read().splitlines()]
@@ -82,10 +75,6 @@ def get_weights(acd: pandas.DataFrame) -> pandas.DataFrame:
     
     weights_l = []
     
-    # Get the key count, we can get it by looking at the maximum key
-    key_max = acd['key'].max()
-    key_distr = key_distr_dict[int(key_max)] # We use that to get the correct distr
-
     # We group by offset
     acd_offset_grp = acd.groupby(['offset'])
     
@@ -98,24 +87,41 @@ def get_weights(acd: pandas.DataFrame) -> pandas.DataFrame:
         # We will assign that key according to that distribution
         for k in grp['key']:  
             
-            # The index of key_distr
-            curr_distr_index = key_distr[abs(int(k)) - 1]
-            # L if left hand, R if right hand
-            curr_distr_hand = 'L' if curr_distr_index < 4 else 'R'
-            # Assign weight
-            offset_r[curr_distr_index + 1] += weight_nn
+            # We will find out what weight we are using on the key
+            weight = 0
+            if (k[0].isdigit()):
+                weight = weight_nn
+            elif (k[0] == '-'):
+                weight = weight_lnt
+            elif (k[0] == '+'):
+                weight = weight_lnh
+            else:
+                raise 
+            
+            k = abs(int(k)) # We don't need the details of the string anymore
+            
+            # Even though the list doesn't start key first, the key is already
+            # offset by + 1, so we don't need to adjust the index
+            offset_r[k] += weight
+            
+            # We will firstly calculate the weight that is transferred to
+            # The other fingers on the hand (Denoted by Strain Shift Hand)
+            weight_h = weight * weight_ssh
+            # The other hand (Denoted by Strain Shift Body)
+            weight_b = weight * weight_ssb
             
             # The list excluded, we will get the SS weights
-            excl_distr_index = list(filter(lambda x: x != curr_distr_index, key_distr))
+            other_k = range(1,10) # [1,2,...,8,9]
+            other_k.pop(k - 1) # Due to indexing, we need to -1
             
-            for excl_index in excl_distr_index:
-                # If they are on the same hand, we add SSH
-                if ((curr_distr_hand == 'L' and excl_index < 4) or \
-                    (curr_distr_hand == 'R' and excl_index >= 4)):
-                    offset_r[excl_index + 1] += weight_ssh
-                # If they are on the same body, we add SSB
+            for other_k_ea in other_k:
+                # If they are on the same hand, we add calculated WEIGHT_H
+                if ((k < 5 and other_k_ea < 5) or \
+                    (k >= 5 and other_k_ea >= 5)):
+                    offset_r[other_k_ea] += weight_h
+                # If they are on the same body, we add calculated WEIGHT_B
                 else:
-                    offset_r[excl_index + 1] += weight_ssb
+                    offset_r[other_k_ea] += weight_b
                 
         # Push the weights to the list
         weights_l.append(offset_r)
@@ -182,16 +188,16 @@ def get_replay(beatmap_id: int):
     return replay_df
 
     
-def get_data(beatmap_id: int):
+def run(acd: list, acrv: list):
         
     # Grab ACD
-    acd = pandas.DataFrame(get_acd(beatmap_id), columns = ['offset', 'key'])
+    acd_df = pandas.DataFrame(acd, columns = ['offset', 'key'])
     
     # Get strain via weight
-    strain = get_strain(get_weights(acd))
+    strain = get_strain(get_weights(acd_df))
     
     # Get reading
-    reading = get_reading(acd)
+    reading = get_reading(acd_df)
 
     # strain + reading Merge
     df = pandas.merge(strain, reading, how='inner', on=['offset'])
@@ -203,21 +209,3 @@ def get_data(beatmap_id: int):
     df = df.apply(pandas.to_numeric)
     return df
         
-def save_data(df: pandas.DataFrame, beatmap_id: int):
-    
-    df.to_pickle(save_to.dirs.dir_ppshift + str(beatmap_id) + '.pkl')   
-
-def run():
-    # Should be relative to acrv as it's dependent
-    beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_acrv, save_to.dirs.dir_ppshift)
-    id_len = len(beatmap_ids)
-    id_counter = 0
-    
-    for beatmap_id in beatmap_ids:
-        id_counter += 1
-
-        print("get: " + str(beatmap_id) + "\t|\t" + str(id_counter) + " out of " + str(id_len))
-
-        save_data(get_data(int(beatmap_id)), int(beatmap_id))
-    
-run()
