@@ -8,77 +8,89 @@ Created on Wed Mar  6 12:33:32 2019
 import save_to
 import ast
 import statistics
-import pandas
 
-def get_deviation(acr: pandas.DataFrame, acd: pandas.DataFrame):
+def run(acr: list, acd: list):
 
     # We find the unique keys from the map
     # We will then loop over the keys to find all deviations
-    unq_acd_actions = list(pandas.to_numeric(acd['action']).unique().values)
+    unq_acd_keys = list(set([x[1] for x in acd]))
     
-    acd_action_grp = acd.groupby(by='action')
-    acr_action_grp = acr.groupby(by=['player_id', 'action'])
+    # We skip + because replays don't specify + on LN or + on NN
+    unq_acd_keys = list(filter(lambda x: x[0] != "+", unq_acd_keys))
     
-    for acr_player_name, acr_player_grp_ea in acr_player_grp:
-        acr_player_grp_ea.groupby(by='action')
+    # Convert all to int
+    unq_acd_keys = [int(x) for x in unq_acd_keys]
     
+    # Convert all to int to allow arithmetic
+    acd_int = [[int(x) for x in n] for n in acd]
     
     # Output in dictionary
     deviation_dic = {}
 
-    # We group by the players
-    # acr_player_grp = acr.groupby(by='player_id')
+    for replay in acr:
+        
+        # This will specify all objects that meet the criteria of being closest
+        # to the acd
+        acr_closest_list = []
+        
+        # Loop through by each key
+        for key in unq_acd_keys:
+            
+            # Get only the actions that correspond to the key
+            acr_k = list(filter(lambda x: x[1] == key, replay))
+            acd_k = list(filter(lambda x: x[1] == key, acd_int))
+            
+            # print ("KEY: " + str(key))
+            # print ("ACR: " + str(len(acr_k)))
+            # print ("ACD: " + str(len(acd_k)))
+            # This will occur if the map doesn't have LNs on a column
+            # Eg. -3 will not occur if LNs don't appear on col3
+            if (len(acr_k) != 0):
+                for note in acd_k:
+                    # This gets the item that has the minimum abs difference
+                    acr_closest_list.append(
+                            min(acr_k, key=lambda x:abs(x[0]-note[0])))
+                
+                
+        
+        # Align both lists
+        acr_closest_list.sort(key=lambda x:x[1])
+        acd.sort(key=lambda x:int(x[1]))
+        
+        # If lengths are different, we will have an issue
+        if (len(acd) != len(acr_closest_list)):
+            print("Bad Length")
+            return
+        
+        # Count through the whole list
+        # Indexes should be consistent between the 2 lists
+        counter = 0
+        
+        while (counter < len(acd)):
+            offset_d = int(acd[counter][0])
+            offset_r = acr_closest_list[counter][0]
+            key = acd[counter][1]
+            dev = offset_d - offset_r
+             
+            # We set the default to be a blank array
+            deviation_dic.setdefault((offset_d, key),[])
+            
+            # Append dev to the key
+            deviation_dic[(offset_d, key)].append(dev)
 
-    # for replay in acr:
-        
-    #     # This will specify all objects that meet the criteria of being closest
-    #     # to the acd
-    #     acr_closest_list = []
-        
-    #     # Loop through by each key
-    #     for key in unq_acd_actions:
+            counter += 1
     
-    #         # Get only the actions that correspond to the key
-    #         acr_k = list(filter(lambda x: x[1] == key, replay))
-    #         acd_k = list(filter(lambda x: x[1] == key, acd_int))
-            
-    #         # This will occur if the map doesn't have LNs on a column
-    #         # Eg. -3 will not occur if LNs don't appear on col3
-    #         if (len(acr_k) != 0):
-    #             for note in acd_k:
-    #                 # This gets the item that has the minimum abs difference
-    #                 acr_closest_list.append(
-    #                         min(acr_k, key=lambda x:abs(x[0]-note[0])))
-                
-                
-    #     # Align both lists
-    #     acr_closest_list.sort(key=lambda x:x[1])
-    #     acd.sort(key=lambda x:int(x[1]))
-        
-    #     # If lengths are different, we will have an issue
-    #     if (len(acd) != len(acr_closest_list)):
-    #         print("Bad Length")
-    #         return
-        
-    #     # Count through the whole list
-    #     # Indexes should be consistent between the 2 lists
-    #     counter = 0
-        
-    #     while (counter < len(acd)):
-    #         offset_d = int(acd[counter][0])
-    #         offset_r = acr_closest_list[counter][0]
-    #         key = acd[counter][1]
-    #         dev = offset_d - offset_r
-             
-    #         # We set the default to be a blank array
-    #         deviation_dic.setdefault((offset_d, key),[])
-            
-    #         # Append dev to the key
-    #         deviation_dic[(offset_d, key)].append(dev)
-
-    #         counter += 1
-             
-    # # return (deviation_dic)
+    deviation_dic = get_deviation_median(deviation_dic)
+    # Flatten the dictionary to a list
+    deviation_l = []
+    
+    for dev_k, dev_v in deviation_dic.items():
+        # print(dev_k)
+        # print(dev_v)
+        deviation_l.append([dev_k[0], dev_k[1], dev_v[0], dev_v[1], dev_v[2]])
+    
+    deviation_l.sort(key=lambda x : x[0])
+    return (deviation_l)
 
 def get_deviation_median(deviation: dict):
     
@@ -91,7 +103,45 @@ def get_deviation_median(deviation: dict):
         
     return deviation
 
+# def load_acr(beatmap_id: int):
+    
+#     f = open(save_to.dirs.dir_acr + str(beatmap_id) + ".acr", "r"
+#              ).read().splitlines()
+#     f = list(filter(lambda x: x != "0,0", f)) # This is to remove all dummies
+#     return([ast.literal_eval(x) for x in f])
+    
+# def load_acd(beatmap_id: int):
+    
+#     f = open(save_to.dirs.dir_acd + str(beatmap_id) + ".acd", "r"
+#              ).read().splitlines()
+#     return [x.split(",") for x in f]
 
+# def run():
+    
+#     beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_acr, save_to.dirs.dir_acrv)
+#     id_len = len(beatmap_ids)
+#     id_counter = 0
+    
+#     for beatmap_id in beatmap_ids:
+#         id_counter += 1
+        
+#         print("get: " + str(beatmap_id) + "\t|\t" + str(id_counter) + " out of " + str(id_len))
+            
+#         acr = load_acr(int(beatmap_id))
+#         acd = load_acd(int(beatmap_id))
+        
+#         dev_med = get_deviation_median(get_deviation(acr, acd))
+#         dev_med_as_list = []
+        
+#         # Convert Dict to List
+#         for k, x in dev_med.items():
+#             dev_med_as_list.append([k[0], k[1], x[0], x[1], x[2]])
+            
+#         save_to.diff_directory(save_to.dirs.dir_acrv, \
+#                                save_to.flatten_2d_list(dev_med_as_list), 
+#                                str(beatmap_id), "acrv")
+
+# run()
     
     
     
