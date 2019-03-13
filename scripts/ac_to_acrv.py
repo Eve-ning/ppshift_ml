@@ -5,8 +5,6 @@ Created on Wed Mar  6 12:33:32 2019
 @author: user
 """
 
-import save_to
-import ast
 import statistics
 
 def run(acr: list, acd: list):

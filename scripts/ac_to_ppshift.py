@@ -6,9 +6,6 @@ Created on Wed Mar  6 18:32:15 2019
 """
 
 import pandas
-import save_to
-import os
-import get_beatmap_metadata
 
 # Output
 # Offset, Reading, Strain
@@ -24,8 +21,6 @@ weight_ssh = 0.25
 weight_ssb = 0.1
 strain_decay_per_s = 5
 strain_decay_perc_per_s = 75
-
-
 
 # This represents the distribution from the keys to the fingers
 # 4: [LM][LI][RI][RM]
