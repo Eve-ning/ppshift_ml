@@ -23,51 +23,66 @@ import interface_io
 
 class beatmap:
     
-    def __init__(self, beatmap_id: int):
+    def __init__(self, beatmap_id: int, soft_load_flag=False):
+        
         self.beatmap_id = beatmap_id
+        self.soft_load_flag = soft_load_flag
                 
         self.io = interface_io.interface_io(beatmap_id)
         
+        # Soft load only gets the file's existance
+        # This is much faster to check if it's done
+        self.soft_load()
+        
+        # Hard load evaluates the file
+        if (not soft_load_flag):
+            self.hard_load()
+
+    def soft_load(self):
+        
+        self.osu = self.io.exist('osu')
+        self.osuho = self.io.exist('osuho')
+        self.osutp = self.io.exist('osutp')
+        self.acd = self.io.exist('acd')
+        self.plyrid = self.io.exist('plyrid')
+        self.acr = self.io.exist('acr')
+        self.acrv = self.io.exist('acrv')
+        self.ppshift = self.io.exist('ppshift')
+        self.params = self.io.exist('params')
+
+    def hard_load(self):
+        self.soft_load_flag=False
+        
         self.osu = self.io.load('osu')
+        self.osuho = self.io.load('osuho')
+        self.osutp = self.io.load('osutp')
+        self.acd = self.io.load('acd')
+        self.plyrid = self.io.load('plyrid')
+        self.acr = self.io.load('acr')
+        self.acrv = self.io.load('acrv')
+        self.ppshift = self.io.load('ppshift')
+        self.params = self.io.load('params')
         
         if (self.osu):
             self.osu = self.osu.splitlines()
-        
-        self.osuho = self.io.load('osuho')
         if (self.osuho):
             self.osuho = list(map(eval, self.osuho.splitlines()))
-        
-        self.osutp = self.io.load('osutp')
         if (self.osutp):
             self.osutp = list(map(eval, self.osutp.splitlines()))
-        
-        self.acd = self.io.load('acd')
         if (self.acd):
             self.acd = list(map(eval, self.acd.splitlines()))
-
-        self.plyrid = self.io.load('plyrid')
         if (self.plyrid):
             self.plyrid = list(map(eval, self.plyrid.splitlines()))
-        
-        self.acr = self.io.load('acr')
         if (self.acr):
             self.acr = list(map(eval, self.acr.splitlines()))
-
-        self.acrv = self.io.load('acrv')
         if (self.acrv):
             self.acrv = list(map(eval, self.acrv.splitlines()))
-
-        self.ppshift = self.io.load('ppshift')
         if (self.ppshift):
-            self.ppshift = list(map(eval, self.ppshift.splitlines()))
-        
-        self.params = self.io.load('params')
+            self.ppshift = list(map(eval, self.ppshift.splitlines()))  
         if (self.params):
             self.params = eval(self.params)
-
         if (self.params == None):
             self.params = {}
-
         
     def get_beatmap_metadata(self) -> str:
         try:
@@ -82,7 +97,29 @@ class beatmap:
             return "Failed to get metadata, .params is not created."
             
         
+    def all_loaded(self) -> bool:
+        
+        return not (
+                   self.acd == None or \
+                   self.acr == None or \
+                   self.acrv == None or \
+                   self.osu == None or \
+                   self.osuho == None or \
+                   self.osutp == None or \
+                   self.params == None or \
+                   self.plyrid == None or \
+                   self.ppshift == None 
+                   )
+        
     def parse_osu(self) -> bool:
+        
+        if (self.all_loaded()):
+            print("[SKIP PARSING] " + self.get_beatmap_metadata())
+            return True
+        
+        if (self.soft_load_flag):
+            print("[FORCING HARD LOAD]")
+            self.hard_load()
 
         print("[BEGIN PARSING] " + self.get_beatmap_metadata())
         

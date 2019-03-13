@@ -27,6 +27,10 @@ def run(acr: list, acd: list):
 
     for replay in acr:
         
+        # Skip all dummies
+        if (len(replay) < 10):
+            continue
+        
         # This will specify all objects that meet the criteria of being closest
         # to the acd
         acr_closest_list = []

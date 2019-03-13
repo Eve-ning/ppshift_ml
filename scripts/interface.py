@@ -58,7 +58,7 @@ def custom_parse():
     bm_ids = list(map(int, bm_ids))
     
     for bm_id in bm_ids:
-        bm = interface_class.beatmap(bm_id)
+        bm = interface_class.beatmap(bm_id,True)
         bm.parse_osu()
     
     
