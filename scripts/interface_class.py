@@ -4,7 +4,6 @@ Created on Mon Mar 11 15:30:55 2019
 
 @author: user
 """
-import pandas
 
 # import api_main
 # import api_main_beatmap_id_data
@@ -59,7 +58,7 @@ class beatmap:
 
         self.ppshift = self.io.load('ppshift')
         if (self.ppshift):
-            self.ppshift = list(map(eval, self.osutp.splitlines()))
+            self.ppshift = list(map(eval, self.ppshift.splitlines()))
         
         self.params = self.io.load('params')
         if (self.params):
@@ -70,6 +69,7 @@ class beatmap:
 
         
     def get_beatmap_metadata(self) -> str:
+        
         metadata_str = \
         self.params['artist'] + ' - ' + \
         self.params['title'] + ' (' + \
@@ -80,6 +80,8 @@ class beatmap:
     
     def parse_osu(self) -> bool:
 
+        print("[BEGIN PARSING] " + self.get_beatmap_metadata())
+        
 # =============================================================================
 #   API -> .osu
 #   Firstly, we need to download the .osu from the website
@@ -163,6 +165,7 @@ class beatmap:
         print("[PARAMS]", end=' ')           
         if ('reject' not in self.params):
             # User will manually decide if new osu has a valid scroll change
+            print(' -----------')
             print(self.get_beatmap_metadata())
             user_input = ''
             while (user_input != 'y' and user_input != 'n'):
@@ -201,8 +204,9 @@ class beatmap:
                 self.params['reject'] = False
             
             # This will complete the save_pkl for params
-            self.io.save('params', str(self.params), True)
-            print("[CREATED]")
+            # Make sure to overwrite it by specifying last arg as False
+            self.io.save('params', str(self.params), False)
+            print("[CREATED] ----------")
         else:
             print("[EXISTS]")
             
@@ -264,8 +268,8 @@ class beatmap:
         
         print("[ACR]", end=' ')
         if (self.acr == None):
-            print()
-            self.acr = plyrid_to_acr.run(self.plyrid, self.beatmap_id, self.params['keys'])
+            print(' --------------')
+            self.acr = plyrid_to_acr.run(self.plyrid[0:3], self.beatmap_id, self.params['keys'])
             if (self.acr == None):
                 raise AssertionError('Fail to convert Player IDs to Action Replay')
             
@@ -280,7 +284,7 @@ class beatmap:
                           .replace("]]","]")
             
             self.io.save('acr', acr_str, True)   
-            print("[CREATED]")
+            print("[CREATED] ----------")
         else:
             print("[EXISTS]")
 
@@ -327,10 +331,9 @@ class beatmap:
 # =============================================================================
 #   End    
 # =============================================================================
+        print("[END PARSING] " + self.get_beatmap_metadata())
         return True
 
-    
-    
 bm = beatmap(1104774)
 bm.parse_osu()
 

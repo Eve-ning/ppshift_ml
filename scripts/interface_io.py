@@ -57,6 +57,7 @@ class interface_io:
         
         if (skip_if_exist and os.path.isfile(path)):
             print("Skipping: {path}".format(path=path))
+            return True
         
         try:
             f = open(path, 'w+')
@@ -80,6 +81,7 @@ class interface_io:
         
         if (skip_if_exist and os.path.isfile(path)):
             print("Skipping: {path}".format(path=path))
+            return True
         
         try:
             f = open(path, 'w+')
