@@ -17,6 +17,7 @@ import osu_to_osus
 import osuho_to_acd
 import get_plyrid
 import plyrid_to_acr
+import ac_to_acrv
 
 import interface_io
 
@@ -28,7 +29,8 @@ class beatmap:
         self.io = interface_io.interface_io(beatmap_id)
         
         self.osu = self.io.load('osu')
-        self.osu = self.osu.splitlines() if self.osu else self.osu
+        if (self.osu):
+            self.osu = self.osu.splitlines()
         
         self.osuho = self.io.load('osuho')
         if (self.osuho):
@@ -262,7 +264,7 @@ class beatmap:
         print("[ACR]", end=' ')
         if (self.acr == None):
             print()
-            self.acr = plyrid_to_acr.run(self.plyrid[0:2], self.beatmap_id, self.params['keys'])
+            self.acr = plyrid_to_acr.run(self.plyrid, self.beatmap_id, self.params['keys'])
             if (self.acr == None):
                 raise AssertionError('Fail to convert Player IDs to Action Replay')
             
@@ -280,7 +282,7 @@ class beatmap:
             print("[CREATED]")
         else:
             print("[EXISTS]")
-        return
+
     
 # =============================================================================
 #   .acr + .acd -> .acrv
@@ -288,19 +290,25 @@ class beatmap:
 #   Merges the acr by getting the median
 #   FORMAT: 
 # =============================================================================
-    
+        
+        print("[ACRV]", end=' ')
         if (self.acrv == None):
-            # self.acrv = ac_to_acrv(self.acr, self.acd)
+            self.acrv = ac_to_acrv.run(self.acr, self.acd)
             if (self.acrv == None):
                 raise AssertionError('Fail to convert Actions to Action Replay Virtual')
-            self.io.save('acrv', '\n'.join(self.acrv), True)   
+                
+            acrv_str = '\n'.join(list(map(str, self.acrv)))
+                
+            self.io.save('acrv', acrv_str, True)   
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
             
 # =============================================================================
 #   .acd + .acrv -> .ppshift
 #   Gets all required parameters from the beatmap and replay to prepare
 #   for neural network learning
 # =============================================================================
-        
         if (self.ppshift == None):
             # self.ppshift = ac_to_ppshift(self.acrv, self.acd)
             if (self.ppshift == None):
