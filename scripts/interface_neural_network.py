@@ -18,37 +18,42 @@ import statistics
 
 class model:
     
-    def __init__(self, training_split: float = 0.8, model_name: str):
+    def __init__(self, model_name: str, seed: int = None, training_split: float = 0.8):
+        
+        # Randomize if seed is not provided
+        if (seed != None):
+            random.seed(seed)
+
         self.ppshift_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\ppshift\\"
-        
-        # We will define training and test split here
-        
-        
-        self.training_split = training_split
-        self.test_split = 1 - training_split
-        self.model_name = model_name
-        
         self.plot_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\neural_network\\plots\\" + \
                         model_name + "\\"
-                        
+        self.model_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\neural_network\\models\\"
         
+        # We will define training and test split here
+        # This converts all of them into int after listing them
+        files = list(map(int, \
+                         [x.split('.')[0] for x in os.listdir(self.ppshift_dir)]))
     
-    def train(self, bm_id_list: list, epochs: int, batch_size):
-        self._load_training(bm_id_list)
-        self._train_model(self.model_name, epochs, batch_size)
+        random.shuffle(files) # We will randomly shuffle it
+        training_len = int(len(files) * training_split)
+        
+        self.training_ids = files[:training_len]
+        self.testing_ids = files[training_len:]
+        self.model_name = model_name
+        self.model = None
     
-    def _load_training(self, bm_id_list: list): 
+    def train(self, epochs: int, batch_size: int):
+        self._load_training()
+        self._train_model(epochs, batch_size)
+    
+    def _load_training(self): 
              
-        # We get a random sample of the list
-        bm_id_list = random.sample(bm_id_list,\
-                                   int(len(bm_id_list) * self.training_split))
-        
-        print("Merging " + str(len(bm_id_list)) + " files")
-        print(bm_id_list)
+        print("Merging " + str(len(self.training_ids)) + " files")
+        print(self.training_ids)
     
         ppshift_list = []
         
-        for bm_id in bm_id_list:
+        for bm_id in self.training_ids:
             ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
             # Important: The first 29 results has a 0 output, so we will cut
             # those results out with splicing.
@@ -66,46 +71,61 @@ class model:
     
     def _model_c(self):
         
-        model = keras.models.Sequential()
+        model = keras.Sequential()
         
-        model.add(keras.layers.Dense(96, input_shape=(12,), \
+        self.layer_1_nrns = 96
+        self.layer_2_nrns = None
+        self.layer_3_nrns = None
+        
+        model.add(keras.layers.Dense(self.layer_1_nrns, input_shape=(12,), \
                                      kernel_initializer='normal', \
                                      activation='relu'))
-        model.add(keras.layers.Dense(48))
-        model.add(keras.layers.Dense(24))
+        if (self.layer_2_nrns != None):
+            model.add(keras.layers.Dense(self.layer_2_nrns,\
+                                         kernel_regularizer=keras.regularizers.l2(0.01)))
+        if (self.layer_3_nrns != None):
+            model.add(keras.layers.Dense(self.layer_3_nrns,\
+                                         kernel_regularizer=keras.regularizers.l2(0.01)))
         model.add(keras.layers.Dense(1, kernel_initializer='normal'))
     
         model.compile(loss='mean_squared_error', optimizer='adam')
         
         return model
     
-    def _train_model(self, model_name: str, epochs: int, batch_size: int):
+    def _train_model(self, epochs: int, batch_size: int):
         
         df = self.training_df 
 
         # Shuffle
         df = df.sample(frac=1)
-        ds_s = df_s.values
+        ds_s = df.values
         
         in_ds_s = ds_s[:,1:13]
         out_ds_s = ds_s[:,13]
         
         model = self._model_c()    
         model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=batch_size)
-        model.model.save('models\\' + model_name + '.hdf5')
+        
+        # Save model
+        model.model.save(self.model_dir + self.model_name + '.hdf5')
         
         self.model = model
-    
-    def load_model(model_name: str) -> KerasRegressor:
+        
+    def test(self):
+        self._load_model()
+        self._test_model(self.testing_ids, 'results_tst')
+        self._test_model(self.training_ids, 'results_trn')
+        
+    def _load_model(self) -> KerasRegressor:
         
         def dummy():
             return
         model = KerasRegressor(build_fn=dummy, epochs=1, batch_size=10, verbose=1)
-        model.model = ld_mdl('models\\' + model_name + '.hdf5')
+        model.model = ld_mdl(self.model_dir + self.model_name + '.hdf5')
         
-        return model
+        self.model = model
     
-    def test_model(self, bm_id_list: list, model_name: str):
+    def _test_model(self, bm_ids, log_file_name = 'results'):
         
         if (self.model == None):
             print("No model loaded, either train one or load one")
@@ -123,7 +143,7 @@ class model:
             print("Plot Directory Exists: " + self.plot_dir)
             
         
-        for bm_id in bm_id_list:
+        for bm_id in bm_ids:
             ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
             # Important: The first 29 results has a 0 output, so we will cut
             # those results out with splicing.
@@ -131,15 +151,14 @@ class model:
             ppshift_str = ppshift_f.read().splitlines()[29:]
             ppshift_f.close()
             
-            ppshift_df = pandas.DataFrame(list(map(eval, ppshift_f)))
+            ppshift_df = pandas.DataFrame(list(map(eval, ppshift_str)))
             
-            ds = df.values
+            ds = ppshift_df.values
             
             in_ds = ds[:,1:13]
             out_ds = ds[:,[0,13]]
             
-            b_id = int(b_id)
-            out_p = model.predict(in_ds, verbose=0)
+            out_p = self.model.predict(in_ds, verbose=0)
             
             out_o = pandas.DataFrame(out_ds, columns=['offset','original'])
             out_p = pandas.DataFrame(out_p, columns=['pred'])
@@ -147,7 +166,7 @@ class model:
             out = out_o.join(out_p)
             
             # CREATE PLOTS
-            title = get_beatmap_metadata.metadata_from_id([b_id])['metadata'].values[0]
+            title = get_beatmap_metadata.metadata_from_id([bm_id])['metadata'].values[0]
             title = re.sub('[^\w_.)( -]', '', title)
             out.plot(x='offset', title=title)
             
@@ -159,14 +178,22 @@ class model:
             # RATE PLOTS
             out['delta'] = out['pred'].subtract(out['original']).abs()
             log.append(str(out['delta'].mean()) + "\t" + \
-                       get_beatmap_metadata.metadata_from_id([b_id])['metadata'].values[0])
+                       get_beatmap_metadata.metadata_from_id([bm_id])['metadata'].values[0])
     
             rating_list.append(out['delta'].mean())
             
+        # Append stats
         log.append("mean: " + str(statistics.mean(rating_list)))
         log.append("stdev: " + str(statistics.stdev(rating_list)))
+        log.append("range: " + str(min(rating_list)) + ' - ' \
+                   + str(max(rating_list))) 
         
-        log_f = open(self.plot_dir + "results.txt", "w+")
+        print(log_file_name)
+        print(log[-3])
+        print(log[-2])
+        print(log[-1])
+        
+        log_f = open(self.plot_dir + log_file_name + ".txt", "w+")
         log_f.write('\n'.join(log))
         
 # =============================================================================

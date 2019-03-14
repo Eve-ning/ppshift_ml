@@ -7,6 +7,7 @@ Created on Wed Mar 13 18:06:45 2019
 
 import interface_class
 import api_main
+import interface_neural_network
 
 
 beatmap_info_path = \
@@ -50,7 +51,7 @@ def get_ids(star_rating_below:float = 100,
     
     return output_l
 
-def custom_parse():
+def parse_ids():
     # bm_ids = get_ids(star_rating_above=5)
     
     f = open("D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\beatmap_info\\beatmap_ids.csv",'r')
@@ -70,7 +71,20 @@ def custom_parse():
         
         counter += 1
         
+def train_model(model_name: str, seed: int = None):
+    nn = interface_neural_network.model(model_name, seed)
+    nn.layer_1_nrns = 96
+    nn.layer_2_nrns = 48
+    nn.layer_3_nrns = 24
     
+    nn.train(50, 50)
     
+def test_model(model_name: str, seed: int = None):
+    nn = interface_neural_network.model(model_name, seed)
+    nn.test()
     
-custom_parse()
+model_name = "e50_50_96_48r2_3_24r2_3_s10"
+seed = 10
+
+train_model(model_name, seed)
+test_model(model_name, seed)
