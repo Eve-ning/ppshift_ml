@@ -13,6 +13,9 @@ docs/*
 *.plyrid
 *.zip
 *.ppshift
+*.hdf5
+
+
 # TeXMaker
 *.gz
 *.aux
