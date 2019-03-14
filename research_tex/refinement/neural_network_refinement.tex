@@ -36,26 +36,36 @@ def model_c():
 
 We will keep it short on the guess and check for neuron layers, here are the results and improvements done.
 
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|} 
+\begin{tabular}{|c|c|c|c|c|c|c|c|} 
 \hline
-\multicolumn{7}{|c|}{Parameters} & \multicolumn{2}{|c|}{Loss} & {} \\
+\multicolumn{6}{|c|}{Parameters} & \multicolumn{2}{|c|}{Loss}  \\
 \hline
-\# & $L_1$ & $L_2$ & $L_3$ & $L_4$ & Epochs & Batch Size & Mean & STDEV & File Name \\
+\# & $L_1$ & $L_2$ & $L_3$ & Epochs & Batch Size & Mean & STDEV \\
 \hline
-1 & 108 & 54 & 27 & {} & 25 & 1 & 1.87 & 0.46 & e25\_104\_52\_26 \\
-\hline
-\multicolumn{10}{|c|}{Make Layers divisible by input dimensions (12)} \\
-\hline
-2 & 96 & 48 & 24 & {} & 25 & 1 & 1.96 & 0.40 & e25\_96\_48\_24 \\
-\hline
-\multicolumn{10}{|c|}{Increase Batch Size to 5} \\
-\hline
-2 & 96 & 48 & 24 & {} & 25 & 5 & 1.83 & 0.43 & e25\_96\_48\_24\_5 \\
-\hline
-\multicolumn{10}{|c|}{Increase Batch Size to 100} \\
-\hline
-2 & 96 & 48 & 24 & {} & 25 & 100 & 1.80 & 0.52 & e25\_96\_48\_24\_100 \\
-\hline
+1 & 96 & 48 & 24 & 10 & 500 & 1.80 & 0.60 \\ \hline
+\multicolumn{8}{|c|}{Drop Batch Size to 200}  \\ \hline
+2 & 96 & 48 & 24 & 10 & 200 & 1.81 & 0.58 \\ \hline
+\multicolumn{8}{|c|}{Half Neurons}  \\ \hline
+3 & 48 & 24 & 12 & 10 & 200 & 1.81 & 0.61 \\ \hline
+\multicolumn{8}{|c|}{Add Reg L1 (0.01) on $L_2$ and $L_3$}  \\ \hline
+4 & 96 & 48 & 24 & 10 & 200 & 1.67 & 0.67  \\ \hline
+5 & {} & $L1_{0.01}$ & $L1_{0.01}$ & {} & {} & {} & {} \\ \hline
+\multicolumn{8}{|c|}{Add Reg L1 (0.02) on $L_2$ and $L_3$}  \\ \hline
+6 & 96 & 48 & 24 & 10 & 200 & 1.73 & 0.63  \\ \hline
+{} & {} & $L1_{0.02}$ & $L1_{0.02}$ & {} & {} & {} & {} \\ \hline
+\multicolumn{8}{|c|}{Add Reg L2 (0.01) on $L_2$ and $L_3$}  \\ \hline
+7 & 96 & 48 & 24 & 10 & 200 & 1.72 & 0.64  \\ \hline
+{} & {} & $L2_{0.01}$ & $L2_{0.01}$ & {} & {} & {} & {} \\ \hline
+\multicolumn{8}{|c|}{Add Dropout (0.25) after $L_2$ and $L_3$}  \\ \hline
+8 & 96 & 48 & 24 & 10 & 200 & 1.73 & 0.63  \\ \hline
+{} & {} & $L1_{0.01}$ & $L1_{0.01}$ & {} & {} & {} & {} \\ \hline
+{} & {} & $DO_{0.25}$ & $L2_{0.25}$ & {} & {} & {} & {} \\ \hline
+\multicolumn{8}{|c|}{Revert to 7, Increased Epoch and Decreased Batch Size}  \\ \hline
+9 & 96 & 48 & 24 & 50 & 50 & 1.68 & 0.56  \\ \hline
+{} & {} & $L2_{0.01}$ & $L2_{0.01}$ & {} & {} & {} & {} \\ \hline
+\multicolumn{8}{|c|}{Increase Reg L2 to 0.03}  \\ \hline
+10 & 96 & 48 & 24 & 50 & 50 & 1.81 & 0.57  \\ \hline
+{} & {} & $L2_{0.03}$ & $L2_{0.03}$ & {} & {} & {} & {} \\ \hline
 \end{tabular}	
 
 
