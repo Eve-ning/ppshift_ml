@@ -40,6 +40,8 @@ def run(player_id_list: list, beatmap_id: int, keys: int, special_style: bool):
                 # Only at the very start
                 if (abs(column) > keys and offset < 100):
                     continue
+                if (abs(column) > keys):
+                    continue
                 
                 # This is required as we cannot convert with a negative column
                 is_release = column < 0 
