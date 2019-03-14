@@ -60,13 +60,20 @@ We will keep it short on the guess and check for neuron layers, here are the res
 8 & 96 & 48 & 24 & 10 & 200 & 1.73 & 0.63  \\ \hline
 {} & {} & $L1_{0.01}$ & $L1_{0.01}$ & {} & {} & {} & {} \\ \hline
 {} & {} & $DO_{0.25}$ & $L2_{0.25}$ & {} & {} & {} & {} \\ \hline
-\multicolumn{8}{|c|}{Revert to 7, Increased Epoch and Decreased Batch Size}  \\ \hline
-9 & 96 & 48 & 24 & 50 & 50 & 1.68 & 0.56  \\ \hline
+\multicolumn{8}{|c|}{Revert to 7, increased Epoch and Decreased Batch Size}  \\ \hline
+9 & 96 & 48 & 24 & 50 & 50 & 1.69 & 0.56  \\ \hline
 {} & {} & $L2_{0.01}$ & $L2_{0.01}$ & {} & {} & {} & {} \\ \hline
 \multicolumn{8}{|c|}{Increase Reg L2 to 0.03}  \\ \hline
 10 & 96 & 48 & 24 & 50 & 50 & 1.81 & 0.57  \\ \hline
 {} & {} & $L2_{0.03}$ & $L2_{0.03}$ & {} & {} & {} & {} \\ \hline
-\end{tabular}	
+\multicolumn{8}{|c|}{Revert to 7, doubled neurons}  \\ \hline
+11 & 192 & 96 & 48 & 50 & 50 & 1.75 & 0.57  \\ \hline
+{} & {} & $L2_{0.03}$ & $L2_{0.03}$ & {} & {} & {} & {} \\ \hline
+\end{tabular}
+
+In the end of the experimenting, we will settle on \textbf{Model 9}	
+
+
 
 
 \end{document}
