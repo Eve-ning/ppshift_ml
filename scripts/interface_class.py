@@ -18,7 +18,6 @@ import get_plyrid
 import plyrid_to_acr
 import ac_to_acrv
 import ac_to_ppshift
-
 import interface_io
 
 class beatmap:
@@ -83,8 +82,7 @@ class beatmap:
             self.acrv = list(map(eval, self.acrv.splitlines()))
         if (self.ppshift):
             self.ppshift = list(map(eval, self.ppshift.splitlines()))  
-
-        
+     
     def get_beatmap_metadata(self) -> str:
         try:
             metadata_str = \
@@ -96,8 +94,7 @@ class beatmap:
     
         except:
             return "Failed to get metadata, .params is not created."
-            
-        
+                   
     def all_loaded(self) -> bool:
         
         return not (
@@ -117,6 +114,12 @@ class beatmap:
         if (self.all_loaded()):
             print("[SKIP PARSING] " + self.get_beatmap_metadata())
             return True
+        try:
+            if (self.params['reject'] == True):
+                print("[SKIP PARSING <REJECT>] " + self.get_beatmap_metadata())
+                return True
+        except KeyError:
+            pass
         
         if (self.soft_load_flag):
             print("[FORCING HARD LOAD]")
@@ -222,17 +225,17 @@ class beatmap:
                 print("Automatically accepted. TP Len {tplen}"\
                       .format(tplen=len(self.osutp)))
                 user_input = 'n'
-            
+
 # =============================================================================
 # =============================================================================
 # #             # TEMPORARY CODE
 # =============================================================================
 # =============================================================================           
             
-            
             while (user_input != 'y' and user_input != 'n'):
                 user_input = input("Reject Map [y/n]: ")
                 
+            
             if (user_input == 'y'): # for 'y'
                 self.params['reject'] = True
                 
@@ -400,5 +403,3 @@ class beatmap:
 # =============================================================================
         print("[END PARSING] " + self.get_beatmap_metadata())
         return True
-
-    

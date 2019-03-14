@@ -8,7 +8,12 @@ Created on Wed Mar  6 12:33:32 2019
 import statistics
 
 def run(acr: list, acd: list):
-
+    
+# =============================================================================
+#     print(acr[0][0:100])
+#     print(acd[0:100])
+# =============================================================================
+    
     # We find the unique keys from the map
     # We will then loop over the keys to find all deviations
     unq_acd_keys = list(set([x[1] for x in acd]))

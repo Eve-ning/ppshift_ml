@@ -56,11 +56,20 @@ def custom_parse():
     f = open("D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\beatmap_info\\beatmap_ids.csv",'r')
     bm_ids = f.read().splitlines()
     bm_ids = list(map(int, bm_ids))
+    counter = 1
     
     for bm_id in bm_ids:
-        bm = interface_class.beatmap(bm_id,True)
-        bm.parse_osu()
-    
+        try:
+            print('[' + str(counter) + ']', end='\t')
+            bm = interface_class.beatmap(bm_id,True)
+            bm.parse_osu()
+        except:
+            
+            print (str(bm_id) + ' ERROR')
+            pass
+        
+        counter += 1
+        
     
     
     
