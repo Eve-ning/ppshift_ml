@@ -166,7 +166,7 @@ class model:
             out = out_o.join(out_p)
             
             # CREATE PLOTS
-            title = get_beatmap_metadata.metadata_from_id([bm_id])['metadata'].values[0]
+            title = get_beatmap_metadata.metadata_from_id(bm_id)['metadata'].values[0]
             title = re.sub('[^\w_.)( -]', '', title)
             out.plot(x='offset', title=title)
             
@@ -178,7 +178,7 @@ class model:
             # RATE PLOTS
             out['delta'] = out['pred'].subtract(out['original']).abs()
             log.append(str(out['delta'].mean()) + "\t" + \
-                       get_beatmap_metadata.metadata_from_id([bm_id])['metadata'].values[0])
+                       get_beatmap_metadata.metadata_from_id(bm_id)['metadata'].values[0])
     
             rating_list.append(out['delta'].mean())
             

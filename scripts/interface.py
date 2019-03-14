@@ -73,9 +73,11 @@ def parse_ids():
         
 def train_model(model_name: str, seed: int = None):
     nn = interface_neural_network.model(model_name, seed)
+    
+    # Model 9
     nn.layer_1_nrns = 96
-    nn.layer_2_nrns = 48
-    nn.layer_3_nrns = 24
+    nn.layer_2_nrns = 48 
+    nn.layer_3_nrns = 24 
     
     nn.train(50, 50)
     
@@ -83,7 +85,7 @@ def test_model(model_name: str, seed: int = None):
     nn = interface_neural_network.model(model_name, seed)
     nn.test()
     
-model_name = "e50_50_96_48r2_3_24r2_3_s10"
+model_name = "e50_50_96_48r2_1_24r2_1_s10"
 seed = 10
 
 train_model(model_name, seed)
