@@ -9,7 +9,7 @@ Created on Thu Mar  7 07:33:38 2019
 #import os
 import pandas
 
-csv_location = "D:\\Data Documents\\ppshift\\ppshift_ml\\docs\\regr\\data.csv"
+csv_location = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\beatmap_info\\data.csv"
 
 def get_csv():
         
@@ -31,10 +31,3 @@ def get_id_by_filters(min_star_rating:float = 3.5):
     master_data = master_data[master_data['iso_star_rating'] > min_star_rating]
     return master_data['beatmap_id'].values
 
-def get_is_sv_by_filters(is_sv: bool = False):
-    print("wip")
-    #WIP
-
-def get_is_special_style_by_filters(is_special_style: bool = True):
-    print("wip")
-    #WIP
