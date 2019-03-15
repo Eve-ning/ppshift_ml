@@ -132,46 +132,6 @@ def get_deviation_median(deviation: dict):
         deviation[k] = [statistics.median(dev_abs)]
         
     return deviation
-
-# def load_acr(beatmap_id: int):
-    
-#     f = open(save_to.dirs.dir_acr + str(beatmap_id) + ".acr", "r"
-#              ).read().splitlines()
-#     f = list(filter(lambda x: x != "0,0", f)) # This is to remove all dummies
-#     return([ast.literal_eval(x) for x in f])
-    
-# def load_acd(beatmap_id: int):
-    
-#     f = open(save_to.dirs.dir_acd + str(beatmap_id) + ".acd", "r"
-#              ).read().splitlines()
-#     return [x.split(",") for x in f]
-
-# def run():
-    
-#     beatmap_ids = save_to.get_beatmap_ids(save_to.dirs.dir_acr, save_to.dirs.dir_acrv)
-#     id_len = len(beatmap_ids)
-#     id_counter = 0
-    
-#     for beatmap_id in beatmap_ids:
-#         id_counter += 1
-        
-#         print("get: " + str(beatmap_id) + "\t|\t" + str(id_counter) + " out of " + str(id_len))
-            
-#         acr = load_acr(int(beatmap_id))
-#         acd = load_acd(int(beatmap_id))
-        
-#         dev_med = get_deviation_median(get_deviation(acr, acd))
-#         dev_med_as_list = []
-        
-#         # Convert Dict to List
-#         for k, x in dev_med.items():
-#             dev_med_as_list.append([k[0], k[1], x[0], x[1], x[2]])
-            
-#         save_to.diff_directory(save_to.dirs.dir_acrv, \
-#                                save_to.flatten_2d_list(dev_med_as_list), 
-#                                str(beatmap_id), "acrv")
-
-# run()
     
     
     

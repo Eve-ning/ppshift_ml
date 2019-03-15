@@ -1,0 +1,39 @@
+\begin{document}
+
+\section{Scripts}
+
+In this, I'll be talking about the scripts I used. Note that this is for reference, for myself, in the future, so for anyone else reading it, it may be a bit confusing.
+
+\subsection{Training the model}
+
+In the hierarchy, it'll look like this:
+
+\begin{lstlisting}
+
+[get_osu_from_website.py]
+bm_id 	-[DL]-> osu
+
+[osu_to_osus.py]
+osu  	-[Py]-> osuho + osutp + params
+osutp	: 		used to check for scroll speed changes
+params	: 		beatmap metadata
+
+[osuho_to_acd.py]
+osuho	-[Py]->	acd
+
+[get_plyrid.py]
+bm_id	-[API]> plyrid
+
+[plyrid_to_acr.py]
+plyrid	-[Py]-> acr
+
+[ac_to_acrv.py]
+acr+acd	-[Py]-> acrv
+
+[ac_to_ppshift.py]
+acrv+acd-[Py]-> ppshift
+
+\end{lstlisting}
+
+
+\end{document}
