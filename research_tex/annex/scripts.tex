@@ -127,4 +127,73 @@ acrv+acd-[Py]-> ppshift
 
 \end{lstlisting}
 
+\subsection{Testing the model}
+
+\begin{lstlisting}[language=Python]
+
+    # This is the overarching public function
+    def test(self):
+        self._load_model()
+        self._test_model(self.testing_ids, 'results_tst')
+        self._test_model(self.training_ids, 'results_trn')
+        
+    # This simply gets the model
+    def _load_model(self):
+        
+        def dummy():
+            return
+        model = KerasRegressor(build_fn=dummy, epochs=1, batch_size=10, verbose=1)
+        model.model = ld_mdl(self.model_dir + self.model_name + '.hdf5')
+        
+        self.model = model
+    
+    # This will test the model and use a custom scoring method
+    def _test_model(self, bm_ids, log_file_name = 'results'):
+        
+        rating_list = []
+        log = []
+        
+        for bm_id in bm_ids:
+            ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
+            # Important: The first 29 results has a 0 output, so we will cut
+            # those results out with splicing.
+            # This is due to the rolling Aggregation
+            ppshift_str = ppshift_f.read().splitlines()[29:]
+            ppshift_f.close()
+            
+            ppshift_df = pandas.DataFrame(list(map(eval, ppshift_str)))
+            
+            ds = ppshift_df.values
+            
+            in_ds = ds[:,1:13]
+            out_ds = ds[:,[0,13]]
+            
+            # We predict the results here
+            out_p = self.model.predict(in_ds, verbose=0)
+            
+            out_o = pandas.DataFrame(out_ds, columns=['offset','original'])
+            out_p = pandas.DataFrame(out_p, columns=['pred'])
+            
+            # We join back with the original dataframe to compare
+            out = out_o.join(out_p)
+            
+            # This is where the plots created is rated
+            out['delta'] = out['pred'].subtract(out['original']).abs()
+            log.append(str(out['delta'].mean()) + "\t" + \
+                       get_beatmap_metadata.metadata_from_id(int(bm_id))
+    
+            rating_list.append(out['delta'].mean())
+            
+        # Append stats
+        log.append("mean: " + str(statistics.mean(rating_list)))
+        log.append("stdev: " + str(statistics.stdev(rating_list)))
+        log.append("range: " + str(min(rating_list)) + ' - ' \
+                   + str(max(rating_list))) 
+
+        # Export to a .txt file
+        log_f = open(self.plot_dir + log_file_name + ".txt", "w+")
+        log_f.write('\n'.join(log))
+\end{lstlisting}
+
+
 \end{document}

@@ -1,15 +1,18 @@
 \documentclass{article}
-\usepackage[left=2cm, right=5cm, top=2cm]{geometry}
+\usepackage[left=2cm, right=2cm, top=2cm]{geometry}
 \usepackage{listings}
 \usepackage{amsmath}
 \usepackage{MnSymbol}
 \usepackage{subfiles}
 \usepackage{graphicx}
+\usepackage{geometry}
 \graphicspath{ {./images/} }
 
 \lstset{
   breaklines=true
 }
+
+
 
 \begin{document}
 
@@ -42,6 +45,7 @@
 \subfile{results/results}
 
 \newpage
+\newgeometry{left=1cm,right=1cm,top=2cm}
 \part{Annex}
 \subfile{annex/scripts}
 \end{document}
