@@ -208,31 +208,7 @@ class train_model:
         log_f = open(self.plot_dir + log_file_name + ".txt", "w+")
         log_f.write('\n'.join(log))
         
-# =============================================================================
-#     def random_test_model(maps_to_test: int, model_name: str):
-#             
-#         files = list(map(int, [x.split('.')[0] for x in os.listdir(save_to.dirs.dir_ppshift)[0:-1]]))
-#         # We will filter out < 5 star rating
-#         files_filter = get_beatmap_metadata.get_id_by_filters(5.0)  
-#         files = list(filter(lambda x : x in files_filter, files))     
-#         random_list = random.sample(files, maps_to_test)
-#         
-#         test_model(load_model(model_name), random_list, model_name)
-#     
-#     model_name = "e25_96_48_24_100"
-#     
-#     # merge_df(0.8)
-#     train_model(model_name,0.5,25)
-#     random_test_model(121, model_name)
-#     #test_model( load_model("two_layer"), [1505212], "two_layer_plots")
-# =============================================================================
 
-    def evaluate(self):
-        print()
-        
-    def _eval_model(self, file_path, log_file_name = 'results'):
-        print()
-        
 class eval_model:
     
     def __init__(self, model_name: str):
@@ -316,12 +292,4 @@ class eval_model:
             plt.savefig(self.plot_dir + title + '.jpg')
             # Do not display plot in IPython console
             plt.close()
-            
-            # # RATE PLOTS
-            # out['delta'] = out['pred'].subtract(out['original']).abs()
-            # log.append(str(out['delta'].mean()))
-    
-            # rating_list.append(out['delta'].mean())
-            # log_f = open(self.plot_dir + log_file_name + ".txt", "w+")
-            # log_f.write('\n'.join(log))
             

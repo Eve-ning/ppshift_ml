@@ -10,7 +10,6 @@ import api_main
 import interface_neural_network
 import os
 
-
 beatmap_info_path = \
 "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\beatmap_info\\beatmap_info.txt"
 
@@ -55,6 +54,7 @@ def get_ids(star_rating_below:float = 100,
 def parse_ids():
     # bm_ids = get_ids(star_rating_above=5)
     
+    # Parsing a custom made id list
     f = open("D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\beatmap_info\\beatmap_ids.csv",'r')
     bm_ids = f.read().splitlines()
     bm_ids = list(map(int, bm_ids))
@@ -94,7 +94,7 @@ def test_model(model_name: str, seed: int = None):
     nn.test()
     
 def eval_model(model_name: str):
-    nn = interface_neural_network.eval_model(model_name,)
+    nn = interface_neural_network.eval_model(model_name)
     nn.evaluate()
     return
 

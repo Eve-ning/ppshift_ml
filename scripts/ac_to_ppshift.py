@@ -54,7 +54,6 @@ def get_reading(acd: pandas.DataFrame) -> pandas.DataFrame:
             else: 
                 lnt_count += 1
                 
-#        reading_val = (nn_count + (lnh_count + lnt_count) * gamma)/theta
         counts_l.append([x, nn_count, lnh_count, lnt_count])
                 
     acd = pandas.DataFrame(counts_l, columns = ['offset', 'nn_count', 'lnh_count', 'lnt_count'])

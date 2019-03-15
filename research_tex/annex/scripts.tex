@@ -15,8 +15,8 @@ bm_id 	-[DL]-> osu
 
 [osu_to_osus.py]
 osu  	-[Py]-> osuho + osutp + params
-osutp	: 		used to check for scroll speed changes
-params	: 		beatmap metadata
+osutp	: 	used to check for scroll speed changes
+params	: 	beatmap metadata
 
 [osuho_to_acd.py]
 osuho	-[Py]->	acd
@@ -41,89 +41,88 @@ acrv+acd-[Py]-> ppshift
 
 [interface_neural_network.py]
 
-    # This is the overarching public function
-    def train(self, epochs: int, batch_size: int):
-        self._load_training()
-        self._train_model(epochs, batch_size)
+# This is the overarching public function
+def train(self, epochs: int, batch_size: int):
+    self._load_training()
+    self._train_model(epochs, batch_size)
 
-    # This converts the ppshift into a usable pandas.Dataframe
-    def _load_training(self): 
-             
-        print("Merging " + str(len(self.training_ids)) + " files")
-        print(self.training_ids)
-    
-        ppshift_list = []
-        
-        for bm_id in self.training_ids:
-            ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
-            # Important: The first 29 results has a 0 output, so we will cut
-            # those results out with splicing.
-            # This is due to the rolling Aggregation
-            ppshift_str = ppshift_f.read().splitlines()[29:]
-            ppshift_f.close()   
-            ppshift_list.extend(list(map(eval, ppshift_str)))
-            
-        self.training_df = \
-        pandas.DataFrame(ppshift_list,\
-                         columns=['OFF','LP','LR','LM','LI','S', \
-                                  'RI','RM','RR','RP','NN','LNH','LNT','MED'])
-                                  
-                                  
-    # This is the Keras Model itself, based on model 9 in Part III
-    def _model_c(self):
-        
-        model = keras.Sequential()
-        
-        # We make this user-friendly to adjust
-        self.layer_1_nrns = 96
-        self.layer_2_nrns = 48
-        self.layer_3_nrns = 24
-        
-        # Layer 1
-        model.add(keras.layers.Dense(\
-            self.layer_1_nrns, input_shape=(12,), \
-            kernel_initializer='normal', \
-            activation='relu'))
-            
-        # Layer 2 
-        if (self.layer_2_nrns != None):
-            model.add(keras.layers.Dense(
-                self.layer_2_nrns,\
-                ernel_regularizer=keras.regularizers.l2(0.01)))
-             
-        # Layer 3   
-        if (self.layer_3_nrns != None):
-            model.add(keras.layers.Dense(
-                self.layer_3_nrns,\
-                kernel_regularizer=keras.regularizers.l2(0.01)))
-              
-        # Output Layer  
-        model.add(keras.layers.Dense(1, kernel_initializer='normal'))
-    
-        model.compile(loss='mean_squared_error', optimizer='adam')
-        
-        return model
-    
-    # This feeds the machine
-    def _train_model(self, epochs: int, batch_size: int):
-        
-        # This is the dataframe, extracted from ppshift
-        df = self.training_df 
+# This converts the ppshift into a usable pandas.Dataframe
+def _load_training(self): 
+         
+    print("Merging " + str(len(self.training_ids)) + " files")
+    print(self.training_ids)
 
-        # Shuffle
-        df = df.sample(frac=1)
-        ds_s = df.values
+    ppshift_list = []
+    
+    for bm_id in self.training_ids:
+        ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
+        # Important: The first 29 results has a 0 output, so we will cut
+        # those results out with splicing.
+        # This is due to the rolling Aggregation
+        ppshift_str = ppshift_f.read().splitlines()[29:]
+        ppshift_f.close()   
+        ppshift_list.extend(list(map(eval, ppshift_str)))
         
-        in_ds_s = ds_s[:,1:13]
-        out_ds_s = ds_s[:,13]
+    self.training_df = \
+    pandas.DataFrame(ppshift_list,\
+                     columns=['OFF','LP','LR','LM','LI','S', \
+                              'RI','RM','RR','RP','NN','LNH','LNT','MED'])
+                              
+# This is the Keras Model itself, based on model 9 in Part III
+def _model_c(self):
+    
+    model = keras.Sequential()
+    
+    # We make this user-friendly to adjust
+    self.layer_1_nrns = 96
+    self.layer_2_nrns = 48
+    self.layer_3_nrns = 24
+    
+    # Layer 1
+    model.add(keras.layers.Dense(\
+        self.layer_1_nrns, input_shape=(12,), \
+        kernel_initializer='normal', \
+        activation='relu'))
         
-        model = self._model_c()    
-        model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=batch_size)
-        
-        # Save model
-        model.model.save(self.model_dir + self.model_name + '.hdf5')
-        
-        self.model = model
+    # Layer 2 
+    if (self.layer_2_nrns != None):
+        model.add(keras.layers.Dense(
+            self.layer_2_nrns,\
+            ernel_regularizer=keras.regularizers.l2(0.01)))
+         
+    # Layer 3   
+    if (self.layer_3_nrns != None):
+        model.add(keras.layers.Dense(
+            self.layer_3_nrns,\
+            kernel_regularizer=keras.regularizers.l2(0.01)))
+          
+    # Output Layer  
+    model.add(keras.layers.Dense(1, kernel_initializer='normal'))
+
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    
+    return model
+
+# This feeds the machine
+def _train_model(self, epochs: int, batch_size: int):
+    
+    # This is the dataframe, extracted from ppshift
+    df = self.training_df 
+
+    # Shuffle
+    df = df.sample(frac=1)
+    ds_s = df.values
+    
+    in_ds_s = ds_s[:,1:13]
+    out_ds_s = ds_s[:,13]
+    
+    model = self._model_c()    
+    model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=batch_size)
+    
+    # Save model
+    model.model.save(self.model_dir + self.model_name + '.hdf5')
+    
+    self.model = model
 
 \end{lstlisting}
 
@@ -131,69 +130,128 @@ acrv+acd-[Py]-> ppshift
 
 \begin{lstlisting}[language=Python]
 
-    # This is the overarching public function
-    def test(self):
-        self._load_model()
-        self._test_model(self.testing_ids, 'results_tst')
-        self._test_model(self.training_ids, 'results_trn')
-        
-    # This simply gets the model
-    def _load_model(self):
-        
-        def dummy():
-            return
-        model = KerasRegressor(build_fn=dummy, epochs=1, batch_size=10, verbose=1)
-        model.model = ld_mdl(self.model_dir + self.model_name + '.hdf5')
-        
-        self.model = model
+# This is the overarching public function
+def test(self):
+    self._load_model()
+    self._test_model(self.testing_ids, 'results_tst')
+    self._test_model(self.training_ids, 'results_trn')
     
-    # This will test the model and use a custom scoring method
-    def _test_model(self, bm_ids, log_file_name = 'results'):
-        
-        rating_list = []
-        log = []
-        
-        for bm_id in bm_ids:
-            ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
-            # Important: The first 29 results has a 0 output, so we will cut
-            # those results out with splicing.
-            # This is due to the rolling Aggregation
-            ppshift_str = ppshift_f.read().splitlines()[29:]
-            ppshift_f.close()
-            
-            ppshift_df = pandas.DataFrame(list(map(eval, ppshift_str)))
-            
-            ds = ppshift_df.values
-            
-            in_ds = ds[:,1:13]
-            out_ds = ds[:,[0,13]]
-            
-            # We predict the results here
-            out_p = self.model.predict(in_ds, verbose=0)
-            
-            out_o = pandas.DataFrame(out_ds, columns=['offset','original'])
-            out_p = pandas.DataFrame(out_p, columns=['pred'])
-            
-            # We join back with the original dataframe to compare
-            out = out_o.join(out_p)
-            
-            # This is where the plots created is rated
-            out['delta'] = out['pred'].subtract(out['original']).abs()
-            log.append(str(out['delta'].mean()) + "\t" + \
-                       get_beatmap_metadata.metadata_from_id(int(bm_id))
+# This simply gets the model
+def _load_model(self):
     
-            rating_list.append(out['delta'].mean())
-            
-        # Append stats
-        log.append("mean: " + str(statistics.mean(rating_list)))
-        log.append("stdev: " + str(statistics.stdev(rating_list)))
-        log.append("range: " + str(min(rating_list)) + ' - ' \
-                   + str(max(rating_list))) 
+    def dummy():
+        return
+    model = KerasRegressor(build_fn=dummy, epochs=1, batch_size=10, verbose=1)
+    model.model = ld_mdl(self.model_dir + self.model_name + '.hdf5')
+    
+    self.model = model
 
-        # Export to a .txt file
-        log_f = open(self.plot_dir + log_file_name + ".txt", "w+")
-        log_f.write('\n'.join(log))
+# This will test the model and use a custom scoring method
+def _test_model(self, bm_ids, log_file_name = 'results'):
+    
+    rating_list = []
+    log = []
+    
+    for bm_id in bm_ids:
+        ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
+        # Important: The first 29 results has a 0 output, so we will cut
+        # those results out with splicing.
+        # This is due to the rolling Aggregation
+        ppshift_str = ppshift_f.read().splitlines()[29:]
+        ppshift_f.close()
+        
+        ppshift_df = pandas.DataFrame(list(map(eval, ppshift_str)))
+        
+        ds = ppshift_df.values
+        
+        in_ds = ds[:,1:13]
+        out_ds = ds[:,[0,13]]
+        
+        # We predict the results here
+        out_p = self.model.predict(in_ds, verbose=0)
+        
+        out_o = pandas.DataFrame(out_ds, columns=['offset','original'])
+        out_p = pandas.DataFrame(out_p, columns=['pred'])
+        
+        # We join back with the original dataframe to compare
+        out = out_o.join(out_p)
+        
+        # This is where the plots created is rated
+        out['delta'] = out['pred'].subtract(out['original']).abs()
+        log.append(str(out['delta'].mean()) + "\t" + \
+                   get_beatmap_metadata.metadata_from_id(int(bm_id))
+
+        rating_list.append(out['delta'].mean())
+        
+    # Append stats
+    log.append("mean: " + str(statistics.mean(rating_list)))
+    log.append("stdev: " + str(statistics.stdev(rating_list)))
+    log.append("range: " + str(min(rating_list)) + ' - ' \
+               + str(max(rating_list))) 
+
+    # Export to a .txt file
+    log_f = open(self.plot_dir + log_file_name + ".txt", "w+")
+    log_f.write('\n'.join(log))
 \end{lstlisting}
+\subsection{Interface}
 
+Interface allows you to quickly parse, feed and predict from the model, it's a bit messy but it should be easy enough to understand
+
+\begin{lstlisting}[language=Python]
+
+# This reads the ids and parses it from osu to ppshift
+def parse_ids():
+    # bm_ids = get_ids(star_rating_above=5)
+    
+    # Parsing a custom made id list
+    f = open(<directory>,'r')
+    bm_ids = f.read().splitlines()
+    bm_ids = list(map(int, bm_ids))
+    counter = 1
+    
+    for bm_id in bm_ids:
+        try:
+            print('[' + str(counter) + ']', end='\t')
+            bm = interface_class.parse_beatmap_id(
+                 beatmap_id=bm_id, soft_load_flag=True)
+            bm.parse_osu()
+        except:
+            print (str(bm_id) + ' ERROR')
+            pass
+        counter += 1
+
+# This reads maps from the directory and parses it from osu to ppshift      
+def parse_evals():
+    file_list = [x.split('.')[0] for x in os.listdir(<directory>)]
+    
+    for file in file_list:
+        bm = interface_class.parse_beatmap_file_name(\
+             beatmap_file_name=file, soft_load_flag=True)
+        bm.parse_osu()
+
+# This feeds the model, the directory will be defaulted to where
+# the interface_class has exported the files
+def train_model(model_name: str, seed: int = None):
+    nn = interface_neural_network.train_model(model_name, seed)
+    
+    # Model 9
+    nn.layer_1_nrns = 96
+    nn.layer_2_nrns = 48 
+    nn.layer_3_nrns = 24 
+    
+    nn.train(50, 50)
+   
+# This gets feeds the model only the input, for prediction scoring
+def test_model(model_name: str, seed: int = None):
+    nn = interface_neural_network.train_model(model_name, seed)
+    nn.test()
+    
+# This gets osu from a specific directory to predict
+def eval_model(model_name: str):
+    nn = interface_neural_network.eval_model(model_name,)
+    nn.evaluate()
+    return
+
+\end{lstlisting}
 
 \end{document}

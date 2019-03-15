@@ -25,7 +25,3 @@ def metadata_from_id(beatmap_id: int):
                        bm['version'] + ') <' + \
                        bm['creator'] + '>'
             return metadata
-
-def metadata_from_filter():
-    #WIP
-    print()
