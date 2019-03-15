@@ -100,11 +100,11 @@ def eval_model(model_name: str):
 
 # download_beatmap_info("20130101","20190313")
 
-# parse_evals()
-# eval_model("e50_50_96_48r2_1_24r2_1_s10")
+parse_evals()
+eval_model("e50_50_96_48r2_1_24r2_1_s10")
     
-model_name = "e50_50_96_48r2_1_24r2_1_s10"
-seed = 10
+# model_name = "e50_50_96_48r2_1_24r2_1_s10"
+# seed = 10
 
 # train_model(model_name, seed)
-test_model(model_name, seed)
+# test_model(model_name, seed)

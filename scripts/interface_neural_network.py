@@ -168,9 +168,6 @@ class train_model:
             
             # CREATE PLOTS
             title = get_beatmap_metadata.metadata_from_id(int(bm_id))
-            print(bm_id)
-            print(title)
-            print(type(title))
             title = re.sub('[^\w_.)( -]', '', title)
             out.plot(x='offset', title=title)
             
