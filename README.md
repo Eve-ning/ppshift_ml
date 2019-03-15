@@ -22,13 +22,13 @@ The issues are described in the PDF link under this, but I'll write them here to
 
 While I think the model is good to a certain degree, I don't think it's stable enough compared to a non-black box model. In other words, I don't think this model is production ready for a few reasons:
 
-- The model doesn't calculate less popular key counts well
-- The model leans to the Top 50 population, so
+- The model doesn't calculate less popular key counts well. **The main reason for that is because there's too little ranked maps for uncommon keys**
+- The model leans to the Top 50 population: **osu!API only provides Top 50 scores, which are very biased against leaderboard dominators**
   - The model is bad at calculating easy maps as there's little to no data with regards to deviation in those
   - The model is bad at matching situations where 2 maps are actually the same difficulty, but due to low interaction, the medians are vastly different.
   - The model doesn't have enough results for bad deviation situations.
   - The model seems to be reliably calculating how hard is it to get a very high score (i.e. Varying LN ends are hard to perfect, compared to hard jacks), however, most player's perception of difficulty rating doesn't fall in line with that.
-- The model has very strong bias towards maps that are popular, e.g. Triumph \& Regret, which seems to be heavily affected by this issue
+- The model has very strong bias towards maps that are popular, e.g. Triumph \& Regret, which seems to be heavily affected by this issue **Similar issue with top 50, popular leaderboards will have less variance but high consistency, which makes it an outlier compared to other maps**
 - Even if the model works, it's hard to explain what happens in the model since the neural network acts like a black-box.
 
 ### How to fine-tune the model
