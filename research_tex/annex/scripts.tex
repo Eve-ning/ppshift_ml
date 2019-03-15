@@ -4,7 +4,7 @@
 
 In this, I'll be talking about the scripts I used. Note that this is for reference, for myself, in the future, so for anyone else reading it, it may be a bit confusing.
 
-\subsection{Training the model}
+\subsection{Parsing a beatmap}
 
 In the hierarchy, it'll look like this:
 
@@ -35,5 +35,96 @@ acrv+acd-[Py]-> ppshift
 
 \end{lstlisting}
 
+\subsection{Feeding the map}
+
+\begin{lstlisting}[language=Python]
+
+[interface_neural_network.py]
+
+    # This is the overarching public function
+    def train(self, epochs: int, batch_size: int):
+        self._load_training()
+        self._train_model(epochs, batch_size)
+
+    # This converts the ppshift into a usable pandas.Dataframe
+    def _load_training(self): 
+             
+        print("Merging " + str(len(self.training_ids)) + " files")
+        print(self.training_ids)
+    
+        ppshift_list = []
+        
+        for bm_id in self.training_ids:
+            ppshift_f = open(self.ppshift_dir + str(bm_id) + '.ppshift', 'r')
+            # Important: The first 29 results has a 0 output, so we will cut
+            # those results out with splicing.
+            # This is due to the rolling Aggregation
+            ppshift_str = ppshift_f.read().splitlines()[29:]
+            ppshift_f.close()   
+            ppshift_list.extend(list(map(eval, ppshift_str)))
+            
+        self.training_df = \
+        pandas.DataFrame(ppshift_list,\
+                         columns=['OFF','LP','LR','LM','LI','S', \
+                                  'RI','RM','RR','RP','NN','LNH','LNT','MED'])
+                                  
+                                  
+    # This is the Keras Model itself, based on model 9 in Part III
+    def _model_c(self):
+        
+        model = keras.Sequential()
+        
+        # We make this user-friendly to adjust
+        self.layer_1_nrns = 96
+        self.layer_2_nrns = 48
+        self.layer_3_nrns = 24
+        
+        # Layer 1
+        model.add(keras.layers.Dense(\
+            self.layer_1_nrns, input_shape=(12,), \
+            kernel_initializer='normal', \
+            activation='relu'))
+            
+        # Layer 2 
+        if (self.layer_2_nrns != None):
+            model.add(keras.layers.Dense(
+                self.layer_2_nrns,\
+                ernel_regularizer=keras.regularizers.l2(0.01)))
+             
+        # Layer 3   
+        if (self.layer_3_nrns != None):
+            model.add(keras.layers.Dense(
+                self.layer_3_nrns,\
+                kernel_regularizer=keras.regularizers.l2(0.01)))
+              
+        # Output Layer  
+        model.add(keras.layers.Dense(1, kernel_initializer='normal'))
+    
+        model.compile(loss='mean_squared_error', optimizer='adam')
+        
+        return model
+    
+    # This feeds the machine
+    def _train_model(self, epochs: int, batch_size: int):
+        
+        # This is the dataframe, extracted from ppshift
+        df = self.training_df 
+
+        # Shuffle
+        df = df.sample(frac=1)
+        ds_s = df.values
+        
+        in_ds_s = ds_s[:,1:13]
+        out_ds_s = ds_s[:,13]
+        
+        model = self._model_c()    
+        model.fit(in_ds_s, out_ds_s, epochs=epochs, batch_size=batch_size)
+        
+        # Save model
+        model.model.save(self.model_dir + self.model_name + '.hdf5')
+        
+        self.model = model
+
+\end{lstlisting}
 
 \end{document}
