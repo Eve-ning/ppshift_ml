@@ -43,7 +43,7 @@ I think the main reason of this issue is the \textbf{Assumption of the Top 50}. 
 
 #### [Research Steps (For my own reference)](https://github.com/Eve-ning/ppshift_ml/blob/master/research_tex/main.pdf)
 
-# Results and Plots
+# Results and [Plots](https://github.com/Eve-ning/ppshift_ml/tree/master/out/e50_50_96_48r2_1_24r2_1_s10)
 
 These are the results.
 Lower the score, the better.
