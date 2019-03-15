@@ -1,6 +1,53 @@
-# Results and Plots
+### PPSHIFT
+ppshift is meant to be an overhaul on how analysts look at map difficulty, where I take a detour towards machine learning instead of pure algorithms
+
+## Is it good
+
+No, it's not good enough for production, however, feel free to reference this as learning from mistakes
+
+## Research Steps in a nutshell
+
+- Get replays & beatmaps
+- Match the replays to beatmaps
+- Parse Beatmaps, deconstructing them into small parameters
+- Teach the machine that the pattern at a certain offset results in player X performing well/badly
+
+## Issues
+
+The issues are described in the PDF link under this, but I'll write them here too.
+
+### The model isn't reliable
+
+While I think the model is good to a certain degree, I don't think it's stable enough compared to a non-black box model. In other words, I don't think this model is production ready for a few reasons:
+
+
+- The model doesn't calculate less popular key counts well
+- The model leans to the Top 50 population, so
+  - The model is bad at calculating easy maps as there's little to no data with regards to deviation in those
+  - The model is bad at matching situations where 2 maps are actually the same difficulty, but due to low interaction, the medians are vastly different.
+  - The model doesn't have enough results for bad deviation situations.
+  - The model seems to be reliably calculating how hard is it to get a very high score (i.e. Varying LN ends are hard to perfect, compared to hard jacks), however, most player's perception of difficulty rating doesn't fall in line with that.
+- The model has very strong bias towards maps that are popular, e.g. Triumph \& Regret, which seems to be heavily affected by this issue
+- Even if the model works, it's hard to explain what happens in the model since the neural network acts like a black-box.
+
+### How to fine-tune the model
+
+I think the main reason of this issue is the \textbf{Assumption of the Top 50}. In other words, we assumed that the Top 50 results' median can be treated like a player. However, this assumption proved to be very disastrous in terms of reliability.
+
+- One way to prevent this is to look at specific player's replays and do the same modelling again, however, we will pivot from the player's perspective.
+- We could have also, instead of looking at Top 50, we would focus on the a specific range of scores (which is painfully annoying to grab from the API), e.g. $ 750000 - 850000$, in which will give us more information on bad deviations instead of  extremely high scores with less bad deviations.
+- We could have dropped the idea of looking at key counts over 7 due to the small amount of data we would have gotten from them. This has created a lot of noise in the model. 
+- We did not take into account in-depth reading difficulty (i.e. how hard is it to read a broken stair compared to a smooth one). If we could've calculated that one reliably, it would've smoothed out the LN map difficulties
+- If we were able to grab Double Time results, it'll double our data, and increased the pool of harder maps, this makes it significantly easier for the machine to rate them.
+
+
+#### [Research Steps (For my own reference)](https://github.com/Eve-ning/ppshift_ml/blob/master/research_tex/main.pdf)
+
+# Results and [Plots](https://github.com/Eve-ning/ppshift_ml/tree/master/out/e50_50_96_48r2_1_24r2_1_s10)
 
 These are the results.
+Lower the score, the better.
+The score is the mean of deviation between the original and actual graph
 p(X) is the percentile
 
 | Score | Metadata                                                                                                            | p15  | p25  | p50   | p75   | p85   |

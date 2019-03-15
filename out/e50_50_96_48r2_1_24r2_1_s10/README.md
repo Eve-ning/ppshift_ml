@@ -1,6 +1,8 @@
 # Results and Plots
 
 These are the results.
+Lower the score, the better.
+The score is the mean of deviation between the original and actual graph
 p(X) is the percentile
 
 | Score | Metadata                                                                                                            | p15  | p25  | p50   | p75   | p85   |
