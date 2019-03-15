@@ -45,14 +45,7 @@ Before we dive into creating a neural network to finalize the calculation, we ne
 
 \subsection{Bad Data Filtering}
 
-One of the biggest problems in the model is how we didn't take into consideration a few things. This stems from ignoring them in the difficulty calculation \textit{from beatmaps}.
-
-\begin{enumerate}
-	\item Scroll Speed Changes
-	\item 8 Key Bias
-\end{enumerate}
-
-So, can we just ignore them?
+One of the biggest problems in the model is how we didn't take into consideration Scroll Speed. This stems from ignoring them in the difficulty calculation \textit{from beatmaps}.
 
 \subsubsection{Scroll Speed Changes}
 
@@ -63,10 +56,6 @@ It's hard to tell specifically which data is affected by the scroll speed change
 This is a subjective issue to tackle. I personally have tried doing an automated rejection of maps that have more than 1 SV or BPM value, however that proved to fail due to maps having intentional scroll speed changes, despite not oriented to be difficult in that aspect.
 
 We will source out these maps manually, it is not a hard task, so it will be worth the effort.
-
-\subsubsection{8 Key Bias}
-
-Unfortunately, this will prove to be a difficult task to work around without scrapping all 8K selections. We will have to go back and sort out all 8K finger allocation. 
 
 \subsection{Drafting the Model}
 
@@ -81,10 +70,5 @@ We will use a custom scoring to find out if the model has done well. It's a simp
 $$\frac{\sum \left(|prediction - actual|\right)}{length(prediction)} = score$$
 
 Where, the score is better if it's closer to 0. We also calculate the \textit{standard deviation} of the absolutes as an extra parameter to reference.
-
-\subsection{Input Shuffling}
-
-After we have calculated our parameters from our maps, we will merge \textbf{all} extracted parameters into one \textit{pickle} file, where we will randomly split our training and test set.
-
 
 \end{document}
