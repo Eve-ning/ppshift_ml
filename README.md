@@ -3,7 +3,7 @@ ppshift is meant to be an overhaul on how analysts look at map difficulty, where
 
 ## Is it good
 
-No, it's not good enough for production, however, feel free to reference this as learning from mistakes
+No, it's not good enough for production, however, feel free to reference this as learning from mistakes. Read **Issues** if you want to know why it failed.
 
 ## Research Steps in a nutshell
 
@@ -21,7 +21,6 @@ The issues are described in the PDF link under this, but I'll write them here to
 ### The model isn't reliable
 
 While I think the model is good to a certain degree, I don't think it's stable enough compared to a non-black box model. In other words, I don't think this model is production ready for a few reasons:
-
 
 - The model doesn't calculate less popular key counts well
 - The model leans to the Top 50 population, so
@@ -41,7 +40,6 @@ I think the main reason of this issue is the \textbf{Assumption of the Top 50}. 
 - We could have dropped the idea of looking at key counts over 7 due to the small amount of data we would have gotten from them. This has created a lot of noise in the model. 
 - We did not take into account in-depth reading difficulty (i.e. how hard is it to read a broken stair compared to a smooth one). If we could've calculated that one reliably, it would've smoothed out the LN map difficulties
 - If we were able to grab Double Time results, it'll double our data, and increased the pool of harder maps, this makes it significantly easier for the machine to rate them.
-
 
 #### [Research Steps (For my own reference)](https://github.com/Eve-ning/ppshift_ml/blob/master/research_tex/main.pdf)
 
