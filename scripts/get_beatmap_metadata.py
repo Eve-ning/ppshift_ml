@@ -20,9 +20,12 @@ def metadata_from_id(beatmap_id: int):
     
     for bm in master_data:
         if (int(bm['beatmap_id']) == beatmap_id):
-            #Colorful Sounds Port - ETERNAL DRAIN(Eternal)
             metadata = bm['artist'] + ' - ' + \
                        bm['title'] + ' (' + \
                        bm['version'] + ') <' + \
                        bm['creator'] + '>'
             return metadata
+
+def metadata_from_filter():
+    #WIP
+    print()

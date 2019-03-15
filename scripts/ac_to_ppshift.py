@@ -171,12 +171,10 @@ def get_rolling(acrv_df: pandas.DataFrame):
 
     return acrv_df
     
-def run(acd: list, acrv: list):
+def run(acd: list, acrv: list = None):
         
-    # Load both dataframes in
     acd_df = pandas.DataFrame(acd, columns = ['offset', 'key'])
-    acrv_df = pandas.DataFrame(acrv, columns = ['offset', 'med_dev'])
-    
+
     # Get strain via weight
     strain = get_strain(get_weights(acd_df))
     
@@ -186,6 +184,11 @@ def run(acd: list, acrv: list):
     # strain + reading Merge
     merge_df1 = pandas.merge(strain, reading, how='inner', on=['offset'])
 
+    if (acrv == None):
+        return merge_df1.to_numpy().tolist()
+    
+    acrv_df = pandas.DataFrame(acrv, columns = ['offset', 'med_dev'])
+    
     # Get rolling mean for acrv
     rolling = get_rolling(acrv_df)
     
@@ -194,4 +197,4 @@ def run(acd: list, acrv: list):
     
     merge_df2 = merge_df2.apply(pandas.to_numeric)
     return merge_df2.to_numpy().tolist()
-        
+

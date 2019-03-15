@@ -8,20 +8,23 @@ import os
 
 class interface_io:
     
-    def __init__(self, beatmap_id: int):
-        self.beatmap_id = beatmap_id
-        self.base_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\"
+    def __init__(self, beatmap_file_name: str, base_dir:str = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\"):
+        self.beatmap_file_name = beatmap_file_name
+        self.base_dir = base_dir
         
     def exist(self, file_type: str) -> bool:
         path_dir = self.base_dir + file_type + '\\'
-        path = path_dir + str(self.beatmap_id) + '.' + file_type
+        path = path_dir + str(self.beatmap_file_name) + '.' + file_type
         
         return True if os.path.isfile(path) else None
 
-    def load(self, file_type: str) -> list:
+    def load(self, file_type: str, custom_folder_name: str=None) -> list:
 
+        if (custom_folder_name == None):
+            custom_folder_name = file_type
+            
         path_dir = self.base_dir + file_type + '\\'
-        path = path_dir + str(self.beatmap_id) + '.' + file_type
+        path = path_dir + str(self.beatmap_file_name) + '.' + file_type
 
         try:
             f = open(path, 'r', encoding='utf-8')
@@ -33,10 +36,14 @@ class interface_io:
             return None
 
 
-    def save(self, file_type: str, data, skip_if_exist: bool):
+    def save(self, file_type: str, data, skip_if_exist: bool, \
+             custom_folder_name: str=None) -> bool:
+
+        if (custom_folder_name == None):
+            custom_folder_name = file_type
         
-        path_dir = self.base_dir + file_type + '\\'
-        path = path_dir + str(self.beatmap_id) + '.' + file_type
+        path_dir = self.base_dir + custom_folder_name + '\\'
+        path = path_dir + str(self.beatmap_file_name) + '.' + file_type
         
         try:
             os.mkdir(path_dir)

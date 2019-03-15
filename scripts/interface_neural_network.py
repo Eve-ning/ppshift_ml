@@ -11,12 +11,13 @@ import keras
 import get_beatmap_metadata
 from keras.wrappers.scikit_learn import KerasRegressor
 from keras.models import load_model as ld_mdl
+import numpy
 import matplotlib.pyplot as plt
 import random
 import re
 import statistics
 
-class model:
+class train_model:
     
     def __init__(self, model_name: str, seed: int = None, training_split: float = 0.8):
         
@@ -116,7 +117,7 @@ class model:
         self._test_model(self.testing_ids, 'results_tst')
         self._test_model(self.training_ids, 'results_trn')
         
-    def _load_model(self) -> KerasRegressor:
+    def _load_model(self):
         
         def dummy():
             return
@@ -166,7 +167,10 @@ class model:
             out = out_o.join(out_p)
             
             # CREATE PLOTS
-            title = get_beatmap_metadata.metadata_from_id(bm_id)['metadata'].values[0]
+            title = get_beatmap_metadata.metadata_from_id(int(bm_id))
+            print(bm_id)
+            print(title)
+            print(type(title))
             title = re.sub('[^\w_.)( -]', '', title)
             out.plot(x='offset', title=title)
             
@@ -175,10 +179,21 @@ class model:
             # Do not display plot in IPython console
             plt.close()
             
+            perc_15 = numpy.percentile(out_p, 15)
+            perc_25 = numpy.percentile(out_p, 25)
+            perc_50 = numpy.percentile(out_p, 50)
+            perc_75 = numpy.percentile(out_p, 75)
+            perc_85 = numpy.percentile(out_p, 85)
+            
             # RATE PLOTS
             out['delta'] = out['pred'].subtract(out['original']).abs()
             log.append(str(out['delta'].mean()) + "\t" + \
-                       get_beatmap_metadata.metadata_from_id(bm_id)['metadata'].values[0])
+                       get_beatmap_metadata.metadata_from_id(int(bm_id)) + \
+                       str(perc_15) + '\t' + \
+                       str(perc_25) + '\t' + \
+                       str(perc_50) + '\t' + \
+                       str(perc_75) + '\t' + \
+                       str(perc_85))
     
             rating_list.append(out['delta'].mean())
             
@@ -214,3 +229,102 @@ class model:
 #     random_test_model(121, model_name)
 #     #test_model( load_model("two_layer"), [1505212], "two_layer_plots")
 # =============================================================================
+
+    def evaluate(self):
+        print()
+        
+    def _eval_model(self, file_path, log_file_name = 'results'):
+        print()
+        
+class eval_model:
+    
+    def __init__(self, model_name: str):
+        self.plot_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\eval\\plots\\" + \
+                        model_name + "_eval\\"
+        self.model_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\neural_network\\models\\"
+        self.ppshift_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\eval\\ppshift\\"
+        # self.csv_path = self.plot_dir + "results.csv"
+        # self.results = pandas.read_csv()
+        self.model_name = model_name
+        self.model = None
+        
+    def evaluate(self):
+        self._load_model()
+        file_names = [x.split('.')[0] for x in os.listdir(self.ppshift_dir)]
+        self._eval_model(file_names)
+        
+    def _load_model(self):
+        
+        def dummy():
+            return
+        model = KerasRegressor(build_fn=dummy, epochs=1, batch_size=10, verbose=1)
+        model.model = ld_mdl(self.model_dir + self.model_name + '.hdf5')
+        
+        self.model = model
+        return 
+    
+    def _eval_model(self, file_names):
+        
+        if (self.model == None):
+            print("No model loaded, either train one or load one")
+            return False
+        
+        # rating_list = []
+        # log = []
+        
+        # Check if plot path is valid
+        try:
+            # Create target Directory
+            os.mkdir(self.plot_dir)
+            print("Plot Directory Created: " + self.plot_dir)
+        except FileExistsError:
+            print("Plot Directory Exists: " + self.plot_dir)
+            
+        
+        for file_name in file_names:
+            
+            title = file_name
+            title = re.sub('[^\w_.)( -]', '', title)
+            
+            if (os.path.isfile(self.plot_dir + title + '.jpg')):
+                print(file_name + " exists, skipping.")
+                continue
+            
+            ppshift_f = open(self.ppshift_dir + file_name + '.ppshift', 'r')
+            # Important: The first 29 results has a 0 output, so we will cut
+            # those results out with splicing.
+            # This is due to the rolling Aggregation
+            ppshift_str = ppshift_f.read().splitlines()[29:]
+            ppshift_f.close()
+            
+            ppshift_df = pandas.DataFrame(list(map(eval, ppshift_str)),\
+                                          columns=['offset','LP','LR','LM','LI','S', \
+                                                   'RI','RM','RR','RP','NN','LNH','LNT'])
+            
+            ds = ppshift_df.values
+            
+            in_ds = ds[:,1:13]
+            
+            out_p = self.model.predict(in_ds, verbose=0)
+
+            out_p = pandas.DataFrame(out_p, columns=['predict'])
+            
+            out = ppshift_df.join(out_p)
+            
+            # CREATE PLOTS
+
+            out.plot(x='offset', y='predict', title=title)
+            
+            # Save plot
+            plt.savefig(self.plot_dir + title + '.jpg')
+            # Do not display plot in IPython console
+            plt.close()
+            
+            # # RATE PLOTS
+            # out['delta'] = out['pred'].subtract(out['original']).abs()
+            # log.append(str(out['delta'].mean()))
+    
+            # rating_list.append(out['delta'].mean())
+            # log_f = open(self.plot_dir + log_file_name + ".txt", "w+")
+            # log_f.write('\n'.join(log))
+            

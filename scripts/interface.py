@@ -8,6 +8,7 @@ Created on Wed Mar 13 18:06:45 2019
 import interface_class
 import api_main
 import interface_neural_network
+import os
 
 
 beatmap_info_path = \
@@ -62,7 +63,7 @@ def parse_ids():
     for bm_id in bm_ids:
         try:
             print('[' + str(counter) + ']', end='\t')
-            bm = interface_class.beatmap(bm_id,True)
+            bm = interface_class.parse_beatmap_id(beatmap_id=bm_id, soft_load_flag=True)
             bm.parse_osu()
         except:
             
@@ -71,8 +72,15 @@ def parse_ids():
         
         counter += 1
         
+def parse_evals():
+    file_list = [x.split('.')[0] for x in os.listdir("D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\eval\\osu\\")]
+    
+    for file in file_list:
+        bm = interface_class.parse_beatmap_file_name(beatmap_file_name=file, soft_load_flag=True)
+        bm.parse_osu()
+        
 def train_model(model_name: str, seed: int = None):
-    nn = interface_neural_network.model(model_name, seed)
+    nn = interface_neural_network.train_model(model_name, seed)
     
     # Model 9
     nn.layer_1_nrns = 96
@@ -82,11 +90,21 @@ def train_model(model_name: str, seed: int = None):
     nn.train(50, 50)
     
 def test_model(model_name: str, seed: int = None):
-    nn = interface_neural_network.model(model_name, seed)
+    nn = interface_neural_network.train_model(model_name, seed)
     nn.test()
+    
+def eval_model(model_name: str):
+    nn = interface_neural_network.eval_model(model_name,)
+    nn.evaluate()
+    return
+
+# download_beatmap_info("20130101","20190313")
+
+# parse_evals()
+# eval_model("e50_50_96_48r2_1_24r2_1_s10")
     
 model_name = "e50_50_96_48r2_1_24r2_1_s10"
 seed = 10
 
-train_model(model_name, seed)
+# train_model(model_name, seed)
 test_model(model_name, seed)

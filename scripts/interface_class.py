@@ -20,7 +20,7 @@ import ac_to_acrv
 import ac_to_ppshift
 import interface_io
 
-class beatmap:
+class parse_beatmap_id:
     
     def __init__(self, beatmap_id: int, soft_load_flag=False):
         
@@ -29,7 +29,7 @@ class beatmap:
                 
         self.io = interface_io.interface_io(beatmap_id)
         
-        # Soft load only gets the file's existance
+        # Soft load only gets the file's existence
         # This is much faster to check if it's done
         self.soft_load()
         
@@ -403,3 +403,219 @@ class beatmap:
 # =============================================================================
         print("[END PARSING] " + self.get_beatmap_metadata())
         return True
+    
+class parse_beatmap_file_name:
+    
+    def __init__(self, beatmap_file_name: str='', beatmap_id: int=0, soft_load_flag=False):
+        
+        self.beatmap_id = beatmap_id
+        self.beatmap_file_name = beatmap_file_name
+        self.soft_load_flag = soft_load_flag
+                
+        self.io = interface_io.interface_io(beatmap_file_name,\
+                                            base_dir = "D:\\Data Documents\\ppshift\\ppshift_ml\\documents\\eval\\")
+        
+        # Soft load only gets the file's existence
+        # This is much faster to check if it's done
+        self.soft_load()
+        
+        # Hard load evaluates the file
+        if (not soft_load_flag):
+            self.hard_load()
+            
+        # We will load params anyway, it's not slow
+        self.params = self.io.load('params')
+        if (self.params):
+            self.params = eval(self.params)
+        if (self.params == None):
+            self.params = {}
+
+    def soft_load(self):
+        self.osu = self.io.exist('osu')
+        self.osuho = self.io.exist('osuho')
+        self.osutp = self.io.exist('osutp')
+        self.acd = self.io.exist('acd')
+        self.ppshift = self.io.exist('ppshift')
+
+    def hard_load(self):
+        self.soft_load_flag=False
+        
+        self.osu = self.io.load('osu')
+        self.osuho = self.io.load('osuho')
+        self.osutp = self.io.load('osutp')
+        self.acd = self.io.load('acd')
+        self.ppshift = self.io.load('ppshift')
+        
+        if (self.osu):
+            self.osu = self.osu.splitlines()
+        if (self.osuho):
+            self.osuho = list(map(eval, self.osuho.splitlines()))
+        if (self.osutp):
+            self.osutp = list(map(eval, self.osutp.splitlines()))
+        if (self.acd):
+            self.acd = list(map(eval, self.acd.splitlines()))
+        if (self.ppshift):
+            self.ppshift = list(map(eval, self.ppshift.splitlines()))  
+     
+    def get_beatmap_metadata(self) -> str:
+        try:
+            metadata_str = \
+            self.params['artist'] + ' - ' + \
+            self.params['title'] + ' (' + \
+            self.params['version'] + ') <' + \
+            self.params['creator'] + '>'
+            return metadata_str
+    
+        except:
+            return "Failed to get metadata, .params is not created."
+                   
+    def all_loaded(self) -> bool:
+        
+        return not (
+                   self.acd == None or \
+                   self.osu == None or \
+                   self.osuho == None or \
+                   self.osutp == None or \
+                   self.params == None or \
+                   self.ppshift == None 
+                   )
+        
+    def parse_osu(self) -> bool:
+        
+        if (self.all_loaded()):
+            print("[SKIP PARSING] " + self.get_beatmap_metadata())
+            return True
+        try:
+            if (self.params['reject'] == True):
+                print("[SKIP PARSING <REJECT>] " + self.get_beatmap_metadata())
+                return True
+        except KeyError:
+            pass
+        
+        if (self.soft_load_flag):
+            print("[FORCING HARD LOAD]")
+            self.hard_load()
+
+        print("[BEGIN PARSING] " + self.get_beatmap_metadata())
+        
+# =============================================================================
+#   API -> .osu
+#   Firstly, we need to download the .osu from the website
+#   We check if it's downloaded already, and skip if it's already done
+#   Download into /osu/ folder
+# 
+#   We are only training the beatmaps here, if they are not on the server
+#   this means we don't have replays for it, so it's impossible to
+#   train them
+# =============================================================================
+        
+        print("[OSU]", end=' ')
+        if (self.osu == None):
+            self.osu = get_osu_from_website.run(self.beatmap_id)
+
+            if (self.osu == None):
+                raise AssertionError('Fail to get .osu from website')
+            
+            self.io.save('osu', '\n'.join(self.osu), True)
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
+        
+# =============================================================================
+#   .osu -> .osuho + .osutp
+#   Extract all relevant information from the .osu file
+#
+#   Hit Object -> .osuho
+#   FORMAT: <initial_offset>, <end_offset>, <column>
+#
+#   Timing Point -> .osutp
+# 	FORMAT: <initial_offset>, <value>, <is_bpm>
+#
+#   General Data -> append to .pkl as metadata for each id
+# =============================================================================
+
+        print("[OSUS]", end=' ')
+        if ((self.osuho == None) or (self.osutp == None)):
+            self.osuho, self.osutp, \
+            self.params['keys'], \
+            self.params['title'], \
+            self.params['artist'], \
+            self.params['creator'], \
+            self.params['version'], \
+            self.params['special_style'] = \
+            osu_to_osus.run(self.osu)
+            
+            if (self.osuho == None):
+                raise AssertionError('Fail to read Hit Object from .osu')
+            elif (self.osutp == None):
+                raise AssertionError('Fail to read Timing Point from .osu')
+            elif (self.params['keys'] == None): 
+                raise AssertionError('Fail to read Keys from .osu')
+            elif (self.params['title'] == None):
+                raise AssertionError('Fail to read Title from .osu')
+            elif (self.params['artist'] == None):
+                raise AssertionError('Fail to read Artist from .osu')
+            elif (self.params['creator'] == None):
+                raise AssertionError('Fail to read Creator from .osu')
+            elif (self.params['version'] == None):
+                raise AssertionError('Fail to read Version from .osu')
+            elif (self.params['special_style'] == None):
+                raise AssertionError('Fail to read Special Style from .osu')
+            
+            osuho_str = '\n'.join(list(map(str, self.osuho)))
+            osutp_str = '\n'.join(list(map(str, self.osutp)))
+            self.io.save('osuho', osuho_str, True)
+            self.io.save('osutp', osutp_str, True)
+            self.io.save('params', str(self.params), True)
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
+
+# =============================================================================
+#   .osuho -> .acd
+#   For this function, we will need to map the columns to the actual
+#   fingering of the key_count
+#   This will group by offset
+#   FORMAT: <offset>, <action>
+#   For the keys,
+#       X = press key X,
+#       -X = release key X,
+#       0 = nothing
+#            
+#   This is also where we correct the 8K Bias, it's a separate mapping compared
+#   to the generic 8k model
+# =============================================================================
+
+        print("[ACD]", end=' ')
+        if (self.acd == None):
+            self.acd = osuho_to_acd.run(self.osuho, self.params['keys'], \
+                                        self.params['special_style'])
+            if (self.acd == None):
+                raise AssertionError('Fail to convert Hit Objects to Action Difficulty')
+            
+            acd_str = '\n'.join(list(map(str, self.acd)))
+            
+            self.io.save('acd', acd_str, True)
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
+            
+# =============================================================================
+#   .acd + .acrv -> .ppshift
+#   Gets all required parameters from the beatmap and replay to prepare
+#   for neural network learning    
+# =============================================================================
+ 
+        print("[PPSHIFT]", end=' ')
+        if (self.ppshift == None):
+            self.ppshift = ac_to_ppshift.run(self.acd)
+            if (self.ppshift == None):
+                raise AssertionError('Fail to convert Actions to PPShift')
+
+            ppshift_str = '\n'.join(list(map(str, self.ppshift)))
+
+            self.io.save('ppshift', ppshift_str, True)   
+            print("[CREATED]")
+        else:
+            print("[EXISTS]")
+            
