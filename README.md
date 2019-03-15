@@ -11,6 +11,8 @@ No, it's not good enough for production, however, feel free to reference this as
 - Match the replays to beatmaps
 - Parse Beatmaps, deconstructing them into small parameters
 - Teach the machine that the pattern at a certain offset results in player X performing well/badly
+- Score the results, and fine tune until it's the best
+- Evaluate
 
 ## Issues
 
