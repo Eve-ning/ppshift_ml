@@ -133,6 +133,8 @@ scor_medn_metadata
 
 \end{lstlisting}
 
+There are more results in the GitHub Repo.
+
 \section{Conclusion}
 
 \subsection{The model isn't reliable}
@@ -146,6 +148,7 @@ While I think the model is good to a certain degree, I don't think it's stable e
 		\item The model is bad at calculating easy maps as there's little to no data with regards to deviation in those
 		\item The model is bad at matching situations where 2 maps are actually the same difficulty, but due to low interaction, the medians are vastly different.
 		\item The model doesn't have enough results for bad deviation situations.
+		\item The model seems to be reliably calculating how hard is it to get a very high score (i.e. Varying LN ends are hard to perfect, compared to hard jacks), however, most player's perception of difficulty rating doesn't fall in line with that.
 	\end{enumerate}
 	\item The model has very strong bias towards maps that are popular, e.g. Triumph \& Regret, which seems to be heavily affected by this issue
 	\item Even if the model works, it's hard to explain what happens in the model since the neural network acts like a black-box.
@@ -157,11 +160,10 @@ I think the main reason of this issue is the \textbf{Assumption of the Top 50}. 
 
 \begin{enumerate}
 	\item One way to prevent this is to look at specific player's replays and do the same modelling again, however, we will pivot from the player's perspective.
-	\item We could have also, instead of looking at Top 50, we would focus on the a specific range of scores (which is painfully annoying to grab from the API), e.g. $ 750000 ~ 850000$, in which will give us more information on bad deviations instead of  extremely high scores with less bad deviations.
+	\item We could have also, instead of looking at Top 50, we would focus on the a specific range of scores (which is painfully annoying to grab from the API), e.g. $ 750000 - 850000$, in which will give us more information on bad deviations instead of  extremely high scores with less bad deviations.
 	\item We could have dropped the idea of looking at key counts over 7 due to the small amount of data we would have gotten from them. This has created a lot of noise in the model. 
+	\item We did not take into account in-depth reading difficulty (i.e. how hard is it to read a broken stair compared to a smooth one). If we could've calculated that one reliably, it would've smoothed out the LN map difficulties
+	\item If we were able to grab Double Time results, it'll double our data, and increased the pool of harder maps, this makes it significantly easier for the machine to rate them.
 \end{enumerate}
-
-
-
 
 \end{document}
