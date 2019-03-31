@@ -33,10 +33,10 @@ While I think the model is good to a certain degree, I don't think it's stable e
 
 ### How to fine-tune the model
 
-I think the main reason of this issue is the \textbf{Assumption of the Top 50}. In other words, we assumed that the Top 50 results' median can be treated like a player. However, this assumption proved to be very disastrous in terms of reliability.
+I think the main reason of this issue is the **Assumption of the Top 50**. In other words, we assumed that the Top 50 results' median can be treated like a player. However, this assumption proved to be very disastrous in terms of reliability.
 
 - One way to prevent this is to look at specific player's replays and do the same modelling again, however, we will pivot from the player's perspective.
-- We could have also, instead of looking at Top 50, we would focus on the a specific range of scores (which is painfully annoying to grab from the API), e.g. $ 750000 - 850000$, in which will give us more information on bad deviations instead of  extremely high scores with less bad deviations.
+- We could have also, instead of looking at Top 50, we would focus on the a specific range of scores (which is painfully annoying to grab from the API), e.g. 750000 - 850000, in which will give us more information on bad deviations instead of  extremely high scores with less bad deviations.
 - We could have dropped the idea of looking at key counts over 7 due to the small amount of data we would have gotten from them. This has created a lot of noise in the model. 
 - We did not take into account in-depth reading difficulty (i.e. how hard is it to read a broken stair compared to a smooth one). If we could've calculated that one reliably, it would've smoothed out the LN map difficulties
 - If we were able to grab Double Time results, it'll double our data, and increased the pool of harder maps, this makes it significantly easier for the machine to rate them.
